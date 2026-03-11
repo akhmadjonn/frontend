@@ -1,0 +1,74 @@
+{
+  "common": {
+    "loading": "Юкланмоқда...",
+    "error": "Хатолик юз берди",
+    "retry": "Қайта уриниш",
+    "save": "Сақлаш",
+    "cancel": "Бекор қилиш",
+    "delete": "Ўчириш",
+    "edit": "Таҳрирлаш",
+    "create": "Яратиш",
+    "search": "Қидириш",
+    "back": "Орқага",
+    "next": "Кейинги",
+    "previous": "Олдинги",
+    "submit": "Юбориш",
+    "confirm": "Тасдиқлаш",
+    "yes": "Ҳа",
+    "no": "Йўқ"
+  },
+  "auth": {
+    "login": "Кириш",
+    "logout": "Чиқиш",
+    "phoneNumber": "Телефон рақам",
+    "enterPhone": "Телефон рақамингизни киритинг",
+    "sendOtp": "Код юбориш",
+    "enterOtp": "СМС кодни киритинг",
+    "verify": "Тасдиқлаш",
+    "resendIn": "Қайта юбориш: {seconds}с",
+    "resend": "Қайта юбориш",
+    "loginWithTelegram": "Телеграм орқали кириш"
+  },
+  "nav": {
+    "dashboard": "Бош саҳифа",
+    "practice": "Машқ",
+    "exam": "Имтиҳон",
+    "progress": "Прогресс",
+    "subscription": "Обуна",
+    "settings": "Созламалар"
+  },
+  "exam": {
+    "start": "Имтиҳонни бошлаш",
+    "startExam": "Имтиҳон",
+    "startTicket": "Билет",
+    "startMarathon": "Марафон",
+    "selectTicket": "Билет танланг",
+    "ticketNumber": "Билет №{number}",
+    "marathon": "Барча саволлар",
+    "marathonDesc": "Таймер йўқ, жараённи сақлаш мумкин",
+    "timeLeft": "Қолган вақт",
+    "question": "Савол",
+    "of": "/",
+    "finish": "Якунлаш",
+    "passed": "Ўтдингиз!",
+    "failed": "Ўта олмадингиз",
+    "score": "Балл",
+    "correct": "Тўғри",
+    "wrong": "Нотўғри",
+    "result": "Натижа",
+    "resumeMarathon": "Марафонни давом эттириш"
+  },
+  "practice": {
+    "title": "Машқ қилиш",
+    "selectCategory": "Категория танланг",
+    "dueForReview": "Такрорлаш керак",
+    "newQuestions": "Янги саволлар"
+  },
+  "subscription": {
+    "plans": "Обуна режалари",
+    "subscribe": "Обуна бўлиш",
+    "active": "Фаол",
+    "expired": "Муддати тугаган",
+    "perMonth": "/ой"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "common": {
+    "loading": "Yuklanmoqda...",
+    "error": "Xatolik yuz berdi",
+    "retry": "Qayta urinish",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "delete": "O'chirish",
+    "edit": "Tahrirlash",
+    "create": "Yaratish",
+    "search": "Qidirish",
+    "back": "Orqaga",
+    "next": "Keyingi",
+    "previous": "Oldingi",
+    "submit": "Yuborish",
+    "confirm": "Tasdiqlash",
+    "yes": "Ha",
+    "no": "Yo'q"
+  },
+  "auth": {
+    "login": "Kirish",
+    "logout": "Chiqish",
+    "phoneNumber": "Telefon raqam",
+    "enterPhone": "Telefon raqamingizni kiriting",
+    "sendOtp": "Kod yuborish",
+    "enterOtp": "SMS kodni kiriting",
+    "verify": "Tasdiqlash",
+    "resendIn": "Qayta yuborish: {seconds}s",
+    "resend": "Qayta yuborish",
+    "loginWithTelegram": "Telegram orqali kirish"
+  },
+  "nav": {
+    "dashboard": "Bosh sahifa",
+    "practice": "Mashq",
+    "exam": "Imtihon",
+    "progress": "Progress",
+    "subscription": "Obuna",
+    "settings": "Sozlamalar"
+  },
+  "exam": {
+    "start": "Imtihonni boshlash",
+    "startExam": "Imtihon",
+    "startTicket": "Bilet",
+    "startMarathon": "Maraton",
+    "selectTicket": "Bilet tanlang",
+    "ticketNumber": "Bilet #{number}",
+    "marathon": "Barcha savollar",
+    "marathonDesc": "Taymer yo'q, jarayonni saqlash mumkin",
+    "timeLeft": "Qolgan vaqt",
+    "question": "Savol",
+    "of": "/",
+    "finish": "Yakunlash",
+    "passed": "O'tdingiz!",
+    "failed": "O'ta olmadingiz",
+    "score": "Ball",
+    "correct": "To'g'ri",
+    "wrong": "Noto'g'ri",
+    "result": "Natija",
+    "resumeMarathon": "Maratonni davom ettirish"
+  },
+  "practice": {
+    "title": "Mashq qilish",
+    "selectCategory": "Kategoriya tanlang",
+    "dueForReview": "Takrorlash kerak",
+    "newQuestions": "Yangi savollar"
+  },
+  "subscription": {
+    "plans": "Obuna rejalari",
+    "subscribe": "Obuna bo'lish",
+    "active": "Faol",
+    "expired": "Muddati tugagan",
+    "perMonth": "/oy"
+  }
+}

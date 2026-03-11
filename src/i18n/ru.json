@@ -1,0 +1,74 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Произошла ошибка",
+    "retry": "Повторить",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "create": "Создать",
+    "search": "Поиск",
+    "back": "Назад",
+    "next": "Далее",
+    "previous": "Предыдущий",
+    "submit": "Отправить",
+    "confirm": "Подтвердить",
+    "yes": "Да",
+    "no": "Нет"
+  },
+  "auth": {
+    "login": "Войти",
+    "logout": "Выйти",
+    "phoneNumber": "Номер телефона",
+    "enterPhone": "Введите номер телефона",
+    "sendOtp": "Отправить код",
+    "enterOtp": "Введите код из SMS",
+    "verify": "Подтвердить",
+    "resendIn": "Повторная отправка: {seconds}с",
+    "resend": "Отправить заново",
+    "loginWithTelegram": "Войти через Telegram"
+  },
+  "nav": {
+    "dashboard": "Главная",
+    "practice": "Практика",
+    "exam": "Экзамен",
+    "progress": "Прогресс",
+    "subscription": "Подписка",
+    "settings": "Настройки"
+  },
+  "exam": {
+    "start": "Начать экзамен",
+    "startExam": "Экзамен",
+    "startTicket": "Билет",
+    "startMarathon": "Марафон",
+    "selectTicket": "Выберите билет",
+    "ticketNumber": "Билет №{number}",
+    "marathon": "Все вопросы",
+    "marathonDesc": "Без таймера, прогресс сохраняется",
+    "timeLeft": "Осталось времени",
+    "question": "Вопрос",
+    "of": "/",
+    "finish": "Завершить",
+    "passed": "Вы сдали!",
+    "failed": "Вы не сдали",
+    "score": "Баллы",
+    "correct": "Правильно",
+    "wrong": "Неправильно",
+    "result": "Результат",
+    "resumeMarathon": "Продолжить марафон"
+  },
+  "practice": {
+    "title": "Практика",
+    "selectCategory": "Выберите категорию",
+    "dueForReview": "Нужно повторить",
+    "newQuestions": "Новые вопросы"
+  },
+  "subscription": {
+    "plans": "Тарифные планы",
+    "subscribe": "Подписаться",
+    "active": "Активная",
+    "expired": "Истекла",
+    "perMonth": "/мес"
+  }
+}
