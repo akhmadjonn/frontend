@@ -7,7 +7,7 @@ interface User {
   lastName: string | null;
   role: 'user' | 'admin';
   subscriptionStatus: 'none' | 'active' | 'expired' | 'cancelled';
-  preferredLanguage: 'uz' | 'ru';
+  preferredLanguage: 'uz' | 'uzLatin' | 'ru';
 }
 
 interface AuthState {
