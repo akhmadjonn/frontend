@@ -17,8 +17,10 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
 
   useEffect(() => { setMounted(true); }, []);
 
+  const userLoading = isAuthenticated && !user;
+
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || userLoading) return;
     if (!isAuthenticated) {
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
@@ -26,9 +28,9 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
     if (requireAdmin && user?.role !== 'admin') {
       router.replace('/dashboard');
     }
-  }, [mounted, isAuthenticated, user, requireAdmin, router, pathname]);
+  }, [mounted, isAuthenticated, user, userLoading, requireAdmin, router, pathname]);
 
-  if (!mounted) return null;
+  if (!mounted || userLoading) return null;
   if (!isAuthenticated) return null;
   if (requireAdmin && user?.role !== 'admin') return null;
 
