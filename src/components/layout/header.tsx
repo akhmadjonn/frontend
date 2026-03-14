@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
-import { useLocaleStore } from '@/stores/locale-store';
+import { useLocaleStore, useLocaleHydration } from '@/stores/locale-store';
 import { apiClient } from '@/lib/api-client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ export default function Header() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  useLocaleHydration();
   const language = useLocaleStore((s) => s.language);
   const setLanguage = useLocaleStore((s) => s.setLanguage);
 

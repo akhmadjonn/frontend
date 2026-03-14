@@ -55,7 +55,6 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
     <div className="grid gap-2 sm:grid-cols-2">
       {categories.map((cat) => {
         const perf = getPerf(cat.id);
-        const progress = perf ? Math.round((perf.questionsPracticed / Math.max(perf.questionsInCategory, 1)) * 100) : 0;
         const accuracy = perf ? Math.round(perf.accuracy) : 0;
 
         return (
@@ -73,13 +72,13 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
                   <p className="text-sm font-medium truncate">{t(cat.name)}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${progress}%` }} />
+                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${accuracy}%` }} />
                     </div>
-                    <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">{progress}%</span>
+                    <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">{accuracy}%</span>
                   </div>
                   {perf && perf.totalAttempts > 0 && (
                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {accuracy}% aniqlik · {perf.questionsPracticed}/{perf.questionsInCategory}
+                      {perf.questionsPracticed}/{perf.questionsInCategory} savol
                     </p>
                   )}
                 </div>

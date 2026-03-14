@@ -1,7 +1,6 @@
 'use client';
 
 import { memo } from 'react';
-import Image from 'next/image';
 import { useLocaleStore } from '@/stores/locale-store';
 import AnswerOption from './answer-option';
 
@@ -50,14 +49,11 @@ export default memo(function QuestionCard({ question, questionNumber, totalQuest
       <div className="rounded-xl bg-muted/30 p-4">
         <p className="text-base font-medium leading-relaxed">{questionText}</p>
         {hasQuestionImage && (
-          <div className="relative mt-3 h-48 w-full overflow-hidden rounded-lg">
-            <Image
+          <div className="mt-3 overflow-hidden rounded-lg">
+            <img
               src={question.imageUrl!}
               alt={questionText}
-              fill
-              className="object-contain"
-              sizes="(max-width: 768px) 100vw, 600px"
-              priority
+              className="h-48 w-full object-contain"
             />
           </div>
         )}

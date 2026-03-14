@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import Image from 'next/image';
 import { useLocaleStore } from '@/stores/locale-store';
 import { cn } from '@/lib/utils';
 import { Check, Box } from 'lucide-react';
@@ -66,8 +65,8 @@ export default function PracticeQuestion({
       <div className="rounded-xl bg-muted/30 p-4">
         <p className="text-base font-medium leading-relaxed">{questionText}</p>
         {question.imageUrl && (
-          <div className="relative mt-3 h-48 w-full overflow-hidden rounded-lg">
-            <Image src={question.imageUrl} alt={questionText} fill className="object-contain" sizes="(max-width: 768px) 100vw, 600px" priority />
+          <div className="mt-3 overflow-hidden rounded-lg">
+            <img src={question.imageUrl} alt={questionText} className="h-48 w-full object-contain" />
           </div>
         )}
       </div>
@@ -96,8 +95,8 @@ export default function PracticeQuestion({
               )}
             >
               {option.imageUrl && (
-                <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded">
-                  <Image src={option.imageUrl} alt={text} fill className="object-cover" sizes="96px" />
+                <div className="h-16 w-24 shrink-0 overflow-hidden rounded">
+                  <img src={option.imageUrl} alt={text} className="h-full w-full object-cover" />
                 </div>
               )}
               <span className="flex-1 leading-snug">{text}</span>

@@ -1,7 +1,6 @@
 'use client';
 
 import { memo } from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 
@@ -40,8 +39,8 @@ export default memo(function AnswerOption({ option, selected, onSelect, disabled
       )}
     >
       {hasImage ? (
-        <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded">
-          <Image src={option.imageUrl!} alt={text} fill className="object-cover" sizes="96px" />
+        <div className="h-16 w-24 shrink-0 overflow-hidden rounded">
+          <img src={option.imageUrl!} alt={text} className="h-full w-full object-cover" />
         </div>
       ) : null}
 

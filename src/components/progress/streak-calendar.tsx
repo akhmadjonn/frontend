@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -17,10 +17,7 @@ interface StreakCalendarProps {
   days?: number;
 }
 
-export default function StreakCalendar({ data, loading, days = 90 }: StreakCalendarProps) {
-  if (loading)
-    return <Card><CardContent className="p-4"><Skeleton className="h-28 w-full" /></CardContent></Card>;
-
+function StreakCalendar({ data, loading, days = 90 }: StreakCalendarProps) {
   const cells = useMemo(() => {
     const today = new Date();
     const activityMap = new Map<string, StreakDay>();
@@ -42,6 +39,9 @@ export default function StreakCalendar({ data, loading, days = 90 }: StreakCalen
     }
     return result;
   }, [data, days]);
+
+  if (loading)
+    return <Card><CardContent className="p-4"><Skeleton className="h-28 w-full" /></CardContent></Card>;
 
   const LEVEL_COLORS = [
     'bg-muted',
@@ -100,3 +100,5 @@ export default function StreakCalendar({ data, loading, days = 90 }: StreakCalen
     </Card>
   );
 }
+
+export default memo(StreakCalendar);

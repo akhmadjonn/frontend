@@ -7,7 +7,7 @@ import PhoneInput from '@/components/auth/phone-input';
 import TelegramLoginButton from '@/components/auth/telegram-login-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLocaleStore } from '@/stores/locale-store';
+import { useLocaleStore, useLocaleHydration } from '@/stores/locale-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { apiClient } from '@/lib/api-client';
 import { phoneSchema } from '@/lib/validators';
@@ -27,6 +27,7 @@ const T = {
 
 export default function LoginPage() {
   const router = useRouter();
+  useLocaleHydration();
   const { language, setLanguage } = useLocaleStore();
   const login = useAuthStore((s) => s.login);
   const [phone, setPhone] = useState('998');
