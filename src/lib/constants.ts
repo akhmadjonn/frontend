@@ -1,7 +1,7 @@
 export const APP_NAME = 'AutoTest';
 export const EXAM_QUESTION_COUNT = 20;
-export const EXAM_TIME_MINUTES = 25;
-export const EXAM_PASSING_SCORE = 18;
+export const EXAM_TIME_MINUTES = 20;
+export const EXAM_PASSING_SCORE = 80; // percentage
 export const OTP_LENGTH = 6;
 export const OTP_RESEND_SECONDS = 60;
 export const PHONE_PREFIX = '998';

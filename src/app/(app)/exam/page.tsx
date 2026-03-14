@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GraduationCap, Hash, Trophy, Clock, Timer, AlertTriangle, Play, Trash2 } from 'lucide-react';
-import { EXAM_QUESTION_COUNT, EXAM_PASSING_SCORE } from '@/lib/constants';
+import { EXAM_QUESTION_COUNT, EXAM_PASSING_SCORE, EXAM_TIME_MINUTES } from '@/lib/constants';
 import Link from 'next/link';
 
 type ExamMode = 'exam' | 'ticket' | 'marathon';
@@ -180,8 +180,8 @@ export default function ExamPage() {
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><Hash className="h-3.5 w-3.5" />{EXAM_QUESTION_COUNT} savol</span>
-              <span className="flex items-center gap-1"><Timer className="h-3.5 w-3.5" />25 daqiqa</span>
-              <span className="flex items-center gap-1"><Trophy className="h-3.5 w-3.5" />O&apos;tish: {EXAM_PASSING_SCORE}/{EXAM_QUESTION_COUNT}</span>
+              <span className="flex items-center gap-1"><Timer className="h-3.5 w-3.5" />{EXAM_TIME_MINUTES} daqiqa</span>
+              <span className="flex items-center gap-1"><Trophy className="h-3.5 w-3.5" />O&apos;tish: {EXAM_PASSING_SCORE}%</span>
             </div>
             <Button className="w-full" onClick={() => handleStart('exam')} disabled={loading !== null || hasActive}>
               {loading === 'exam' ? 'Yuklanmoqda...' : 'Imtihonni boshlash'}

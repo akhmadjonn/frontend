@@ -2,8 +2,6 @@
 
 import { cn } from '@/lib/utils';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { EXAM_PASSING_SCORE } from '@/lib/constants';
-
 interface ExamResultSummaryProps {
   score: number;
   correctAnswers: number;
@@ -55,7 +53,7 @@ export default function ExamResultSummary({ score, correctAnswers, totalQuestion
           <p className="text-muted-foreground">Vaqt</p>
         </div>
         <div className="text-center">
-          <p className="text-lg font-bold">{passingScore}</p>
+          <p className="text-lg font-bold">{passingScore}%</p>
           <p className="text-muted-foreground">O'tish bali</p>
         </div>
       </div>
