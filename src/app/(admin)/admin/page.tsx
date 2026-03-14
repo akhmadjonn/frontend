@@ -1,7 +1,198 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { apiClient } from '@/lib/api-client';
+import type { AdminDashboardDto, RevenueReportDto } from '@/types/admin';
+import StatCard from '@/components/admin/stat-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Users, FileQuestion, GraduationCap, DollarSign } from 'lucide-react';
+import { toast } from 'sonner';
+import { formatDistanceToNow } from 'date-fns';
+
+const RevenueChart = dynamic(() => import('@/components/admin/revenue-chart'), {
+  ssr: false,
+  loading: () => <Skeleton className="h-64 w-full" />,
+});
+
+const formatMoney = (tiyins: number) =>
+  `${(tiyins / 100).toLocaleString('uz-UZ')} so'm`;
+
+const EXAM_MODE_LABELS: Record<string, string> = {
+  Exam: 'Imtihon',
+  Ticket: 'Bilet',
+  Marathon: 'Maraton',
+};
+
 export default function AdminDashboardPage() {
+  const [dashboard, setDashboard] = useState<AdminDashboardDto | null>(null);
+  const [revenue, setRevenue] = useState<RevenueReportDto | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [dashData, revData] = await Promise.all([
+          apiClient.get<AdminDashboardDto>('/admin/dashboard'),
+          apiClient.get<RevenueReportDto>('/admin/payments/revenue'),
+        ]);
+        setDashboard(dashData);
+        setRevenue(revData);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Dashboard yuklanmadi');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+
+      {/* Stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Foydalanuvchilar"
+          value={loading ? 0 : dashboard?.totalUsers.toLocaleString() ?? '0'}
+          icon={Users}
+          description={`+${dashboard?.newUsersThisWeek ?? 0} shu hafta`}
+          loading={loading}
+        />
+        <StatCard
+          title="Faol savollar"
+          value={loading ? 0 : dashboard?.activeQuestions.toLocaleString() ?? '0'}
+          icon={FileQuestion}
+          description={`${dashboard?.totalQuestions.toLocaleString() ?? 0} jami`}
+          loading={loading}
+        />
+        <StatCard
+          title="Imtihon sessiyalari"
+          value={loading ? 0 : dashboard?.totalExamSessions.toLocaleString() ?? '0'}
+          icon={GraduationCap}
+          description={`${dashboard?.activeSubscriptions ?? 0} faol obuna`}
+          loading={loading}
+        />
+        <StatCard
+          title="Daromad"
+          value={loading ? 0 : formatMoney(dashboard?.totalRevenue ?? 0)}
+          icon={DollarSign}
+          description={`${dashboard?.activeSubscriptions ?? 0} faol obuna`}
+          loading={loading}
+        />
+      </div>
+
+      {/* Revenue chart + exam mode breakdown */}
+      <div className="grid gap-4 lg:grid-cols-7">
+        <Card className="lg:col-span-4">
+          <CardHeader>
+            <CardTitle>Kunlik daromad</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RevenueChart data={revenue?.dailyBreakdown} loading={loading} />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-3">
+          <CardHeader>
+            <CardTitle>Imtihon turlari</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-12" />
+                  </div>
+                ))}
+              </div>
+            ) : !dashboard?.examModeBreakdown.length ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                Ma&apos;lumot topilmadi
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {dashboard.examModeBreakdown.map((item) => {
+                  const total = dashboard.examModeBreakdown.reduce((s, m) => s + m.count, 0);
+                  const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+
+                  return (
+                    <div key={item.mode} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">
+                          {EXAM_MODE_LABELS[item.mode] ?? item.mode}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {item.count.toLocaleString()} ({pct}%)
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-chart-1 transition-all"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent users */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Yangi foydalanuvchilar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                  <div className="flex-1 space-y-1">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : !dashboard?.recentUsers.length ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              Foydalanuvchilar topilmadi
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {dashboard.recentUsers.map((user) => (
+                <div key={user.id} className="flex items-center gap-3 rounded-lg border p-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                    {(user.firstName ?? user.phoneNumber ?? '?')[0].toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {user.firstName ?? user.phoneNumber ?? 'Noma\'lum'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                    </p>
+                  </div>
+                  {user.phoneNumber && (
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      {user.phoneNumber}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
