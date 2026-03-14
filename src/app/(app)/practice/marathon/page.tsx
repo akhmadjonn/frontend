@@ -1,7 +1,16 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+// Marathon is handled via the exam flow (StartMarathon endpoint)
+// Redirect to exam page with marathon mode hint
 export default function MarathonPage() {
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold">Maraton</h1>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/exam');
+  }, [router]);
+
+  return null;
 }

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 
-interface AccuracyDataPoint { date: string; accuracy: number; }
+interface AccuracyDataPoint { date: string; accuracy: number; questionCount?: number; }
 interface AccuracyChartProps { data?: AccuracyDataPoint[]; loading?: boolean; }
 
 export default function AccuracyChart({ data, loading }: AccuracyChartProps) {
