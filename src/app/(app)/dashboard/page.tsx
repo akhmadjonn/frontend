@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/stores/auth-store';
-import { apiClient } from '@/lib/api-client';
+import { useDashboardStore } from '@/stores/dashboard-store';
 import StatsCards from '@/components/progress/stats-cards';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,39 +23,11 @@ const CategoryRadar = dynamic(() => import('@/components/progress/category-radar
   loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
 });
 
-interface DashboardData {
-  totalQuestionsPracticed: number;
-  totalExamsTaken: number;
-  averageExamScore: number;
-  currentStreak: number;
-  dueForReview: number;
-  questionsAnsweredToday: number;
-  examPassRate: number;
-  recentExams: Array<{ examId: string; score: number; passed: boolean; completedAt: string }>;
-  accuracyOverTime: Array<{ date: string; accuracy: number }>;
-}
-
-interface CategoryData {
-  categoryId: string;
-  categoryName: { uz: string; uzLatin: string; ru: string };
-  accuracy: number;
-}
-
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [categories, setCategories] = useState<CategoryData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { dashboard, categories, loading, fetch } = useDashboardStore();
 
-  useEffect(() => {
-    Promise.all([
-      apiClient.get<DashboardData>('/progress/dashboard'),
-      apiClient.get<CategoryData[]>('/progress/categories'),
-    ])
-      .then(([dash, cats]) => { setDashboard(dash); setCategories(cats); })
-      .catch(() => { /* show empty state */ })
-      .finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -83,7 +55,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} />
-        <CategoryRadar data={categories} loading={loading} />
+        <CategoryRadar data={categories ?? []} loading={loading} />
       </div>
 
       <Card>

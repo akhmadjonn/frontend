@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { apiClient } from '@/lib/api-client';
 import { useLocale } from '@/hooks/use-locale';
+import { useDashboardStore } from '@/stores/dashboard-store';
 import StatsCards from '@/components/progress/stats-cards';
 import StreakCalendar from '@/components/progress/streak-calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,48 +20,16 @@ const CategoryRadar = dynamic(() => import('@/components/progress/category-radar
   loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
 });
 
-interface DashboardData {
-  totalQuestionsPracticed: number;
-  totalExamsTaken: number;
-  averageExamScore: number;
-  currentStreak: number;
-  dueForReview: number;
-  questionsAnsweredToday: number;
-  examPassRate: number;
-  recentExams: Array<{ examId: string; score: number; passed: boolean; completedAt: string }>;
-  accuracyOverTime: Array<{ date: string; accuracy: number; questionCount?: number }>;
-}
-
-interface CategoryPerformance {
-  categoryId: string;
-  categoryName: { uz: string; uzLatin: string; ru: string };
-  totalAttempts: number;
-  correctAttempts: number;
-  accuracy: number;
-  questionsInCategory: number;
-  questionsPracticed: number;
-}
-
 type SortKey = 'name' | 'accuracy' | 'progress' | 'attempts';
 type SortDir = 'asc' | 'desc';
 
 export default function ProgressPage() {
   const { t } = useLocale();
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [categories, setCategories] = useState<CategoryPerformance[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { dashboard, categories, loading, fetch } = useDashboardStore();
   const [sortKey, setSortKey] = useState<SortKey>('accuracy');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
-  useEffect(() => {
-    Promise.all([
-      apiClient.get<DashboardData>('/progress/dashboard'),
-      apiClient.get<CategoryPerformance[]>('/progress/categories'),
-    ])
-      .then(([dash, cats]) => { setDashboard(dash); setCategories(cats); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => d === 'asc' ? 'desc' : 'asc');
@@ -69,7 +37,7 @@ export default function ProgressPage() {
   };
 
   const sortedCategories = useMemo(() => {
-    const sorted = [...categories];
+    const sorted = [...(categories ?? [])];
     sorted.sort((a, b) => {
       let cmp = 0;
       switch (sortKey) {
@@ -128,7 +96,7 @@ export default function ProgressPage() {
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
         <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} />
-        <CategoryRadar data={categories} loading={loading} />
+        <CategoryRadar data={categories ?? []} loading={loading} />
       </div>
 
       {/* Streak calendar */}
@@ -142,7 +110,7 @@ export default function ProgressPage() {
         <CardContent className="pt-0">
           {loading ? (
             <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
-          ) : categories.length === 0 ? (
+          ) : !categories?.length ? (
             <p className="text-sm text-muted-foreground py-4 text-center">Ma&apos;lumot yo&apos;q</p>
           ) : (
             <div className="overflow-x-auto">
