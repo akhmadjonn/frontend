@@ -94,7 +94,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3">
                     <GraduationCap className="h-4 w-4 text-muted-foreground shrink-0" />
                     <div>
-                      <p className="text-sm font-medium">{exam.score}/20 ball</p>
+                      <p className="text-sm font-medium">{exam.score}% ball</p>
                       <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(exam.completedAt), { addSuffix: true })}</p>
                     </div>
                   </div>

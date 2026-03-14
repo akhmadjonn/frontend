@@ -34,7 +34,7 @@ export default function LoginPage() {
   const [phoneError, setPhoneError] = useState('');
 
   const texts = T[language] ?? T.uzLatin;
-  const botName = process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME ?? 'avtolider_bot';
+  const botName = process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME ?? 'avtolider_test_bot';
 
   const handleSendOtp = async () => {
     const result = phoneSchema.safeParse(phone);
@@ -42,7 +42,7 @@ export default function LoginPage() {
     setPhoneError('');
     setLoading(true);
     try {
-      await apiClient.post('/auth/send-otp', { phoneNumber: phone });
+      await apiClient.post('/auth/otp/send', { phoneNumber: phone });
       sessionStorage.setItem('otp_phone', phone);
       router.push('/verify');
     } catch (err: unknown) {
@@ -54,10 +54,13 @@ export default function LoginPage() {
 
   const handleTelegramAuth = async (user: { id: number; first_name: string; last_name?: string; username?: string; photo_url?: string; auth_date: number; hash: string }) => {
     try {
-      const data = await apiClient.post<{ accessToken: string; refreshToken: string; user: { id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; subscriptionStatus: 'none' | 'active' | 'expired' | 'cancelled'; preferredLanguage: 'uz' | 'uzLatin' | 'ru' } }>('/auth/telegram-login', {
+      const tokens = await apiClient.post<{ accessToken: string; refreshToken: string; isNewUser: boolean }>('/auth/telegram', {
         id: user.id, firstName: user.first_name, lastName: user.last_name ?? null, username: user.username ?? null, photoUrl: user.photo_url ?? null, authDate: user.auth_date, hash: user.hash,
       });
-      login(data.accessToken, data.refreshToken, data.user);
+      localStorage.setItem('accessToken', tokens.accessToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+      const profile = await apiClient.get<{ id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; hasActiveSubscription: boolean; preferredLanguage: 'uz' | 'uzLatin' | 'ru' }>('/auth/me');
+      login(tokens.accessToken, tokens.refreshToken, profile);
       sessionStorage.removeItem('otp_phone');
       router.replace('/dashboard');
     } catch (err: unknown) {

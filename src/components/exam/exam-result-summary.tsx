@@ -10,13 +10,13 @@ interface ExamResultSummaryProps {
   totalQuestions: number;
   passingScore: number;
   passed: boolean;
-  timeTakenSeconds: number;
+  timeTakenSeconds: number | null;
 }
 
 export default function ExamResultSummary({ score, correctAnswers, totalQuestions, passingScore, passed, timeTakenSeconds }: ExamResultSummaryProps) {
   const pct = Math.round((correctAnswers / totalQuestions) * 100);
-  const minutes = Math.floor(timeTakenSeconds / 60);
-  const seconds = timeTakenSeconds % 60;
+  const minutes = timeTakenSeconds ? Math.floor(timeTakenSeconds / 60) : 0;
+  const seconds = timeTakenSeconds ? timeTakenSeconds % 60 : 0;
 
   return (
     <div className="flex flex-col items-center gap-4 py-6">

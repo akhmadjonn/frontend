@@ -6,7 +6,7 @@ interface User {
   firstName: string | null;
   lastName: string | null;
   role: 'user' | 'admin';
-  subscriptionStatus: 'none' | 'active' | 'expired' | 'cancelled';
+  hasActiveSubscription: boolean;
   preferredLanguage: 'uz' | 'uzLatin' | 'ru';
 }
 

@@ -27,8 +27,9 @@ export default function VerifyPage() {
   const [resendCooldown, setResendCooldown] = useState(OTP_RESEND_SECONDS);
   const [attemptsLeft, setAttemptsLeft] = useState(3);
   const [error, setError] = useState('');
+  const [phone] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('otp_phone') ?? '' : '');
+  const [verified, setVerified] = useState(false);
 
-  const phone = typeof window !== 'undefined' ? sessionStorage.getItem('otp_phone') ?? '' : '';
   const texts = T[language] ?? T.uzLatin;
 
   useEffect(() => {
@@ -38,16 +39,21 @@ export default function VerifyPage() {
   }, [resendCooldown]);
 
   useEffect(() => {
-    if (!phone) router.replace('/login');
-  }, [phone, router]);
+    if (!phone && !verified) router.replace('/login');
+  }, [phone, verified, router]);
 
   const handleVerify = useCallback(async (code: string) => {
     if (code.length !== 6) return;
     setLoading(true);
     setError('');
     try {
-      const data = await apiClient.post<{ accessToken: string; refreshToken: string; user: { id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; subscriptionStatus: 'none' | 'active' | 'expired' | 'cancelled'; preferredLanguage: 'uz' | 'uzLatin' | 'ru' } }>('/auth/verify-otp', { phoneNumber: phone, code });
-      login(data.accessToken, data.refreshToken, data.user);
+      const tokens = await apiClient.post<{ accessToken: string; refreshToken: string; isNewUser: boolean }>('/auth/otp/verify', { phoneNumber: phone, code });
+      // Store tokens so /auth/me call has Authorization header
+      localStorage.setItem('accessToken', tokens.accessToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+      const user = await apiClient.get<{ id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; hasActiveSubscription: boolean; preferredLanguage: 'uz' | 'uzLatin' | 'ru' }>('/auth/me');
+      login(tokens.accessToken, tokens.refreshToken, user);
+      setVerified(true);
       sessionStorage.removeItem('otp_phone');
       router.replace('/dashboard');
     } catch (err: unknown) {
@@ -68,7 +74,7 @@ export default function VerifyPage() {
   const handleResend = async () => {
     if (resendCooldown > 0) return;
     try {
-      await apiClient.post('/auth/send-otp', { phoneNumber: phone });
+      await apiClient.post('/auth/otp/send', { phoneNumber: phone });
       setResendCooldown(OTP_RESEND_SECONDS);
       setAttemptsLeft(3);
       setOtp('');

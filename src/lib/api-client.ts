@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5228/api/v1';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -22,7 +22,7 @@ class ApiClient {
     if (!refreshToken) return null;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
@@ -80,7 +80,7 @@ class ApiClient {
       throw new Error(data.error?.message || 'Unknown error');
     }
 
-    return data.data as T;
+    return (data.data ?? null) as T;
   }
 
   get<T>(path: string) {

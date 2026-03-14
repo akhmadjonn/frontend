@@ -55,7 +55,7 @@ export default function ExamSessionPage() {
   const handleSubmitAnswer = useCallback(async (sessionQuestionId: string, answerId: string) => {
     selectAnswer(sessionQuestionId, answerId);
     try {
-      await apiClient.post(`/exams/${examId}/submit-answer`, {
+      await apiClient.post(`/exams/${examId}/answer`, {
         sessionQuestionId,
         selectedAnswerId: answerId,
       });

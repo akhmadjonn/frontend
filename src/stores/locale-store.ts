@@ -8,9 +8,11 @@ interface LocaleState {
 }
 
 export const useLocaleStore = create<LocaleState>((set) => ({
-  language: (typeof window !== 'undefined' ? (localStorage.getItem('locale') as Locale) : null) || 'uzLatin',
+  language: 'uzLatin',
   setLanguage: (language) => {
     localStorage.setItem('locale', language);
     set({ language });
   },
 }));
+
+export type { Locale };

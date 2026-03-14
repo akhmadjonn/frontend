@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/sonner';
+import LocaleHydrator from '@/components/locale-hydrator';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="uz" suppressHydrationWarning>
       <body className="font-sans antialiased">
+        <LocaleHydrator />
         {children}
         <Toaster richColors position="top-right" />
       </body>

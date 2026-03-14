@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -13,8 +13,12 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     if (!isAuthenticated) {
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
       return;
@@ -22,8 +26,9 @@ export default function AuthGuard({ children, requireAdmin = false }: AuthGuardP
     if (requireAdmin && user?.role !== 'admin') {
       router.replace('/dashboard');
     }
-  }, [isAuthenticated, user, requireAdmin, router, pathname]);
+  }, [mounted, isAuthenticated, user, requireAdmin, router, pathname]);
 
+  if (!mounted) return null;
   if (!isAuthenticated) return null;
   if (requireAdmin && user?.role !== 'admin') return null;
 

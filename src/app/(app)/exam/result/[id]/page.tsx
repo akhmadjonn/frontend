@@ -25,8 +25,8 @@ interface ExamResultQuestion {
   text: { uz: string; uzLatin: string; ru: string };
   imageUrl: string | null;
   selectedAnswerId: string | null;
-  correctAnswerId: string;
-  isCorrect: boolean;
+  correctAnswerId: string | null;
+  isCorrect: boolean | null;
   explanation: { uz: string; uzLatin: string; ru: string } | null;
   timeSpentSeconds: number | null;
   answerOptions?: AnswerOptionDto[];
@@ -39,8 +39,8 @@ interface ExamResult {
   totalQuestions: number;
   passingScore: number;
   passed: boolean;
-  timeTakenSeconds: number;
-  completedAt: string;
+  timeTakenSeconds: number | null;
+  completedAt: string | null;
   questions: ExamResultQuestion[];
 }
 

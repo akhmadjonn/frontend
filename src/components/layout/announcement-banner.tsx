@@ -24,7 +24,7 @@ export default function AnnouncementBanner() {
       .catch(() => { /* no active announcement */ });
   }, []);
 
-  if (!announcement || dismissed) return null;
+  if (!announcement || dismissed || !announcement.content) return null;
 
   const colors = {
     info: 'bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-100',
