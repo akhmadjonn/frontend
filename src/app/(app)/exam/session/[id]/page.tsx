@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useExamStore } from '@/stores/exam-store';
+import { useShallow } from 'zustand/react/shallow';
 import { apiClient } from '@/lib/api-client';
 import QuestionCard from '@/components/exam/question-card';
 import QuestionNavigator from '@/components/exam/question-navigator';
@@ -11,13 +12,18 @@ import ExamTimer from '@/components/exam/exam-timer';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export default function ExamSessionPage() {
   const params = useParams();
   const router = useRouter();
   const examId = params.id as string;
-  const { questions, currentIndex, answers, expiresAt, status, mode, goToQuestion, selectAnswer, submitExam, incrementTabSwitch, reset } = useExamStore();
+  const { questions, currentIndex, answers, expiresAt, status, mode } = useExamStore(
+    useShallow((s) => ({ questions: s.questions, currentIndex: s.currentIndex, answers: s.answers, expiresAt: s.expiresAt, status: s.status, mode: s.mode }))
+  );
+  const goToQuestion = useExamStore((s) => s.goToQuestion);
+  const selectAnswer = useExamStore((s) => s.selectAnswer);
+  const submitExam = useExamStore((s) => s.submitExam);
+  const incrementTabSwitch = useExamStore((s) => s.incrementTabSwitch);
   const [completing, setCompleting] = useState(false);
   const submittedRef = useRef(false);
 
@@ -80,15 +86,20 @@ export default function ExamSessionPage() {
     }
   }, [examId, submitExam, router, completing]);
 
-  if (status === 'idle' || questions.length === 0) return null;
-
   const currentQuestion = questions[currentIndex];
-  const answeredIds = new Set(answers.keys());
-  const questionIds = questions.map((q) => q.id);
+  const answeredIds = useMemo(() => new Set(answers.keys()), [answers]);
+  const questionIds = useMemo(() => questions.map((q) => q.id), [questions]);
   const answeredCount = answers.size;
   const totalQuestions = questions.length;
   const isMarathon = mode === 'marathon';
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
+
+  const handleSelectForCurrentQuestion = useCallback(
+    (answerId: string) => handleSubmitAnswer(currentQuestion?.id, answerId),
+    [handleSubmitAnswer, currentQuestion?.id]
+  );
+
+  if (status === 'idle' || questions.length === 0) return null;
 
   return (
     <div
@@ -133,7 +144,7 @@ export default function ExamSessionPage() {
           questionNumber={currentIndex + 1}
           totalQuestions={totalQuestions}
           selectedAnswerId={answers.get(currentQuestion.id)}
-          onSelectAnswer={(answerId) => handleSubmitAnswer(currentQuestion.id, answerId)}
+          onSelectAnswer={handleSelectForCurrentQuestion}
         />
 
         {/* Navigation buttons */}

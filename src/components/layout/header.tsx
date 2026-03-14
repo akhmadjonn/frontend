@@ -17,8 +17,10 @@ const LANG_OPTIONS = [
 
 export default function Header() {
   const router = useRouter();
-  const { user, logout } = useAuthStore();
-  const { language, setLanguage } = useLocaleStore();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const language = useLocaleStore((s) => s.language);
+  const setLanguage = useLocaleStore((s) => s.setLanguage);
 
   const handleLogout = async () => {
     try { await apiClient.post('/auth/logout'); } catch { /* ignore */ }

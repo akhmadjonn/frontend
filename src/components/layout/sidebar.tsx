@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { language } = useLocaleStore();
+  const language = useLocaleStore((s) => s.language);
 
   return (
     <aside className="hidden md:flex flex-col w-64 min-h-screen border-r bg-background px-3 py-4 shrink-0">

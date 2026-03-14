@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface QuestionNavigatorProps {
@@ -10,10 +11,15 @@ interface QuestionNavigatorProps {
   onNavigate: (index: number) => void;
 }
 
-export default function QuestionNavigator({ totalQuestions, currentIndex, answeredIds, questionIds, onNavigate }: QuestionNavigatorProps) {
+export default memo(function QuestionNavigator({ totalQuestions, currentIndex, answeredIds, questionIds, onNavigate }: QuestionNavigatorProps) {
+  const buttons = useMemo(
+    () => Array.from({ length: totalQuestions }, (_, i) => i),
+    [totalQuestions]
+  );
+
   return (
     <div className="flex flex-wrap gap-1.5">
-      {Array.from({ length: totalQuestions }, (_, i) => {
+      {buttons.map((i) => {
         const answered = answeredIds.has(questionIds[i]);
         const current = i === currentIndex;
         return (
@@ -37,4 +43,4 @@ export default function QuestionNavigator({ totalQuestions, currentIndex, answer
       })}
     </div>
   );
-}
+});

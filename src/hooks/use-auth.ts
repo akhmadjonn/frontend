@@ -1,21 +1,26 @@
 'use client';
 
 import { useAuthStore } from '@/stores/auth-store';
+import { useShallow } from 'zustand/react/shallow';
 import { apiClient } from '@/lib/api-client';
 import { useEffect } from 'react';
 
 export function useAuth() {
-  const store = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore(
+    useShallow((s) => ({ isAuthenticated: s.isAuthenticated, user: s.user }))
+  );
+  const setUser = useAuthStore((s) => s.setUser);
+  const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
-    if (store.isAuthenticated && !store.user) {
-      apiClient.get('/auth/me').then((user) => {
-        store.setUser(user as any);
+    if (isAuthenticated && !user) {
+      apiClient.get('/auth/me').then((u) => {
+        setUser(u as any);
       }).catch(() => {
-        store.logout();
+        logout();
       });
     }
-  }, [store.isAuthenticated]);
+  }, [isAuthenticated, user, setUser, logout]);
 
-  return store;
+  return { isAuthenticated, user, logout, setUser };
 }

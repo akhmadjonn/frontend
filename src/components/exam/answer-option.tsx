@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
@@ -20,7 +21,7 @@ interface AnswerOptionProps {
   locale: 'uz' | 'uzLatin' | 'ru';
 }
 
-export default function AnswerOption({ option, selected, onSelect, disabled, correct, incorrect, locale }: AnswerOptionProps) {
+export default memo(function AnswerOption({ option, selected, onSelect, disabled, correct, incorrect, locale }: AnswerOptionProps) {
   const text = option.text[locale] ?? option.text.uzLatin;
   const hasImage = !!option.imageUrl;
 
@@ -53,4 +54,4 @@ export default function AnswerOption({ option, selected, onSelect, disabled, cor
       {incorrect && <span className="h-4 w-4 shrink-0 rounded-full bg-red-500" />}
     </button>
   );
-}
+});

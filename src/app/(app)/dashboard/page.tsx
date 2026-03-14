@@ -2,17 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/stores/auth-store';
 import { apiClient } from '@/lib/api-client';
 import StatsCards from '@/components/progress/stats-cards';
-import AccuracyChart from '@/components/progress/accuracy-chart';
-import CategoryRadar from '@/components/progress/category-radar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GraduationCap, BookOpen, RefreshCw, Flame } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+
+const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart'), {
+  ssr: false,
+  loading: () => <Card><CardContent className="p-4"><Skeleton className="h-48 w-full" /></CardContent></Card>,
+});
+
+const CategoryRadar = dynamic(() => import('@/components/progress/category-radar'), {
+  ssr: false,
+  loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
+});
 
 interface DashboardData {
   totalQuestionsPracticed: number;
@@ -33,7 +42,7 @@ interface CategoryData {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(true);

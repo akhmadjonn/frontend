@@ -52,6 +52,13 @@ function saveToSession(state: Partial<ExamState>) {
   } catch { /* quota exceeded — ignore */ }
 }
 
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function debouncedSaveToSession(state: Partial<ExamState>) {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => saveToSession(state), 300);
+}
+
 function loadFromSession(): Partial<ExamState> | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -76,6 +83,7 @@ function loadFromSession(): Partial<ExamState> | null {
 
 function clearSession() {
   if (typeof window === 'undefined') return;
+  if (saveTimeout) clearTimeout(saveTimeout);
   sessionStorage.removeItem(STORAGE_KEY);
 }
 
@@ -102,20 +110,19 @@ export const useExamStore = create<ExamState>((set, get) => ({
     set((state) => {
       const newAnswers = new Map(state.answers);
       newAnswers.set(questionId, answerId);
-      const newState = { ...state, answers: newAnswers };
-      saveToSession(newState);
+      debouncedSaveToSession({ ...state, answers: newAnswers });
       return { answers: newAnswers };
     }),
 
   goToQuestion: (index) => {
     set({ currentIndex: index });
-    saveToSession({ ...get(), currentIndex: index });
+    debouncedSaveToSession({ ...get(), currentIndex: index });
   },
 
   incrementTabSwitch: () =>
     set((state) => {
       const count = state.tabSwitchCount + 1;
-      saveToSession({ ...state, tabSwitchCount: count });
+      debouncedSaveToSession({ ...state, tabSwitchCount: count });
       return { tabSwitchCount: count };
     }),
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Image from 'next/image';
 import { useLocaleStore } from '@/stores/locale-store';
 import AnswerOption from './answer-option';
@@ -29,13 +30,13 @@ interface QuestionCardProps {
   revealCorrectId?: string;
 }
 
-export default function QuestionCard({ question, questionNumber, totalQuestions, selectedAnswerId, onSelectAnswer, disabled, revealCorrectId }: QuestionCardProps) {
-  const { language } = useLocaleStore();
+export default memo(function QuestionCard({ question, questionNumber, totalQuestions, selectedAnswerId, onSelectAnswer, disabled, revealCorrectId }: QuestionCardProps) {
+  const language = useLocaleStore((s) => s.language);
   const locale = language as 'uz' | 'uzLatin' | 'ru';
   const questionText = question.text[locale] ?? question.text.uzLatin;
   const hasQuestionImage = !!question.imageUrl;
 
-  // Detect image layout: all answer options have images → 2-column grid; otherwise list
+  // Detect image layout: all answer options have images -> 2-column grid; otherwise list
   const answersHaveImages = question.answerOptions.some((o) => !!o.imageUrl);
 
   return (
@@ -79,4 +80,4 @@ export default function QuestionCard({ question, questionNumber, totalQuestions,
       </div>
     </div>
   );
-}
+});

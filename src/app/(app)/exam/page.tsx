@@ -57,7 +57,7 @@ const MODE_LABELS: Record<string, string> = { exam: 'Imtihon', ticket: 'Bilet', 
 
 export default function ExamPage() {
   const router = useRouter();
-  const { startExam } = useExamStore();
+  const startExam = useExamStore((s) => s.startExam);
   const [loading, setLoading] = useState<ExamMode | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<number>(1);
   const [activeExam, setActiveExam] = useState<ActiveExamDto | null>(null);

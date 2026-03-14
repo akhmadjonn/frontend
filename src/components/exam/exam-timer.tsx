@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { useCountdown } from '@/hooks/use-countdown';
 import { cn } from '@/lib/utils';
 import { Clock } from 'lucide-react';
@@ -11,7 +11,7 @@ interface ExamTimerProps {
   className?: string;
 }
 
-export default function ExamTimer({ expiresAt, onExpire, className }: ExamTimerProps) {
+export default memo(function ExamTimer({ expiresAt, onExpire, className }: ExamTimerProps) {
   const { formatted, isUrgent, isExpired } = useCountdown(expiresAt);
   const expiredRef = useRef(false);
 
@@ -35,4 +35,4 @@ export default function ExamTimer({ expiresAt, onExpire, className }: ExamTimerP
       {formatted}
     </div>
   );
-}
+});

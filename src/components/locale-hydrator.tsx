@@ -1,15 +1,5 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useLocaleStore } from '@/stores/locale-store';
-import type { Locale } from '@/stores/locale-store';
-
+// Locale is now initialized directly in locale-store.ts from localStorage.
+// This component is kept as a no-op for backwards compatibility.
 export default function LocaleHydrator() {
-  useEffect(() => {
-    const saved = localStorage.getItem('locale') as Locale | null;
-    if (saved && ['uz', 'uzLatin', 'ru'].includes(saved))
-      useLocaleStore.setState({ language: saved });
-  }, []);
-
   return null;
 }

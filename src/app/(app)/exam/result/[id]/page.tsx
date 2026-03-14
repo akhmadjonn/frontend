@@ -82,8 +82,8 @@ export default function ExamResultPage() {
   const params = useParams();
   const router = useRouter();
   const examId = params.id as string;
-  const { language } = useLocaleStore();
-  const { reset } = useExamStore();
+  const language = useLocaleStore((s) => s.language);
+  const reset = useExamStore((s) => s.reset);
   const locale = language as 'uz' | 'uzLatin' | 'ru';
   const [result, setResult] = useState<ExamResult | null>(null);
   const [loading, setLoading] = useState(true);
