@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import DataTable, { type Column } from '@/components/admin/data-table';
+import dynamic from 'next/dynamic';
+import type { ComponentType } from 'react';
+import { type Column, type DataTableProps } from '@/components/admin/data-table';
 import { apiClient } from '@/lib/api-client';
 import type { UserListItemDto, PaginatedList } from '@/types/admin';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow, format } from 'date-fns';
+
+
+const DataTable = dynamic(() => import('@/components/admin/data-table'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-muted rounded h-96" />,
+}) as ComponentType<DataTableProps<UserListItemDto>>;
 
 export default function UsersPage() {
   const router = useRouter();

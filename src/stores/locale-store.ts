@@ -1,25 +1,35 @@
 import { create } from 'zustand';
+import { useEffect } from 'react';
 
 type Locale = 'uz' | 'uzLatin' | 'ru';
 
 interface LocaleState {
   language: Locale;
+  _hydrated: boolean;
   setLanguage: (language: Locale) => void;
-}
-
-function getInitialLocale(): Locale {
-  if (typeof window === 'undefined') return 'uzLatin';
-  const saved = localStorage.getItem('locale') as Locale | null;
-  if (saved && ['uz', 'uzLatin', 'ru'].includes(saved)) return saved;
-  return 'uzLatin';
+  _hydrate: () => void;
 }
 
 export const useLocaleStore = create<LocaleState>((set) => ({
-  language: getInitialLocale(),
+  language: 'uzLatin',
+  _hydrated: false,
   setLanguage: (language) => {
     localStorage.setItem('locale', language);
     set({ language });
   },
+  _hydrate: () => {
+    const saved = localStorage.getItem('locale') as Locale | null;
+    const language = saved && ['uz', 'uzLatin', 'ru'].includes(saved) ? saved : 'uzLatin';
+    set({ language, _hydrated: true });
+  },
 }));
+
+export function useLocaleHydration() {
+  const hydrate = useLocaleStore((s) => s._hydrate);
+  const hydrated = useLocaleStore((s) => s._hydrated);
+  useEffect(() => {
+    if (!hydrated) hydrate();
+  }, [hydrate, hydrated]);
+}
 
 export type { Locale };

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import DataTable, { type Column } from '@/components/admin/data-table';
+import dynamic from 'next/dynamic';
+import type { ComponentType } from 'react';
+import { type Column, type DataTableProps } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,9 +21,27 @@ import type { AdminQuestionDto, CategoryDto, PaginatedList, LocalizedText } from
 import { toast } from 'sonner';
 import { Plus, Upload, Download, MoreHorizontal, Pencil, Trash2, Power, PowerOff, Search, ImageIcon } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
-import { QuestionDrawer } from '@/components/admin/question-drawer';
-import ImportDialog from '@/components/admin/import-dialog';
-import DeleteDialog from '@/components/admin/delete-dialog';
+
+
+const DataTable = dynamic(() => import('@/components/admin/data-table'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-muted rounded h-96" />,
+}) as ComponentType<DataTableProps<AdminQuestionDto>>;
+
+const QuestionDrawer = dynamic(
+  () => import('@/components/admin/question-drawer').then((m) => m.QuestionDrawer),
+  { ssr: false, loading: () => <div className="animate-pulse bg-muted rounded h-96" /> }
+);
+
+const ImportDialog = dynamic(() => import('@/components/admin/import-dialog'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-muted rounded h-96" />,
+});
+
+const DeleteDialog = dynamic(() => import('@/components/admin/delete-dialog'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-muted rounded h-96" />,
+});
 
 interface FlatCategory {
   id: string;

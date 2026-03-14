@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import DataTable, { type Column } from '@/components/admin/data-table';
+import dynamic from 'next/dynamic';
+import type { ComponentType } from 'react';
+import { type Column, type DataTableProps } from '@/components/admin/data-table';
 import { apiClient } from '@/lib/api-client';
 import type { AnnouncementDto, PaginatedList, LocalizedText } from '@/types/admin';
 import { Button } from '@/components/ui/button';
@@ -12,10 +14,14 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
+
+
+const DataTable = dynamic(() => import('@/components/admin/data-table'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-muted rounded h-96" />,
+}) as ComponentType<DataTableProps<AnnouncementDto>>;
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Megaphone, Info, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, Info, AlertTriangle, AlertCircle } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
 import { format } from 'date-fns';
 

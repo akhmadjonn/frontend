@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, GraduationCap, Flame, Trophy } from 'lucide-react';
@@ -21,7 +22,7 @@ const CARDS = [
   { key: 'examPassRate' as const, label: "O'tish darajasi", icon: Trophy, color: 'text-green-500', format: (v: number) => `${Math.round(v)}%` },
 ];
 
-export default function StatsCards({ data, loading }: StatsCardsProps) {
+function StatsCards({ data, loading }: StatsCardsProps) {
   if (loading)
     return (
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -45,3 +46,5 @@ export default function StatsCards({ data, loading }: StatsCardsProps) {
     </div>
   );
 }
+
+export default memo(StatsCards);

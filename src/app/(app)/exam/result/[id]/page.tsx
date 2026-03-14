@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CheckCircle2, XCircle, RefreshCw, Home, ChevronDown, ChevronUp } from 'lucide-react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface AnswerOptionDto {
@@ -59,8 +58,8 @@ function QuestionReviewItem({ question, index, locale }: { question: ExamResultQ
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium leading-snug">{index + 1}. {text}</p>
           {question.imageUrl && (
-            <div className="relative mt-2 h-28 w-full overflow-hidden rounded">
-              <Image src={question.imageUrl} alt="" fill className="object-contain" sizes="400px" />
+            <div className="mt-2 overflow-hidden rounded">
+              <img src={question.imageUrl} alt="" className="h-28 w-full object-contain" />
             </div>
           )}
           {!question.isCorrect && (

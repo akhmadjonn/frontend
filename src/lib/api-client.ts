@@ -7,14 +7,42 @@ interface ApiResponse<T> {
 }
 
 class ApiClient {
+  private cachedToken: string | null = null;
+  private cachedLocale: string | null = null;
+  private tokenRead = false;
+  private localeRead = false;
+
   private getToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('accessToken');
+    if (!this.tokenRead) {
+      this.cachedToken = localStorage.getItem('accessToken');
+      this.tokenRead = true;
+    }
+    return this.cachedToken;
   }
 
   private getRefreshToken(): string | null {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('refreshToken');
+  }
+
+  private getLocale(): string {
+    if (typeof window === 'undefined') return 'uzLatin';
+    if (!this.localeRead) {
+      this.cachedLocale = localStorage.getItem('locale') || 'uzLatin';
+      this.localeRead = true;
+    }
+    return this.cachedLocale ?? 'uzLatin';
+  }
+
+  updateToken(token: string | null) {
+    this.cachedToken = token;
+    this.tokenRead = true;
+  }
+
+  updateLocale(locale: string) {
+    this.cachedLocale = locale;
+    this.localeRead = true;
   }
 
   private async refreshAccessToken(): Promise<string | null> {
@@ -34,6 +62,7 @@ class ApiClient {
       if (data.success && data.data) {
         localStorage.setItem('accessToken', data.data.accessToken);
         localStorage.setItem('refreshToken', data.data.refreshToken);
+        this.updateToken(data.data.accessToken);
         return data.data.accessToken;
       }
       return null;
@@ -48,16 +77,13 @@ class ApiClient {
       ...options.headers,
     };
 
-    if (token) {
+    if (token)
       (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
-    }
 
-    if (!(options.body instanceof FormData)) {
+    if (!(options.body instanceof FormData))
       (headers as Record<string, string>)['Content-Type'] = 'application/json';
-    }
 
-    const locale = localStorage.getItem('locale') || 'uzLatin';
-    (headers as Record<string, string>)['Accept-Language'] = locale;
+    (headers as Record<string, string>)['Accept-Language'] = this.getLocale();
 
     let response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
 
@@ -69,16 +95,20 @@ class ApiClient {
       } else {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        this.updateToken(null);
         window.location.href = '/login';
         throw new Error('Session expired');
       }
     }
 
+    const contentType = response.headers.get('content-type') ?? '';
+    if (!contentType.includes('application/json'))
+      throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
+
     const data: ApiResponse<T> = await response.json();
 
-    if (!data.success) {
+    if (!data.success)
       throw new Error(data.error?.message || 'Unknown error');
-    }
 
     return (data.data ?? null) as T;
   }
