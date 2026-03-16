@@ -94,6 +94,25 @@ export default function ExamSessionPage() {
   const isMarathon = mode === 'marathon';
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
 
+  // Enter/ArrowRight → next question, ArrowLeft → previous
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === 'ArrowRight') {
+        if (currentIndex < totalQuestions - 1) {
+          e.preventDefault();
+          goToQuestion(currentIndex + 1);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (currentIndex > 0) {
+          e.preventDefault();
+          goToQuestion(currentIndex - 1);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, totalQuestions, goToQuestion]);
+
   const handleSelectForCurrentQuestion = useCallback(
     (answerId: string) => handleSubmitAnswer(currentQuestion?.id, answerId),
     [handleSubmitAnswer, currentQuestion?.id]

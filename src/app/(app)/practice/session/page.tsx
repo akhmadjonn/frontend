@@ -115,6 +115,18 @@ export default function PracticeSessionPage() {
     }
   }, [currentIndex, questions.length, completeBatch, nextQuestion]);
 
+  // Enter key → next question
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && selectedAnswerId && !submitting) {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedAnswerId, submitting, handleNext]);
+
   const handleNewBatch = useCallback(() => {
     reset();
     setFeedback(null);
@@ -148,7 +160,7 @@ export default function PracticeSessionPage() {
               <Trophy className={`h-8 w-8 ${accuracy >= 80 ? 'text-green-600' : 'text-orange-600'}`} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Mashq yakunlandi!</h1>
+          <h1 className="text-xl font-bold tracking-tight">Mashq yakunlandi!</h1>
           <p className="text-muted-foreground">
             {total} ta savoldan {correct} tasi to&apos;g&apos;ri
           </p>
@@ -158,7 +170,7 @@ export default function PracticeSessionPage() {
           <CardContent className="p-4 space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Aniqlik</span>
-              <span className="text-2xl font-bold">{accuracy}%</span>
+              <span className="text-xl font-bold tracking-tight">{accuracy}%</span>
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden">
               <div className={`h-full rounded-full transition-all ${accuracy >= 80 ? 'bg-green-500' : 'bg-orange-500'}`} style={{ width: `${accuracy}%` }} />

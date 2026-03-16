@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { useLocale } from '@/hooks/use-locale';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+// Badge removed — using inline colored dot status
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -17,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Check, Calendar, AlertTriangle, Crown } from 'lucide-react';
+import { Check, Calendar, AlertTriangle, Crown, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface LocalizedText {
@@ -54,7 +53,6 @@ function formatPrice(tiyins: number): string {
 }
 
 export default function SubscriptionPage() {
-  const router = useRouter();
   const { t } = useLocale();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
@@ -62,6 +60,7 @@ export default function SubscriptionPage() {
   const [subscribing, setSubscribing] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -84,7 +83,6 @@ export default function SubscriptionPage() {
         window.location.href = result.paymentUrl;
         return;
       }
-      // If no redirect URL, refresh status
       const status = await apiClient.get<SubscriptionStatus>('/subscriptions/status');
       setSubscription(status);
     } catch {
@@ -111,38 +109,40 @@ export default function SubscriptionPage() {
 
   if (loading)
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 max-w-2xl">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-32 w-full" />
-        <div className="grid gap-3 sm:grid-cols-3">{[1,2,3].map(i => <Skeleton key={i} className="h-64" />)}</div>
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
       </div>
     );
 
   const isActive = subscription?.status === 'active' || subscription?.status === 'Active';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold">Obuna</h1>
+        <h1 className="text-xl font-bold tracking-tight">Obuna</h1>
         <p className="text-sm text-muted-foreground mt-1">Obuna rejangizni boshqaring</p>
       </div>
 
-      {/* Current subscription card */}
-      <Card className={isActive ? 'border-green-200 dark:border-green-800' : ''}>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Crown className="h-4 w-4" />
-            Joriy obuna
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
+      {/* Current subscription — compact row */}
+      <Card>
+        <CardContent className="flex items-center justify-between p-4">
           {isActive ? (
             <>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
+                  <Crown className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                </div>
                 <div>
-                  <p className="font-semibold">{subscription?.planName ? t(subscription.planName) : 'Faol reja'}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="default" className="bg-green-600">Faol</Badge>
+                  <p className="text-sm font-semibold">{subscription?.planName ? t(subscription.planName) : 'Faol reja'}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-green-700 dark:text-green-400">
+                      <span className="h-2 w-2 rounded-full bg-green-500" />
+                      Faol
+                    </span>
                     {subscription?.expiresAt && (
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
@@ -152,11 +152,8 @@ export default function SubscriptionPage() {
                   </div>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between pt-2 border-t">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">Avtomatik uzaytirish</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground hidden sm:inline">Avtomatik</span>
                 <Switch
                   checked={subscription?.autoRenew ?? false}
                   onCheckedChange={() => {
@@ -164,68 +161,72 @@ export default function SubscriptionPage() {
                   }}
                 />
               </div>
-
-              {subscription?.subscriptionId && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => setCancelDialogOpen(true)}
-                >
-                  Obunani bekor qilish
-                </Button>
-              )}
             </>
           ) : (
-            <div className="text-center py-4">
-              <p className="text-muted-foreground">Hozirda faol obunangiz yo&apos;q</p>
-              <p className="text-xs text-muted-foreground mt-1">Quyidagi rejalardan birini tanlang</p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+                <Crown className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Faol obuna yo&apos;q</p>
+                <p className="text-xs text-muted-foreground">Quyidagi rejalardan birini tanlang</p>
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Plan cards */}
-      <div>
-        <h2 className="text-sm font-semibold mb-3">Mavjud rejalar</h2>
-        <div className={`grid gap-4 ${plans.length <= 2 ? 'sm:grid-cols-2 max-w-2xl' : 'sm:grid-cols-2 lg:grid-cols-3'}`}>
-          {plans.map((plan) => {
-            const isPopular = plan.durationDays === 30;
+      {/* Stacked plan cards */}
+      <div className="space-y-3">
+        {plans.map((plan) => {
+          const isPopular = plan.durationDays === 30;
+          const isExpanded = expandedPlan === plan.id;
+          const perDay = Math.round(plan.priceInTiyins / plan.durationDays / 100);
+          const accent = plan.durationDays <= 7
+            ? 'border-l-blue-500'
+            : plan.durationDays <= 30
+              ? 'border-l-violet-500'
+              : 'border-l-emerald-500';
 
-            return (
-              <Card key={plan.id} className={isPopular ? 'border-primary ring-1 ring-primary/20' : ''}>
-                <CardContent className="p-5 space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">{t(plan.name)}</h3>
-                      {isPopular && <Badge>Ommabop</Badge>}
+          return (
+            <Card
+              key={plan.id}
+              className={`relative overflow-visible border-l-[3px] ${accent} ${isPopular ? 'border-foreground border-l-violet-500' : ''}`}
+            >
+              {isPopular && (
+                <span className="absolute -top-2.5 left-4 bg-violet-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full">
+                  Ommabop
+                </span>
+              )}
+              <CardContent className="p-0">
+                {/* Main row */}
+                <div className="flex items-center gap-4 p-4 sm:p-5">
+                  {/* Price block */}
+                  <div className="shrink-0 w-28 sm:w-36">
+                    <h3 className="text-sm font-bold">{t(plan.name)}</h3>
+                    <div className="mt-1">
+                      <span className="text-2xl font-extrabold tracking-tight">{formatPrice(plan.priceInTiyins)}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{t(plan.description)}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">so&apos;m / {plan.durationDays} kun</p>
+                    <p className="text-[10px] text-violet-600 dark:text-violet-400 font-medium mt-0.5">~{perDay.toLocaleString()} so&apos;m/kun</p>
                   </div>
 
-                  <div>
-                    <span className="text-2xl font-bold">{formatPrice(plan.priceInTiyins)}</span>
-                    <span className="text-sm text-muted-foreground ml-1">so&apos;m</span>
-                    <span className="text-xs text-muted-foreground ml-1">/ {plan.durationDays} kun</span>
+                  {/* Features — inline on desktop */}
+                  <div className="hidden sm:flex flex-1 items-center gap-x-4 gap-y-1 flex-wrap">
+                    {plan.features.map((f, i) => (
+                      <span key={i} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                        {t(f)}
+                      </span>
+                    ))}
                   </div>
 
-                  {plan.features.length > 0 && (
-                    <ul className="space-y-1.5">
-                      {plan.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs">
-                          <Check className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
-                          <span>{t(f)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-2 pt-2">
+                  {/* Action buttons — desktop */}
+                  <div className="hidden sm:flex items-center gap-2 shrink-0">
                     <Button
                       size="sm"
                       onClick={() => handleSubscribe(plan.id, 'payme')}
                       disabled={!!subscribing}
-                      className="text-xs"
                     >
                       {subscribing === plan.id ? '...' : 'Payme'}
                     </Button>
@@ -234,17 +235,69 @@ export default function SubscriptionPage() {
                       variant="outline"
                       onClick={() => handleSubscribe(plan.id, 'click')}
                       disabled={!!subscribing}
-                      className="text-xs"
                     >
                       {subscribing === plan.id ? '...' : 'Click'}
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+
+                  {/* Mobile expand toggle */}
+                  <button
+                    className="sm:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted transition-colors"
+                    onClick={() => setExpandedPlan(isExpanded ? null : plan.id)}
+                  >
+                    <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Mobile expanded section */}
+                {isExpanded && (
+                  <div className="sm:hidden border-t px-4 pb-4 pt-3 space-y-3">
+                    {plan.features.length > 0 && (
+                      <ul className="space-y-1.5">
+                        {plan.features.map((f, i) => (
+                          <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                            {t(f)}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleSubscribe(plan.id, 'payme')}
+                        disabled={!!subscribing}
+                      >
+                        {subscribing === plan.id ? '...' : 'Payme'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSubscribe(plan.id, 'click')}
+                        disabled={!!subscribing}
+                      >
+                        {subscribing === plan.id ? '...' : 'Click'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
+
+      {/* Cancel link for active subscription */}
+      {isActive && subscription?.subscriptionId && (
+        <div className="pt-2">
+          <button
+            onClick={() => setCancelDialogOpen(true)}
+            className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+          >
+            Obunani bekor qilish
+          </button>
+        </div>
+      )}
 
       {/* Cancel confirmation dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>

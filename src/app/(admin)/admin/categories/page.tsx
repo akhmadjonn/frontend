@@ -130,7 +130,9 @@ function CategoryTreeRow({
   return (
     <>
       <div
-        className="flex items-center gap-2 rounded-lg border bg-card px-3 py-2.5 transition-colors hover:bg-muted/50"
+        className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/50 ${
+          !category.isActive ? 'bg-muted/30 opacity-60' : 'bg-card'
+        }`}
         style={{ marginLeft: depth * 24 }}
       >
         <div className="flex items-center gap-1.5 shrink-0">
@@ -157,9 +159,14 @@ function CategoryTreeRow({
               {category.name[lang] || category.name.uzLatin}
             </span>
             {!category.isActive && (
-              <Badge variant="secondary" className="text-[10px]">
+              <span className="inline-flex items-center rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
                 Nofaol
-              </Badge>
+              </span>
+            )}
+            {hasChildren && (
+              <span className="text-[10px] text-muted-foreground">
+                ({category.children.length})
+              </span>
             )}
           </div>
           {category.description[lang] && (
@@ -170,11 +177,11 @@ function CategoryTreeRow({
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <Badge variant="outline" className="tabular-nums">
+          <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 tabular-nums dark:bg-blue-950/30 dark:text-blue-300">
             {category.questionCount} savol
-          </Badge>
+          </span>
 
-          <span className="text-xs text-muted-foreground tabular-nums w-8 text-center">
+          <span className="text-[11px] text-muted-foreground tabular-nums w-8 text-center font-mono">
             #{category.sortOrder}
           </span>
 
@@ -326,7 +333,7 @@ export default function CategoriesPage() {
       };
 
       if (editingCategory) {
-        await apiClient.put(`/admin/categories/${editingCategory.id}`, payload);
+        await apiClient.put(`/admin/categories/${editingCategory.id}`, { id: editingCategory.id, ...payload });
         toast.success('Kategoriya yangilandi');
       } else {
         await apiClient.post('/admin/categories', payload);
@@ -346,6 +353,7 @@ export default function CategoriesPage() {
     setTogglingId(cat.id);
     try {
       await apiClient.put(`/admin/categories/${cat.id}`, {
+        id: cat.id,
         nameUz: cat.name.uz,
         nameUzLatin: cat.name.uzLatin,
         nameRu: cat.name.ru,
@@ -391,7 +399,7 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Kategoriyalar</h1>
+          <h1 className="text-xl font-bold tracking-tight">Kategoriyalar</h1>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
               Jami {totalCategories} ta kategoriya

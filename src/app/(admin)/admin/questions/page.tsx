@@ -398,11 +398,11 @@ export default function QuestionsManagementPage() {
   ];
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Savollar boshqaruvi</h1>
+          <h1 className="text-xl font-bold tracking-tight">Savollar boshqaruvi</h1>
           <p className="text-sm text-muted-foreground">
             Jami: {totalCount} ta savol
           </p>
@@ -502,8 +502,8 @@ export default function QuestionsManagementPage() {
 
       {/* Bulk actions */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
-          <span className="text-sm font-medium">
+        <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 dark:border-blue-900 dark:bg-blue-950/30">
+          <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
             {selectedIds.size} ta savol tanlandi
           </span>
           <div className="flex gap-2">
@@ -511,6 +511,7 @@ export default function QuestionsManagementPage() {
               variant="outline"
               size="sm"
               onClick={() => bulkToggleStatus(true)}
+              className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950/30"
             >
               <Power className="h-4 w-4" />
               Faollashtirish
@@ -519,6 +520,7 @@ export default function QuestionsManagementPage() {
               variant="outline"
               size="sm"
               onClick={() => bulkToggleStatus(false)}
+              className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
             >
               <PowerOff className="h-4 w-4" />
               Nofaol qilish

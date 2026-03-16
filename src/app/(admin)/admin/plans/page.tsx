@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Plus, Pencil, CreditCard } from 'lucide-react';
+import { Plus, Pencil, CreditCard, Check, Clock, Sparkles } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
 
 const formatMoney = (tiyins: number) =>
@@ -55,7 +55,14 @@ function formFromPlan(plan: AdminPlanDto): PlanFormData {
     descriptionRu: plan.descriptionRu,
     priceUzs: String(plan.priceInTiyins / 100),
     durationDays: String(plan.durationDays),
-    features: plan.features,
+    features: (() => {
+      try {
+        const parsed = JSON.parse(plan.features);
+        return Array.isArray(parsed) ? parsed.join(', ') : plan.features;
+      } catch {
+        return plan.features;
+      }
+    })(),
     isActive: plan.isActive,
   };
 }
@@ -143,7 +150,7 @@ export default function PlansPage() {
         descriptionRu: form.descriptionRu,
         priceInTiyins: Math.round(priceNumber * 100),
         durationDays: durationNumber,
-        features: form.features,
+        features: JSON.stringify(form.features.split(',').map((f) => f.trim()).filter(Boolean)),
         isActive: form.isActive,
       };
 
@@ -182,7 +189,7 @@ export default function PlansPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Obuna rejalari</h1>
+        <h1 className="text-xl font-bold tracking-tight">Obuna rejalari</h1>
         <Button onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           Reja qo&apos;shish
@@ -215,54 +222,88 @@ export default function PlansPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {plans.map((plan) => {
-            const features = plan.features
-              ? plan.features.split(',').map((f) => f.trim()).filter(Boolean)
-              : [];
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {plans.map((plan, index) => {
+            let features: string[] = [];
+            if (plan.features) {
+              try {
+                const parsed = JSON.parse(plan.features);
+                features = Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+              } catch {
+                features = plan.features.split(',').map((f) => f.trim()).filter(Boolean);
+              }
+            }
+            const isPopular = index === 1 && plans.length > 1;
+            const tierColors = [
+              'border-t-blue-500',
+              'border-t-amber-500',
+              'border-t-purple-500',
+            ];
 
             return (
-              <Card key={plan.id} className="relative flex flex-col">
-                <CardHeader className="pb-3">
+              <Card
+                key={plan.id}
+                className={`relative flex flex-col overflow-visible border-t-4 ${tierColors[index % 3]} ${
+                  isPopular ? 'ring-2 ring-amber-400/50 shadow-lg' : ''
+                } ${!plan.isActive ? 'opacity-60' : ''}`}
+              >
+                {isPopular && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+                      <Sparkles className="h-3 w-3" />
+                      Mashhur
+                    </span>
+                  </div>
+                )}
+
+                <CardHeader className={`pb-2 ${isPopular ? 'pt-7' : 'pt-5'}`}>
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">
+                    <CardTitle className="text-lg font-bold">
                       {getPlanName(plan, language)}
                     </CardTitle>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Badge variant={plan.isActive ? 'default' : 'secondary'}>
-                        {plan.isActive ? 'Faol' : 'Nofaol'}
-                      </Badge>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => openEditDialog(plan)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex flex-col flex-1 gap-4">
+
+                <CardContent className="flex flex-col flex-1 gap-5">
                   <div>
-                    <p className="text-2xl font-bold text-primary">
+                    <p className="text-3xl font-extrabold tracking-tight">
                       {formatMoney(plan.priceInTiyins)}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {plan.durationDays} kun
-                    </p>
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {plan.durationDays} kun
+                      </span>
+                    </div>
                   </div>
 
                   {getPlanDescription(plan, language) && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
                       {getPlanDescription(plan, language)}
                     </p>
                   )}
 
                   {features.length > 0 && (
-                    <ul className="space-y-1.5 flex-1">
+                    <ul className="space-y-2.5 flex-1">
                       {features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm">
-                          <span className="text-primary mt-0.5">&#10003;</span>
+                        <li key={idx} className="flex items-start gap-2.5 text-sm">
+                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                            <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+                          </div>
                           {feature}
                         </li>
                       ))}
                     </ul>
                   )}
 
-                  <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center justify-between pt-3 border-t">
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={plan.isActive}
@@ -270,18 +311,10 @@ export default function PlansPage() {
                         disabled={togglingId === plan.id}
                         size="sm"
                       />
-                      <span className="text-xs text-muted-foreground">
+                      <span className={`text-xs font-medium ${plan.isActive ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
                         {plan.isActive ? 'Faol' : 'Nofaol'}
                       </span>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openEditDialog(plan)}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      Tahrirlash
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

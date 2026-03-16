@@ -10,14 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
-import { User, Languages, Shield, LogOut, Loader2, Save } from 'lucide-react';
+import { User, Languages, Shield, LogOut, Loader2, Save, Phone, Crown, CheckCircle2, XCircle } from 'lucide-react';
 
-const languageOptions: { value: Locale; label: string; backendValue: string }[] = [
-  { value: 'uzLatin', label: "O'zbek (Lotin)", backendValue: 'UzLatin' },
-  { value: 'uz', label: "O'zbek (Kirill)", backendValue: 'Uz' },
-  { value: 'ru', label: 'Русский', backendValue: 'Ru' },
+const languageOptions: { value: Locale; label: string; flag: string; backendValue: string }[] = [
+  { value: 'uzLatin', label: "O'zbek (Lotin)", flag: '🇺🇿', backendValue: 'UzLatin' },
+  { value: 'uz', label: "O'zbek (Kirill)", flag: '🇺🇿', backendValue: 'Uz' },
+  { value: 'ru', label: 'Русский', flag: '🇷🇺', backendValue: 'Ru' },
 ];
 
 function mapBackendLanguage(lang: string): Locale {
@@ -139,23 +138,39 @@ export default function SettingsPage() {
     ? `+${user.phoneNumber.replace(/(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5')}`
     : 'Kiritilmagan';
 
+  const initials = [user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || '?';
+
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold">Sozlamalar</h1>
+        <h1 className="text-xl font-bold tracking-tight">Sozlamalar</h1>
         <p className="text-sm text-muted-foreground mt-1">Profilingiz va tilni boshqaring</p>
       </div>
 
       {/* Profile Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <User className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Profil</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+              <User className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Profil</CardTitle>
+              <CardDescription>Ism va familiyangizni yangilang</CardDescription>
+            </div>
           </div>
-          <CardDescription>Ism va familiyangizni yangilang</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600 text-lg font-bold dark:bg-blue-950/40 dark:text-blue-300">
+              {initials}
+            </div>
+            <div>
+              <p className="font-medium">{[user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Ism kiritilmagan'}</p>
+              <p className="text-sm text-muted-foreground">{phoneDisplay}</p>
+            </div>
+          </div>
+          <Separator />
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName">Ism</Label>
@@ -186,27 +201,42 @@ export default function SettingsPage() {
       {/* Language Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Languages className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Til</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+              <Languages className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Til</CardTitle>
+              <CardDescription>Interfeys va savollar tilini tanlang</CardDescription>
+            </div>
           </div>
-          <CardDescription>Interfeys va savollar tilini tanlang</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <RadioGroup
-            value={selectedLang}
-            onValueChange={(val) => setSelectedLang(val as Locale)}
-            className="space-y-3"
-          >
-            {languageOptions.map((opt) => (
-              <div key={opt.value} className="flex items-center space-x-3">
-                <RadioGroupItem value={opt.value} id={`lang-${opt.value}`} />
-                <Label htmlFor={`lang-${opt.value}`} className="cursor-pointer font-normal">
-                  {opt.label}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
+          <div className="grid gap-3">
+            {languageOptions.map((opt) => {
+              const isSelected = selectedLang === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSelectedLang(opt.value)}
+                  className={`flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                    isSelected
+                      ? 'border-green-500 bg-green-50 dark:border-green-600 dark:bg-green-950/20'
+                      : 'hover:bg-muted/50'
+                  }`}
+                >
+                  <span className="text-xl">{opt.flag}</span>
+                  <span className={`text-sm font-medium ${isSelected ? 'text-green-700 dark:text-green-300' : ''}`}>
+                    {opt.label}
+                  </span>
+                  {isSelected && (
+                    <CheckCircle2 className="ml-auto h-4 w-4 text-green-600 dark:text-green-400" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
           <Button
             onClick={handleSaveLanguage}
             disabled={savingLang || selectedLang === language}
@@ -222,27 +252,50 @@ export default function SettingsPage() {
       {/* Account Info Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-muted-foreground" />
-            <CardTitle>Hisob ma'lumotlari</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+              <Shield className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Hisob ma&#39;lumotlari</CardTitle>
+              <CardDescription>Hisobingiz haqida umumiy ma&#39;lumot</CardDescription>
+            </div>
           </div>
-          <CardDescription>Hisobingiz haqida umumiy ma'lumot</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Telefon raqam</span>
-              <span className="text-sm font-medium">{phoneDisplay}</span>
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Telefon raqam</span>
+              </div>
+              <span className="text-sm font-medium font-mono">{phoneDisplay}</span>
             </div>
             <Separator />
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Rol</span>
+              <div className="flex items-center gap-2">
+                <Crown className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Rol</span>
+              </div>
               <span className="text-sm font-medium">{roleLabel}</span>
             </div>
             <Separator />
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Obuna</span>
-              <span className="text-sm font-medium">
+              <div className="flex items-center gap-2">
+                {user?.hasActiveSubscription
+                  ? <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  : <XCircle className="h-4 w-4 text-muted-foreground" />
+                }
+                <span className="text-sm text-muted-foreground">Obuna</span>
+              </div>
+              <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${
+                user?.hasActiveSubscription
+                  ? 'text-green-700 dark:text-green-400'
+                  : 'text-muted-foreground'
+              }`}>
+                <span className={`h-2 w-2 rounded-full ${
+                  user?.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                }`} />
                 {user?.hasActiveSubscription ? 'Faol' : 'Faol emas'}
               </span>
             </div>
@@ -251,13 +304,17 @@ export default function SettingsPage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-destructive/50">
+      <Card className="border-red-200 dark:border-red-900/50">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <LogOut className="h-5 w-5 text-destructive" />
-            <CardTitle className="text-destructive">Xavfli zona</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+              <LogOut className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base text-red-600 dark:text-red-400">Xavfli zona</CardTitle>
+              <CardDescription>Hisobdan chiqish barcha qurilmalardagi seansni tugatadi</CardDescription>
+            </div>
           </div>
-          <CardDescription>Hisobdan chiqish barcha qurilmalardagi seansni tugatadi</CardDescription>
         </CardHeader>
         <CardContent>
           <Button

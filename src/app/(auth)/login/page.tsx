@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import PhoneInput from '@/components/auth/phone-input';
@@ -60,6 +60,7 @@ export default function LoginPage() {
       });
       localStorage.setItem('accessToken', tokens.accessToken);
       localStorage.setItem('refreshToken', tokens.refreshToken);
+      apiClient.updateToken(tokens.accessToken);
       const profile = await apiClient.get<{ id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; hasActiveSubscription: boolean; preferredLanguage: 'uz' | 'uzLatin' | 'ru' }>('/auth/me');
       login(tokens.accessToken, tokens.refreshToken, profile);
       sessionStorage.removeItem('otp_phone');
@@ -70,21 +71,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 px-4 py-12">
-      <div className="absolute top-4 right-4 flex gap-1">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-12">
+      <div className="absolute top-4 right-4 flex rounded-lg border overflow-hidden">
         {LANG_OPTIONS.map((opt) => (
-          <button key={opt.key} onClick={() => setLanguage(opt.key)} className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${language === opt.key ? 'bg-primary text-primary-foreground' : 'bg-background border border-input hover:bg-muted'}`}>
+          <button key={opt.key} onClick={() => setLanguage(opt.key)} className={`px-2.5 py-1 text-xs font-medium transition-colors ${language === opt.key ? 'bg-foreground text-background' : 'hover:bg-muted text-muted-foreground'}`}>
             {opt.label}
           </button>
         ))}
       </div>
 
       <div className="w-full max-w-sm space-y-6">
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <Car className="h-8 w-8" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foreground text-background">
+            <Car className="h-6 w-6" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">{texts.title}</h1>
+          <h1 className="text-xl font-bold tracking-tight">{texts.title}</h1>
           <p className="text-sm text-muted-foreground text-center">{texts.subtitle}</p>
         </div>
 
@@ -94,14 +95,16 @@ export default function LoginPage() {
             <CardDescription>SMS orqali tasdiqlash kodi yuboriladi</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <PhoneInput value={phone} onChange={setPhone} disabled={loading} error={phoneError} />
-              {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
-            </div>
+            <form onSubmit={(e) => { e.preventDefault(); if (!loading && phone.length >= 12) handleSendOtp(); }} className="space-y-4">
+              <div className="space-y-1">
+                <PhoneInput value={phone} onChange={setPhone} disabled={loading} error={phoneError} />
+                {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
+              </div>
 
-            <Button className="w-full" size="lg" onClick={handleSendOtp} disabled={loading || phone.length < 12}>
-              {loading ? texts.sending : texts.send}
-            </Button>
+              <Button type="submit" className="w-full" size="lg" disabled={loading || phone.length < 12}>
+                {loading ? texts.sending : texts.send}
+              </Button>
+            </form>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>

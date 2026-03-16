@@ -10,77 +10,132 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
-import { Save, Settings, CreditCard, MessageSquare, GraduationCap, Shield, Wrench } from 'lucide-react';
+import {
+  Save, Settings, CreditCard, MessageSquare, GraduationCap, Shield,
+  Wrench, Loader2, Clock, Hash, Gauge, Smartphone, ToggleRight, Globe,
+} from 'lucide-react';
 
-interface SettingGroup {
-  prefix: string;
+// --- Map each snake_case key to a semantic group ---
+const KEY_GROUP_MAP: Record<string, string> = {
+  free_daily_exam_limit: 'exam',
+  max_active_sessions: 'exam',
+  max_exams_per_day: 'exam',
+  otp_ttl_minutes: 'auth',
+  otp_rate_limit_count: 'auth',
+  otp_rate_limit_window_minutes: 'auth',
+  otp_cooldown_seconds: 'auth',
+  otp_expiry_seconds: 'auth',
+  otp_max_attempts: 'auth',
+  payme_enabled: 'payment',
+  click_enabled: 'payment',
+  sms_provider: 'sms',
+  maintenance_mode: 'system',
+  min_app_version: 'system',
+  presigned_url_hours: 'system',
+};
+
+// --- Human-readable labels and icons per setting key ---
+const KEY_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
+  free_daily_exam_limit: { label: 'Kunlik bepul imtihon limiti', icon: <Hash className="h-3.5 w-3.5" /> },
+  max_active_sessions: { label: 'Maksimal faol seanslar', icon: <Gauge className="h-3.5 w-3.5" /> },
+  max_exams_per_day: { label: "Kuniga maksimal imtihonlar", icon: <Hash className="h-3.5 w-3.5" /> },
+  otp_ttl_minutes: { label: 'OTP amal qilish vaqti (daqiqa)', icon: <Clock className="h-3.5 w-3.5" /> },
+  otp_rate_limit_count: { label: "OTP so'rovlar limiti", icon: <Hash className="h-3.5 w-3.5" /> },
+  otp_rate_limit_window_minutes: { label: 'OTP limit oynasi (daqiqa)', icon: <Clock className="h-3.5 w-3.5" /> },
+  otp_cooldown_seconds: { label: "OTP kutish vaqti (soniya)", icon: <Clock className="h-3.5 w-3.5" /> },
+  otp_expiry_seconds: { label: "OTP tugash vaqti (soniya)", icon: <Clock className="h-3.5 w-3.5" /> },
+  otp_max_attempts: { label: 'OTP maksimal urinishlar', icon: <Hash className="h-3.5 w-3.5" /> },
+  payme_enabled: { label: 'Payme yoqilgan', icon: <ToggleRight className="h-3.5 w-3.5" /> },
+  click_enabled: { label: 'Click yoqilgan', icon: <ToggleRight className="h-3.5 w-3.5" /> },
+  sms_provider: { label: 'SMS provayder', icon: <Smartphone className="h-3.5 w-3.5" /> },
+  maintenance_mode: { label: "Texnik xizmat rejimi", icon: <Wrench className="h-3.5 w-3.5" /> },
+  min_app_version: { label: 'Minimal ilova versiyasi', icon: <Globe className="h-3.5 w-3.5" /> },
+  presigned_url_hours: { label: "URL amal qilish muddati (soat)", icon: <Clock className="h-3.5 w-3.5" /> },
+};
+
+const BOOLEAN_KEYS = new Set(['maintenance_mode', 'payme_enabled', 'click_enabled']);
+
+interface GroupConfig {
   title: string;
   description: string;
   icon: React.ReactNode;
-  settings: SystemSettingDto[];
+  iconBg: string;
+  order: number;
 }
 
-const GROUP_CONFIG: Record<string, { title: string; description: string; icon: React.ReactNode }> = {
-  payment: {
-    title: "To'lov provayderlari",
-    description: "Payme va Click sozlamalari",
-    icon: <CreditCard className="h-5 w-5" />,
-  },
-  sms: {
-    title: 'SMS xabarlar',
-    description: 'Eskiz.uz va SMS sozlamalari',
-    icon: <MessageSquare className="h-5 w-5" />,
-  },
+const GROUP_CONFIG: Record<string, GroupConfig> = {
   exam: {
     title: 'Imtihon sozlamalari',
-    description: "Imtihon vaqti, savollar soni va o'tish bali",
+    description: "Savollar soni, limitlar va sessiya boshqaruvi",
     icon: <GraduationCap className="h-5 w-5" />,
+    iconBg: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+    order: 1,
   },
   auth: {
     title: 'Autentifikatsiya',
-    description: 'OTP, JWT va sessiya sozlamalari',
+    description: 'OTP vaqtlari, limitlar va urinishlar',
     icon: <Shield className="h-5 w-5" />,
+    iconBg: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+    order: 2,
+  },
+  payment: {
+    title: "To'lov provayderlari",
+    description: "Payme va Click yoqish/o'chirish",
+    icon: <CreditCard className="h-5 w-5" />,
+    iconBg: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+    order: 3,
+  },
+  sms: {
+    title: 'SMS xabarlar',
+    description: 'SMS provayder sozlamalari',
+    icon: <MessageSquare className="h-5 w-5" />,
+    iconBg: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    order: 4,
   },
   system: {
     title: 'Tizim',
-    description: "Umumiy tizim sozlamalari va texnik xizmat ko'rsatish rejimi",
+    description: "Texnik xizmat rejimi va umumiy sozlamalar",
     icon: <Wrench className="h-5 w-5" />,
+    iconBg: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+    order: 5,
   },
 };
+
+interface SettingGroup {
+  groupKey: string;
+  config: GroupConfig;
+  settings: SystemSettingDto[];
+}
 
 function groupSettings(settings: SystemSettingDto[]): SettingGroup[] {
   const groups: Record<string, SystemSettingDto[]> = {};
 
   for (const setting of settings) {
-    const prefix = setting.key.split('.')[0];
-    if (!groups[prefix]) groups[prefix] = [];
-    groups[prefix].push(setting);
+    const groupKey = KEY_GROUP_MAP[setting.key] ?? 'system';
+    if (!groups[groupKey]) groups[groupKey] = [];
+    groups[groupKey].push(setting);
   }
 
-  return Object.entries(groups).map(([prefix, items]) => {
-    const config = GROUP_CONFIG[prefix] ?? {
-      title: prefix.charAt(0).toUpperCase() + prefix.slice(1),
-      description: `${prefix} sozlamalari`,
-      icon: <Settings className="h-5 w-5" />,
-    };
-
-    return {
-      prefix,
-      title: config.title,
-      description: config.description,
-      icon: config.icon,
-      settings: items.sort((a, b) => a.key.localeCompare(b.key)),
-    };
-  });
+  return Object.entries(groups)
+    .map(([groupKey, items]) => {
+      const config = GROUP_CONFIG[groupKey] ?? {
+        title: groupKey.charAt(0).toUpperCase() + groupKey.slice(1),
+        description: `${groupKey} sozlamalari`,
+        icon: <Settings className="h-5 w-5" />,
+        iconBg: 'bg-muted text-muted-foreground',
+        order: 99,
+      };
+      return { groupKey, config, settings: items };
+    })
+    .sort((a, b) => a.config.order - b.config.order);
 }
 
-function getSettingLabel(key: string): string {
-  const parts = key.split('.');
-  return parts.slice(1).join(' ').replace(/([A-Z])/g, ' $1').trim();
+function getLabel(key: string): string {
+  return KEY_LABELS[key]?.label ?? key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function isBooleanSetting(key: string): boolean {
-  return key === 'system.maintenanceMode';
+function getIcon(key: string): React.ReactNode {
+  return KEY_LABELS[key]?.icon ?? <Settings className="h-3.5 w-3.5" />;
 }
 
 export default function SystemSettingsPage() {
@@ -136,7 +191,7 @@ export default function SystemSettingsPage() {
         delete next[key];
         return next;
       });
-      toast.success(`"${key}" saqlandi`);
+      toast.success(`"${getLabel(key)}" saqlandi`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : `"${key}" saqlashda xatolik`);
     } finally {
@@ -155,7 +210,7 @@ export default function SystemSettingsPage() {
       return;
     }
 
-    setSavingGroups((prev) => new Set([...prev, group.prefix]));
+    setSavingGroups((prev) => new Set([...prev, group.groupKey]));
     try {
       for (const setting of modifiedSettings) {
         const value = getCurrentValue(setting.key);
@@ -169,13 +224,13 @@ export default function SystemSettingsPage() {
           return next;
         });
       }
-      toast.success(`${group.title} sozlamalari saqlandi`);
+      toast.success(`${group.config.title} saqlandi`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Saqlashda xatolik');
     } finally {
       setSavingGroups((prev) => {
         const next = new Set(prev);
-        next.delete(group.prefix);
+        next.delete(group.groupKey);
         return next;
       });
     }
@@ -184,110 +239,171 @@ export default function SystemSettingsPage() {
   const hasGroupModifications = (group: SettingGroup) =>
     group.settings.some((s) => isModified(s.key));
 
+  const totalModified = Object.keys(editedValues).filter((k) => isModified(k)).length;
   const groups = groupSettings(settings);
 
   if (loading)
     return (
-      <div className="space-y-6 p-6">
-        <Skeleton className="h-8 w-64" />
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-72 mt-2" />
+        </div>
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-48 w-full rounded-xl" />
+          <Card key={i}>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-lg" />
+                <div className="space-y-1.5">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-3.5 w-56" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {Array.from({ length: 3 }).map((_, j) => (
+                <Skeleton key={j} className="h-14 w-full rounded-lg" />
+              ))}
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Tizim sozlamalari</h1>
-        <p className="text-sm text-muted-foreground">
-          Platformaning barcha sozlamalarini boshqarish
-        </p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">Tizim sozlamalari</h1>
+          <p className="text-sm text-muted-foreground">
+            Platformaning barcha sozlamalarini boshqarish
+          </p>
+        </div>
+        {totalModified > 0 && (
+          <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+            {totalModified} o&#39;zgarish saqlanmagan
+          </div>
+        )}
       </div>
 
       <div className="space-y-6">
-        {groups.map((group) => (
-          <Card key={group.prefix}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                    {group.icon}
-                  </div>
-                  <div>
-                    <CardTitle className="text-base">{group.title}</CardTitle>
-                    <CardDescription>{group.description}</CardDescription>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  disabled={!hasGroupModifications(group) || savingGroups.has(group.prefix)}
-                  onClick={() => saveGroup(group)}
-                >
-                  <Save className="h-4 w-4" />
-                  {savingGroups.has(group.prefix) ? 'Saqlanmoqda...' : 'Saqlash'}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {group.settings.map((setting) => {
-                  const currentValue = getCurrentValue(setting.key);
-                  const modified = isModified(setting.key);
-                  const isSaving = savingKeys.has(setting.key);
-                  const isBool = isBooleanSetting(setting.key);
-
-                  return (
-                    <div
-                      key={setting.key}
-                      className={`flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between ${
-                        modified ? 'border-primary/40 bg-primary/5' : ''
-                      }`}
-                    >
-                      <div className="space-y-0.5 flex-1">
-                        <Label className="text-sm font-medium">{getSettingLabel(setting.key)}</Label>
-                        <p className="text-xs text-muted-foreground font-mono">{setting.key}</p>
-                        {setting.description && (
-                          <p className="text-xs text-muted-foreground">{setting.description}</p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {isBool ? (
-                          <Switch
-                            checked={currentValue === 'true'}
-                            onCheckedChange={(checked) =>
-                              handleValueChange(setting.key, String(checked))
-                            }
-                          />
-                        ) : (
-                          <Input
-                            value={currentValue}
-                            onChange={(e) => handleValueChange(setting.key, e.target.value)}
-                            className="w-full sm:w-64"
-                          />
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!modified || isSaving}
-                          onClick={() => saveSetting(setting.key)}
-                        >
-                          {isSaving ? '...' : <Save className="h-3.5 w-3.5" />}
-                        </Button>
-                      </div>
+        {groups.map((group) => {
+          const groupModCount = group.settings.filter((s) => isModified(s.key)).length;
+          return (
+            <Card key={group.groupKey}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${group.config.iconBg}`}>
+                      {group.config.icon}
                     </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-base">{group.config.title}</CardTitle>
+                        {groupModCount > 0 && (
+                          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-100 px-1.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+                            {groupModCount}
+                          </span>
+                        )}
+                      </div>
+                      <CardDescription>{group.config.description}</CardDescription>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    disabled={!hasGroupModifications(group) || savingGroups.has(group.groupKey)}
+                    onClick={() => saveGroup(group)}
+                    className="gap-1.5"
+                  >
+                    {savingGroups.has(group.groupKey)
+                      ? <Loader2 className="h-4 w-4 animate-spin" />
+                      : <Save className="h-4 w-4" />
+                    }
+                    {savingGroups.has(group.groupKey) ? 'Saqlanmoqda...' : 'Saqlash'}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {group.settings.map((setting) => {
+                    const currentValue = getCurrentValue(setting.key);
+                    const modified = isModified(setting.key);
+                    const isSaving = savingKeys.has(setting.key);
+                    const isBool = BOOLEAN_KEYS.has(setting.key);
+
+                    return (
+                      <div
+                        key={setting.key}
+                        className={`flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between transition-colors ${
+                          modified
+                            ? 'border-amber-300 bg-amber-50/50 dark:border-amber-700 dark:bg-amber-950/20'
+                            : 'hover:bg-muted/30'
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5 flex-1">
+                          <div className="mt-0.5 text-muted-foreground">
+                            {getIcon(setting.key)}
+                          </div>
+                          <div className="space-y-0.5">
+                            <Label className="text-sm font-medium">{getLabel(setting.key)}</Label>
+                            {setting.description && (
+                              <p className="text-xs text-muted-foreground">{setting.description}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {isBool ? (
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={currentValue === 'true'}
+                                onCheckedChange={(checked) =>
+                                  handleValueChange(setting.key, String(checked))
+                                }
+                              />
+                              <span className={`text-xs font-medium min-w-16 ${
+                                currentValue === 'true'
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : 'text-muted-foreground'
+                              }`}>
+                                {currentValue === 'true' ? 'Yoqilgan' : "O'chirilgan"}
+                              </span>
+                            </div>
+                          ) : (
+                            <Input
+                              value={currentValue}
+                              onChange={(e) => handleValueChange(setting.key, e.target.value)}
+                              className="w-full sm:w-48"
+                            />
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={!modified || isSaving}
+                            onClick={() => saveSetting(setting.key)}
+                            className="shrink-0"
+                          >
+                            {isSaving
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Save className="h-3.5 w-3.5" />
+                            }
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {groups.length === 0 && (
-        <div className="rounded-md border py-12 text-center">
+        <div className="rounded-lg border border-dashed py-12 text-center">
           <Settings className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-          <p className="text-sm text-muted-foreground">Sozlamalar topilmadi</p>
+          <p className="text-sm font-medium">Sozlamalar topilmadi</p>
+          <p className="text-xs text-muted-foreground mt-1">Hech qanday tizim sozlamasi mavjud emas</p>
         </div>
       )}
     </div>

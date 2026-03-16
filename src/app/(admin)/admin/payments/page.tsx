@@ -27,11 +27,11 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5228/a
 const formatMoney = (tiyins: number) =>
   `${(tiyins / 100).toLocaleString('uz-UZ')} so'm`;
 
-const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  Completed: { label: 'Bajarildi', className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
-  Pending: { label: 'Kutilmoqda', className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
-  Failed: { label: 'Muvaffaqiyatsiz', className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
-  Refunded: { label: 'Qaytarildi', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+const STATUS_CONFIG: Record<string, { label: string; dotColor: string; textColor: string }> = {
+  Completed: { label: 'Bajarildi', dotColor: 'bg-green-500', textColor: 'text-green-700 dark:text-green-400' },
+  Pending: { label: 'Kutilmoqda', dotColor: 'bg-yellow-500', textColor: 'text-yellow-700 dark:text-yellow-400' },
+  Failed: { label: 'Muvaffaqiyatsiz', dotColor: 'bg-red-500', textColor: 'text-red-700 dark:text-red-400' },
+  Refunded: { label: 'Qaytarildi', dotColor: 'bg-blue-500', textColor: 'text-blue-700 dark:text-blue-400' },
 };
 
 const PROVIDER_CONFIG: Record<string, { label: string; className: string }> = {
@@ -40,8 +40,13 @@ const PROVIDER_CONFIG: Record<string, { label: string; className: string }> = {
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const config = STATUS_CONFIG[status] ?? { label: status, className: '' };
-  return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}>{config.label}</span>;
+  const config = STATUS_CONFIG[status] ?? { label: status, dotColor: 'bg-gray-400', textColor: 'text-muted-foreground' };
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${config.textColor}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${config.dotColor}`} />
+      {config.label}
+    </span>
+  );
 }
 
 function ProviderBadge({ provider }: { provider: string }) {
@@ -130,49 +135,63 @@ function TransactionsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Input
-          placeholder="Telefon raqami bo'yicha qidirish..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="sm:max-w-xs"
-        />
-        <Select value={providerFilter} onValueChange={(v) => setProviderFilter(v ?? 'all')}>
-          <SelectTrigger>
-            <SelectValue placeholder="Provayder" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Barcha provayderlar</SelectItem>
-            <SelectItem value="Payme">Payme</SelectItem>
-            <SelectItem value="Click">Click</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
-          <SelectTrigger>
-            <SelectValue placeholder="Holat" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Barcha holatlar</SelectItem>
-            <SelectItem value="Completed">Bajarildi</SelectItem>
-            <SelectItem value="Pending">Kutilmoqda</SelectItem>
-            <SelectItem value="Failed">Muvaffaqiyatsiz</SelectItem>
-            <SelectItem value="Refunded">Qaytarildi</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
+        <div className="flex-1 min-w-[180px]">
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Qidirish</label>
+          <Input
+            placeholder="Telefon raqami..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="min-w-[150px]">
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Provayder</label>
+          <Select value={providerFilter} onValueChange={(v) => setProviderFilter(v ?? 'all')}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Provayder" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha provayderlar</SelectItem>
+              <SelectItem value="Payme">Payme</SelectItem>
+              <SelectItem value="Click">Click</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-[150px]">
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Holat</label>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Holat" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha holatlar</SelectItem>
+              <SelectItem value="Completed">Bajarildi</SelectItem>
+              <SelectItem value="Pending">Kutilmoqda</SelectItem>
+              <SelectItem value="Failed">Muvaffaqiyatsiz</SelectItem>
+              <SelectItem value="Refunded">Qaytarildi</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex items-center gap-2">
-          <Input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            className="w-auto"
-          />
-          <span className="text-sm text-muted-foreground">—</span>
-          <Input
-            type="date"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            className="w-auto"
-          />
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Sanadan</label>
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-auto"
+            />
+          </div>
+          <span className="text-sm text-muted-foreground mt-5">—</span>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Sanagacha</label>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-auto"
+            />
+          </div>
         </div>
       </div>
 
@@ -300,6 +319,7 @@ function RevenueTab() {
           title="Umumiy daromad"
           value={loading ? 0 : formatMoney(revenue?.totalRevenue ?? 0)}
           icon={DollarSign}
+          iconColor="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
           description={`${revenue?.totalTransactions ?? 0} ta tranzaksiya`}
           loading={loading}
         />
@@ -307,24 +327,28 @@ function RevenueTab() {
           title="Bajarilgan"
           value={loading ? 0 : (revenue?.completedTransactions ?? 0).toLocaleString()}
           icon={CheckCircle}
+          iconColor="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
           loading={loading}
         />
         <StatCard
           title="Muvaffaqiyatsiz"
           value={loading ? 0 : (revenue?.failedTransactions ?? 0).toLocaleString()}
           icon={XCircle}
+          iconColor="bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
           loading={loading}
         />
         <StatCard
           title="Payme daromadi"
           value={loading ? 0 : formatMoney(revenue?.paymeRevenue ?? 0)}
           icon={DollarSign}
+          iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
           loading={loading}
         />
         <StatCard
           title="Click daromadi"
           value={loading ? 0 : formatMoney(revenue?.clickRevenue ?? 0)}
           icon={DollarSign}
+          iconColor="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
           loading={loading}
         />
       </div>
@@ -344,7 +368,7 @@ function RevenueTab() {
 export default function PaymentsPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">To&apos;lovlar</h1>
+      <h1 className="text-xl font-bold tracking-tight">To&apos;lovlar</h1>
 
       <Tabs defaultValue="transactions">
         <TabsList>

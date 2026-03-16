@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, CheckCircle, AlertCircle, FileQuestion, Clock, Target } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
 
 interface FlatCategory {
@@ -182,7 +182,7 @@ export default function ExamTemplatesPage() {
 
   if (loading)
     return (
-      <div className="space-y-4 p-6">
+      <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -193,10 +193,10 @@ export default function ExamTemplatesPage() {
     );
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Imtihon shablonlari</h1>
+          <h1 className="text-xl font-bold tracking-tight">Imtihon shablonlari</h1>
           <p className="text-sm text-muted-foreground">
             Jami: {templates.length} ta shablon
           </p>
@@ -227,19 +227,22 @@ export default function ExamTemplatesPage() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Savollar</p>
-                    <p className="font-semibold">{template.questionCount}</p>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="flex flex-col items-center gap-1 rounded-lg bg-blue-50 p-2.5 dark:bg-blue-950/30">
+                    <FileQuestion className="h-4 w-4 text-blue-500" />
+                    <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{template.questionCount}</span>
+                    <span className="text-[10px] text-blue-600/70 dark:text-blue-400/70">savol</span>
                   </div>
-                  <div>
-                    <p className="text-muted-foreground">Vaqt</p>
-                    <p className="font-semibold">{template.durationMinutes} daq.</p>
+                  <div className="flex flex-col items-center gap-1 rounded-lg bg-amber-50 p-2.5 dark:bg-amber-950/30">
+                    <Clock className="h-4 w-4 text-amber-500" />
+                    <span className="text-lg font-bold text-amber-700 dark:text-amber-300">{template.durationMinutes}</span>
+                    <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70">daqiqa</span>
                   </div>
-                  <div>
-                    <p className="text-muted-foreground">O&apos;tish bali</p>
-                    <p className="font-semibold">{template.passScore}</p>
+                  <div className="flex flex-col items-center gap-1 rounded-lg bg-green-50 p-2.5 dark:bg-green-950/30">
+                    <Target className="h-4 w-4 text-green-500" />
+                    <span className="text-lg font-bold text-green-700 dark:text-green-300">{template.passScore}</span>
+                    <span className="text-[10px] text-green-600/70 dark:text-green-400/70">o&apos;tish</span>
                   </div>
                 </div>
 

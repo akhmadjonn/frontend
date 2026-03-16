@@ -56,9 +56,9 @@ export default async function PricingPage() {
         </div>
 
         {/* Free tier */}
-        <div className="mb-8 rounded-xl border bg-muted/30 p-6 text-center">
-          <h3 className="text-lg font-semibold">Bepul</h3>
-          <p className="text-3xl font-bold mt-2">0 so&apos;m</p>
+        <div className="mb-8 rounded-xl border p-6 text-center">
+          <h3 className="text-lg font-bold">Bepul</h3>
+          <p className="text-3xl font-extrabold tracking-tight mt-2">0 so&apos;m</p>
           <p className="text-sm text-muted-foreground mt-1">Cheklangan kunlik imtihonlar</p>
           <ul className="mt-4 space-y-2 text-sm text-left max-w-xs mx-auto">
             <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-600 shrink-0" /> Kunlik bepul imtihonlar</li>
@@ -85,20 +85,20 @@ export default async function PricingPage() {
               return (
                 <div
                   key={plan.id}
-                  className={`relative rounded-xl border p-6 ${isPopular ? 'border-primary shadow-lg ring-1 ring-primary/20' : 'border-border'}`}
+                  className={`relative rounded-xl border p-6 ${isPopular ? 'border-foreground overflow-visible' : 'border-border'}`}
                 >
                   {badge && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center rounded-full bg-primary px-3 py-0.5 text-xs font-semibold text-primary-foreground">
+                      <span className="inline-flex items-center rounded-full bg-foreground px-3 py-0.5 text-[11px] font-bold text-background">
                         {badge}
                       </span>
                     </div>
                   )}
 
                   <div className="text-center">
-                    <h3 className="text-lg font-semibold">{plan.name.uzLatin}</h3>
+                    <h3 className="text-lg font-bold">{plan.name.uzLatin}</h3>
                     <div className="mt-3">
-                      <span className="text-3xl font-bold">{formatPrice(plan.priceInTiyins)}</span>
+                      <span className="text-3xl font-extrabold tracking-tight">{formatPrice(plan.priceInTiyins)}</span>
                       <span className="text-sm text-muted-foreground ml-1">so&apos;m</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">{plan.durationDays} kun</p>

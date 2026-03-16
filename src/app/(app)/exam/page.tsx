@@ -129,19 +129,19 @@ export default function ExamPage() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold">Imtihon</h1>
+        <h1 className="text-xl font-bold tracking-tight">Imtihon</h1>
         <p className="text-sm text-muted-foreground mt-1">Rejim tanlang va imtihonni boshlang</p>
       </div>
 
       {/* Active session banner */}
       {!checkingActive && hasActive && (
-        <Card className="border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/10">
+        <Card className="border border-amber-300 dark:border-amber-700">
           <CardContent className="pt-4 space-y-3">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="font-medium text-amber-800 dark:text-amber-300">Tugallanmagan imtihon bor</p>
-                <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
+                <p className="font-medium text-sm">Tugallanmagan imtihon bor</p>
+                <p className="text-sm text-muted-foreground mt-1">
                   {MODE_LABELS[activeExam.mode] ?? activeExam.mode} &mdash; {activeExam.answeredQuestions}/{activeExam.totalQuestions} javob berilgan
                 </p>
               </div>
@@ -151,7 +151,7 @@ export default function ExamPage() {
                 <Play className="h-4 w-4" />
                 {loading ? 'Yuklanmoqda...' : 'Davom ettirish'}
               </Button>
-              <Button variant="outline" className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleAbandon} disabled={abandoning}>
+              <Button variant="outline" className="gap-2 text-destructive hover:text-destructive" onClick={handleAbandon} disabled={abandoning}>
                 <Trash2 className="h-4 w-4" />
                 {abandoning ? '...' : 'Bekor qilish'}
               </Button>
@@ -162,26 +162,26 @@ export default function ExamPage() {
 
       <div className="grid gap-4">
         {/* Exam mode */}
-        <Card className="border-2 hover:border-primary/50 transition-colors">
+        <Card className="relative hover:border-foreground/20 transition-colors">
           <div className="absolute right-3 top-3">
-            <Badge variant="secondary">Haqiqiy imtihon</Badge>
+            <Badge variant="secondary" className="text-[11px]">Haqiqiy imtihon</Badge>
           </div>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
-                <GraduationCap className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                <GraduationCap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <CardTitle className="text-base">Imtihon (Sinov)</CardTitle>
+                <CardTitle className="text-base font-semibold">Imtihon (Sinov)</CardTitle>
                 <p className="text-xs text-muted-foreground">UBDD imtihoniga tayyorlanish</p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><Hash className="h-3.5 w-3.5" />{EXAM_QUESTION_COUNT} savol</span>
-              <span className="flex items-center gap-1"><Timer className="h-3.5 w-3.5" />{EXAM_TIME_MINUTES} daqiqa</span>
-              <span className="flex items-center gap-1"><Trophy className="h-3.5 w-3.5" />O&apos;tish: {EXAM_PASSING_SCORE}%</span>
+            <div className="flex flex-wrap gap-2">
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{EXAM_QUESTION_COUNT} savol</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />{EXAM_TIME_MINUTES} daqiqa</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Trophy className="h-3.5 w-3.5" />O&apos;tish: {EXAM_PASSING_SCORE}%</span>
             </div>
             <Button className="w-full" onClick={() => handleStart('exam')} disabled={loading !== null || hasActive}>
               {loading === 'exam' ? 'Yuklanmoqda...' : 'Imtihonni boshlash'}
@@ -190,23 +190,23 @@ export default function ExamPage() {
         </Card>
 
         {/* Ticket mode */}
-        <Card className="border-2 hover:border-primary/50 transition-colors">
+        <Card className="hover:border-foreground/20 transition-colors">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/30">
-                <Hash className="h-5 w-5 text-purple-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950/30">
+                <Hash className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
-                <CardTitle className="text-base">Bilet (Ticket)</CardTitle>
+                <CardTitle className="text-base font-semibold">Bilet (Ticket)</CardTitle>
                 <p className="text-xs text-muted-foreground">Bilet raqami bo&apos;yicha savollar</p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><Hash className="h-3.5 w-3.5" />20 savol</span>
-              <span className="flex items-center gap-1"><Timer className="h-3.5 w-3.5" />25 daqiqa</span>
-              <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />57 bilet</span>
+            <div className="flex flex-wrap gap-2">
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />20 savol</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />25 daqiqa</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />57 bilet</span>
             </div>
             <div className="flex gap-2">
               <Select value={String(selectedTicket)} onValueChange={(v) => setSelectedTicket(Number(v))}>
@@ -219,7 +219,7 @@ export default function ExamPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive} className="shrink-0">
+              <Button variant="outline" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive} className="shrink-0">
                 {loading === 'ticket' ? '...' : 'Boshlash'}
               </Button>
             </div>
@@ -227,22 +227,22 @@ export default function ExamPage() {
         </Card>
 
         {/* Marathon mode */}
-        <Card className="border-2 hover:border-primary/50 transition-colors">
+        <Card className="hover:border-foreground/20 transition-colors">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/30">
-                <Trophy className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
+                <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <CardTitle className="text-base">Maraton</CardTitle>
+                <CardTitle className="text-base font-semibold">Maraton</CardTitle>
                 <p className="text-xs text-muted-foreground">Barcha 1200+ savol, taymer yo&apos;q</p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><Hash className="h-3.5 w-3.5" />1200+ savol</span>
-              <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />Jarayon saqlanadi</span>
+            <div className="flex flex-wrap gap-2">
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />1200+ savol</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />Jarayon saqlanadi</span>
             </div>
             <Button variant="outline" className="w-full" onClick={() => handleStart('marathon')} disabled={loading !== null || hasActive}>
               {loading === 'marathon' ? 'Yuklanmoqda...' : 'Maratonni boshlash'}
@@ -251,8 +251,8 @@ export default function ExamPage() {
         </Card>
       </div>
 
-      <div className="text-center">
-        <Link href="/progress" className="text-sm text-primary hover:underline">
+      <div className="rounded-lg bg-muted p-4 text-center">
+        <Link href="/progress" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
           Imtihon tarixini ko&apos;rish
         </Link>
       </div>
