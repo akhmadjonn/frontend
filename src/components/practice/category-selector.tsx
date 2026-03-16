@@ -63,16 +63,16 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
             onClick={() => onSelect(cat.id)}
             className="group text-left w-full"
           >
-            <Card className="transition-all hover:border-primary/50 hover:shadow-sm">
+            <Card className="transition-all hover:border-foreground/20 hover:shadow-sm">
               <CardContent className="flex items-center gap-3 p-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <BookOpen className="h-4 w-4 text-primary" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                  <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{t(cat.name)}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${accuracy}%` }} />
+                      <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${accuracy}%` }} />
                     </div>
                     <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">{accuracy}%</span>
                   </div>
@@ -82,7 +82,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
                     </p>
                   )}
                 </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-primary transition-colors" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
               </CardContent>
             </Card>
           </button>

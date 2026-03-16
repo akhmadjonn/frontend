@@ -48,9 +48,10 @@ export default function VerifyPage() {
     setError('');
     try {
       const tokens = await apiClient.post<{ accessToken: string; refreshToken: string; isNewUser: boolean }>('/auth/otp/verify', { phoneNumber: phone, code });
-      // Store tokens so /auth/me call has Authorization header
+      // Store tokens and update apiClient cache so /auth/me call has Authorization header
       localStorage.setItem('accessToken', tokens.accessToken);
       localStorage.setItem('refreshToken', tokens.refreshToken);
+      apiClient.updateToken(tokens.accessToken);
       const user = await apiClient.get<{ id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; hasActiveSubscription: boolean; preferredLanguage: 'uz' | 'uzLatin' | 'ru' }>('/auth/me');
       login(tokens.accessToken, tokens.refreshToken, user);
       setVerified(true);
@@ -91,7 +92,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 px-4 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-sm space-y-6">
         <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2">
           <ArrowLeft className="h-4 w-4" />
@@ -104,14 +105,16 @@ export default function VerifyPage() {
             <CardDescription>{formatPhone(phone)} raqamiga SMS kod yuborildi</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <OtpInput value={otp} onChange={setOtp} onComplete={handleVerify} disabled={loading || attemptsLeft === 0} error={error} />
+            <form onSubmit={(e) => { e.preventDefault(); if (!loading && otp.length === 6) handleVerify(otp); }} className="space-y-6">
+              <OtpInput value={otp} onChange={setOtp} onComplete={handleVerify} disabled={loading || attemptsLeft === 0} error={error} />
 
-            {error && <p className="text-center text-sm text-destructive">{error}</p>}
-            {attemptsLeft < 3 && attemptsLeft > 0 && <p className="text-center text-sm text-amber-600">{texts.attempts(attemptsLeft)}</p>}
+              {error && <p className="text-center text-sm text-destructive">{error}</p>}
+              {attemptsLeft < 3 && attemptsLeft > 0 && <p className="text-center text-sm text-amber-600">{texts.attempts(attemptsLeft)}</p>}
 
-            <Button className="w-full" size="lg" onClick={() => handleVerify(otp)} disabled={loading || otp.length !== 6}>
-              {loading ? texts.verifying : texts.verify}
-            </Button>
+              <Button type="submit" className="w-full" size="lg" disabled={loading || otp.length !== 6}>
+                {loading ? texts.verifying : texts.verify}
+              </Button>
+            </form>
 
             <div className="text-center">
               {resendCooldown > 0

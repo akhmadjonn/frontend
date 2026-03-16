@@ -25,6 +25,12 @@ const EXAM_MODE_LABELS: Record<string, string> = {
   Marathon: 'Maraton',
 };
 
+const EXAM_MODE_COLORS: Record<string, string> = {
+  Exam: 'bg-blue-500',
+  Ticket: 'bg-amber-500',
+  Marathon: 'bg-green-500',
+};
+
 export default function AdminDashboardPage() {
   const [dashboard, setDashboard] = useState<AdminDashboardDto | null>(null);
   const [revenue, setRevenue] = useState<RevenueReportDto | null>(null);
@@ -51,7 +57,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -59,6 +65,7 @@ export default function AdminDashboardPage() {
           title="Foydalanuvchilar"
           value={loading ? 0 : dashboard?.totalUsers.toLocaleString() ?? '0'}
           icon={Users}
+          iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
           description={`+${dashboard?.newUsersThisWeek ?? 0} shu hafta`}
           loading={loading}
         />
@@ -66,6 +73,7 @@ export default function AdminDashboardPage() {
           title="Faol savollar"
           value={loading ? 0 : dashboard?.activeQuestions.toLocaleString() ?? '0'}
           icon={FileQuestion}
+          iconColor="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
           description={`${dashboard?.totalQuestions.toLocaleString() ?? 0} jami`}
           loading={loading}
         />
@@ -73,6 +81,7 @@ export default function AdminDashboardPage() {
           title="Imtihon sessiyalari"
           value={loading ? 0 : dashboard?.totalExamSessions.toLocaleString() ?? '0'}
           icon={GraduationCap}
+          iconColor="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
           description={`${dashboard?.activeSubscriptions ?? 0} faol obuna`}
           loading={loading}
         />
@@ -80,6 +89,7 @@ export default function AdminDashboardPage() {
           title="Daromad"
           value={loading ? 0 : formatMoney(dashboard?.totalRevenue ?? 0)}
           icon={DollarSign}
+          iconColor="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
           description={`${dashboard?.activeSubscriptions ?? 0} faol obuna`}
           loading={loading}
         />
@@ -88,8 +98,8 @@ export default function AdminDashboardPage() {
       {/* Revenue chart + exam mode breakdown */}
       <div className="grid gap-4 lg:grid-cols-7">
         <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Kunlik daromad</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Kunlik daromad</CardTitle>
           </CardHeader>
           <CardContent>
             <RevenueChart data={revenue?.dailyBreakdown} loading={loading} />
@@ -97,16 +107,16 @@ export default function AdminDashboardPage() {
         </Card>
 
         <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Imtihon turlari</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Imtihon turlari</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-12" />
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-2 w-full" />
                   </div>
                 ))}
               </div>
@@ -115,10 +125,11 @@ export default function AdminDashboardPage() {
                 Ma&apos;lumot topilmadi
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {dashboard.examModeBreakdown.map((item) => {
                   const total = dashboard.examModeBreakdown.reduce((s, m) => s + m.count, 0);
                   const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                  const barColor = EXAM_MODE_COLORS[item.mode] ?? 'bg-primary';
 
                   return (
                     <div key={item.mode} className="space-y-1.5">
@@ -126,13 +137,13 @@ export default function AdminDashboardPage() {
                         <span className="font-medium">
                           {EXAM_MODE_LABELS[item.mode] ?? item.mode}
                         </span>
-                        <span className="text-muted-foreground">
+                        <span className="text-muted-foreground tabular-nums">
                           {item.count.toLocaleString()} ({pct}%)
                         </span>
                       </div>
                       <div className="h-2 rounded-full bg-muted overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-chart-1 transition-all"
+                          className={`h-full rounded-full ${barColor} transition-all`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -147,8 +158,8 @@ export default function AdminDashboardPage() {
 
       {/* Recent users */}
       <Card>
-        <CardHeader>
-          <CardTitle>Yangi foydalanuvchilar</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">Yangi foydalanuvchilar</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -168,9 +179,9 @@ export default function AdminDashboardPage() {
               Foydalanuvchilar topilmadi
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {dashboard.recentUsers.map((user) => (
-                <div key={user.id} className="flex items-center gap-3 rounded-lg border p-3">
+                <div key={user.id} className="flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-muted/50">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                     {(user.firstName ?? user.phoneNumber ?? '?')[0].toUpperCase()}
                   </div>
@@ -183,7 +194,7 @@ export default function AdminDashboardPage() {
                     </p>
                   </div>
                   {user.phoneNumber && (
-                    <span className="text-xs text-muted-foreground hidden sm:block">
+                    <span className="text-xs text-muted-foreground hidden sm:block tabular-nums">
                       {user.phoneNumber}
                     </span>
                   )}

@@ -46,17 +46,17 @@ export default function PracticePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Mashq qilish</h1>
+        <h1 className="text-xl font-bold tracking-tight">Mashq qilish</h1>
         <p className="text-sm text-muted-foreground mt-1">Kategoriya tanlang yoki takrorlang</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
         {/* Review Due */}
         <button onClick={() => router.push('/practice/session?review=true')} className="text-left w-full">
-          <Card className="transition-all hover:border-orange-300 hover:shadow-sm border-orange-200 dark:border-orange-800">
+          <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
-                <RefreshCw className="h-5 w-5 text-orange-600" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-950/30">
+                <RefreshCw className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold">Takrorlash</p>
@@ -66,7 +66,7 @@ export default function PracticePage() {
                 }
               </div>
               {!loading && dueCount > 0 && (
-                <Badge className="bg-orange-500 text-white shrink-0">{dueCount}</Badge>
+                <Badge variant="secondary" className="shrink-0">{dueCount}</Badge>
               )}
             </CardContent>
           </Card>
@@ -74,10 +74,10 @@ export default function PracticePage() {
 
         {/* All Categories Practice */}
         <button onClick={() => router.push('/practice/session')} className="text-left w-full">
-          <Card className="transition-all hover:border-primary/50 hover:shadow-sm">
+          <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <Zap className="h-5 w-5 text-primary" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
+                <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold">Aralash mashq</p>
@@ -90,10 +90,10 @@ export default function PracticePage() {
 
         {/* Marathon */}
         <Link href="/exam" className="w-full">
-          <Card className="transition-all hover:border-purple-300 hover:shadow-sm h-full">
+          <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors h-full">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
-                <BookOpen className="h-5 w-5 text-purple-600" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
+                <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold">Maraton</p>
@@ -106,7 +106,7 @@ export default function PracticePage() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold mb-3">Kategoriyalar</h2>
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Kategoriyalar</h2>
         <CategorySelector onSelect={handleCategorySelect} performance={categories} />
       </div>
     </div>

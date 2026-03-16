@@ -58,14 +58,15 @@ export default function RevenueChart({ data, loading }: RevenueChartProps) {
           labelFormatter={(label) => `Sana: ${label}`}
           contentStyle={{
             borderRadius: 8,
-            border: '1px solid hsl(var(--border))',
-            backgroundColor: 'hsl(var(--card))',
-            color: 'hsl(var(--card-foreground))',
+            border: '1px solid var(--border)',
+            backgroundColor: 'var(--card)',
+            color: 'var(--card-foreground)',
+            fontSize: 12,
           }}
         />
         <Bar
           dataKey="revenue"
-          fill="oklch(0.809 0.105 251.813)"
+          fill="var(--chart-1)"
           radius={[4, 4, 0, 0]}
         />
       </BarChart>

@@ -96,9 +96,15 @@ export default function UsersPage() {
       header: 'Holat',
       render: (user) =>
         user.isBlocked ? (
-          <Badge variant="destructive">Bloklangan</Badge>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-700 dark:text-red-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+            Bloklangan
+          </span>
         ) : (
-          <Badge variant="secondary">Faol</Badge>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+            Faol
+          </span>
         ),
     },
     {
@@ -117,38 +123,46 @@ export default function UsersPage() {
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Foydalanuvchilar</h1>
+    <div className="space-y-6">
+      <h1 className="text-xl font-bold tracking-tight">Foydalanuvchilar</h1>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Input
-          placeholder="Ism yoki telefon raqami bo'yicha qidirish..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="sm:max-w-xs"
-        />
+      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
+        <div className="flex-1 min-w-[200px]">
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Qidirish</label>
+          <Input
+            placeholder="Ism yoki telefon raqami..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-        <Select value={roleFilter} onValueChange={(val) => setRoleFilter(val as string)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Rol" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Barcha rollar</SelectItem>
-            <SelectItem value="user">Foydalanuvchi</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="min-w-[140px]">
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Rol</label>
+          <Select value={roleFilter} onValueChange={(val) => setRoleFilter(val as string)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Rol" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha rollar</SelectItem>
+              <SelectItem value="user">Foydalanuvchi</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        <Select value={blockedFilter} onValueChange={(val) => setBlockedFilter(val as string)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Holat" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Barcha holatlar</SelectItem>
-            <SelectItem value="yes">Bloklangan</SelectItem>
-            <SelectItem value="no">Faol</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="min-w-[140px]">
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Holat</label>
+          <Select value={blockedFilter} onValueChange={(val) => setBlockedFilter(val as string)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Holat" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Barcha holatlar</SelectItem>
+              <SelectItem value="yes">Bloklangan</SelectItem>
+              <SelectItem value="no">Faol</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <DataTable

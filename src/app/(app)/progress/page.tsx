@@ -8,14 +8,14 @@ import StatsCards from '@/components/progress/stats-cards';
 import StreakCalendar from '@/components/progress/streak-calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowUpDown, ChevronUp, ChevronDown, Target, CalendarCheck, RefreshCw, BookOpen } from 'lucide-react';
 
-const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart'), {
+const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart-switcher'), {
   ssr: false,
   loading: () => <Card><CardContent className="p-4"><Skeleton className="h-48 w-full" /></CardContent></Card>,
 });
 
-const CategoryRadar = dynamic(() => import('@/components/progress/category-radar'), {
+const CategoryChart = dynamic(() => import('@/components/progress/category-chart-switcher'), {
   ssr: false,
   loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
 });
@@ -64,39 +64,75 @@ export default function ProgressPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Progress</h1>
+        <h1 className="text-xl font-bold tracking-tight">Progress</h1>
         <p className="text-sm text-muted-foreground mt-1">Umumiy natijalar va statistika</p>
       </div>
 
       {/* Stats cards */}
       <StatsCards data={dashboard ?? undefined} loading={loading} />
 
-      {/* Overall stats text */}
+      {/* Overall stats */}
       {!loading && dashboard && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">O&apos;rtacha ball</p>
-            <p className="text-xl font-bold mt-1">{Math.round(dashboard.averageExamScore)}%</p>
-          </CardContent></Card>
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Bugun javoblar</p>
-            <p className="text-xl font-bold mt-1">{dashboard.questionsAnsweredToday}</p>
-          </CardContent></Card>
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Takrorlash kerak</p>
-            <p className="text-xl font-bold mt-1">{dashboard.dueForReview}</p>
-          </CardContent></Card>
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Jami savollar</p>
-            <p className="text-xl font-bold mt-1">{dashboard.totalQuestionsPracticed.toLocaleString()}</p>
-          </CardContent></Card>
+          <Card>
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 shrink-0">
+                  <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">O&apos;rtacha ball</p>
+                  <p className="text-lg font-bold">{Math.round(dashboard.averageExamScore)}%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30 shrink-0">
+                  <CalendarCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Bugun javoblar</p>
+                  <p className="text-lg font-bold">{dashboard.questionsAnsweredToday}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30 shrink-0">
+                  <RefreshCw className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Takrorlash kerak</p>
+                  <p className="text-lg font-bold">{dashboard.dueForReview}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30 shrink-0">
+                  <BookOpen className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Jami savollar</p>
+                  <p className="text-lg font-bold">{dashboard.totalQuestionsPracticed.toLocaleString()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
         <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} />
-        <CategoryRadar data={categories ?? []} loading={loading} />
+        <CategoryChart data={categories ?? []} loading={loading} />
       </div>
 
       {/* Streak calendar */}

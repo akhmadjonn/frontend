@@ -239,9 +239,15 @@ export default function AnnouncementsPage() {
       className: 'w-20',
       render: (a) =>
         a.isActive ? (
-          <Badge variant="default">Faol</Badge>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+            Faol
+          </span>
         ) : (
-          <Badge variant="secondary">Nofaol</Badge>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+            Nofaol
+          </span>
         ),
     },
     {
@@ -292,10 +298,10 @@ export default function AnnouncementsPage() {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">E&apos;lonlar</h1>
+          <h1 className="text-xl font-bold tracking-tight">E&apos;lonlar</h1>
           <p className="text-sm text-muted-foreground">
             Foydalanuvchilarga ko&apos;rsatiladigan e&apos;lonlarni boshqarish
           </p>

@@ -8,17 +8,16 @@ import { useDashboardStore } from '@/stores/dashboard-store';
 import StatsCards from '@/components/progress/stats-cards';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GraduationCap, BookOpen, RefreshCw, Flame } from 'lucide-react';
+import { GraduationCap, BookOpen, RefreshCw, Flame, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart'), {
+const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart-switcher'), {
   ssr: false,
   loading: () => <Card><CardContent className="p-4"><Skeleton className="h-48 w-full" /></CardContent></Card>,
 });
 
-const CategoryRadar = dynamic(() => import('@/components/progress/category-radar'), {
+const CategoryChart = dynamic(() => import('@/components/progress/category-chart-switcher'), {
   ssr: false,
   loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
 });
@@ -40,7 +39,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{greeting()}{user?.firstName ? `, ${user.firstName}` : ''}!</h1>
+          <h1 className="text-xl font-bold tracking-tight">{greeting()}{user?.firstName ? `, ${user.firstName}` : ''}!</h1>
           <p className="text-sm text-muted-foreground mt-1">Bugun ham mashq qilishga tayyor?</p>
         </div>
         {dashboard?.currentStreak && dashboard.currentStreak > 0 ? (
@@ -55,7 +54,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} />
-        <CategoryRadar data={categories ?? []} loading={loading} />
+        <CategoryChart data={categories ?? []} loading={loading} />
       </div>
 
       <Card>
@@ -65,23 +64,47 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full" />)}</div>
+            <div className="space-y-2">{[1,2,3].map(i => <Skeleton key={i} className="h-12 w-full rounded-lg" />)}</div>
           ) : !dashboard?.recentExams.length ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Hali imtihon olinmagan</p>
+            <div className="flex flex-col items-center py-6 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted mb-2">
+                <GraduationCap className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-sm text-muted-foreground">Hali imtihon olinmagan</p>
+              <Link href="/exam">
+                <Button variant="outline" size="sm" className="mt-3 gap-1.5">
+                  Birinchi imtihonni boshlash
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
+            </div>
           ) : (
             <div className="space-y-2">
               {dashboard.recentExams.map((exam) => (
                 <Link key={exam.examId} href={`/exam/result/${exam.examId}`} className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <GraduationCap className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg shrink-0 ${
+                      exam.passed
+                        ? 'bg-green-100 dark:bg-green-900/30'
+                        : 'bg-red-100 dark:bg-red-900/30'
+                    }`}>
+                      {exam.passed
+                        ? <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        : <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      }
+                    </div>
                     <div>
                       <p className="text-sm font-medium">{exam.score}% ball</p>
                       <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(exam.completedAt), { addSuffix: true })}</p>
                     </div>
                   </div>
-                  <Badge variant={exam.passed ? 'default' : 'destructive'} className="shrink-0">
+                  <span className={`text-xs font-medium ${
+                    exam.passed
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}>
                     {exam.passed ? "O'tdi" : "O'tmadi"}
-                  </Badge>
+                  </span>
                 </Link>
               ))}
             </div>
@@ -91,7 +114,9 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Link href="/exam">
-          <Button className="w-full gap-2" size="lg"><GraduationCap className="h-4 w-4" />Imtihon boshlash</Button>
+          <Button className="w-full gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700" size="lg">
+            <GraduationCap className="h-4 w-4" />Imtihon boshlash
+          </Button>
         </Link>
         <Link href="/practice">
           <Button variant="outline" className="w-full gap-2" size="lg"><BookOpen className="h-4 w-4" />Mashq qilish</Button>
@@ -99,7 +124,11 @@ export default function DashboardPage() {
         <Link href="/practice">
           <Button variant="outline" className="w-full gap-2" size="lg">
             <RefreshCw className="h-4 w-4" />Takrorlash
-            {dashboard?.dueForReview ? <Badge variant="secondary" className="ml-1">{dashboard.dueForReview}</Badge> : null}
+            {dashboard?.dueForReview ? (
+              <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-100 px-1.5 text-[10px] font-bold text-orange-700 dark:bg-orange-900/40 dark:text-orange-400">
+                {dashboard.dueForReview}
+              </span>
+            ) : null}
           </Button>
         </Link>
       </div>

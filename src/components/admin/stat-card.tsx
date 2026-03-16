@@ -13,15 +13,19 @@ interface StatCardProps {
   trend?: { value: number; label: string };
   loading?: boolean;
   className?: string;
+  iconColor?: string;
 }
 
-export default function StatCard({ title, value, icon: Icon, description, trend, loading, className }: StatCardProps) {
+export default function StatCard({ title, value, icon: Icon, description, trend, loading, className, iconColor }: StatCardProps) {
   if (loading)
     return (
       <Card className={className}>
         <CardContent className="p-4">
-          <Skeleton className="h-4 w-24 mb-3" />
-          <Skeleton className="h-8 w-20 mb-1" />
+          <div className="flex items-center gap-3 mb-3">
+            <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-7 w-20 mb-1" />
           <Skeleton className="h-3 w-32" />
         </CardContent>
       </Card>
@@ -30,11 +34,13 @@ export default function StatCard({ title, value, icon: Icon, description, trend,
   return (
     <Card className={className}>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-3 mb-3">
+          <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg shrink-0', iconColor ?? 'bg-primary/10 text-primary')}>
+            <Icon className="h-4 w-4" />
+          </div>
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
-        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-2xl font-bold tracking-tight">{value}</p>
         {(description || trend) && (
           <p className="text-xs text-muted-foreground mt-1">
             {trend && (
