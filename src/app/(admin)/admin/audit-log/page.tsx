@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLocale } from '@/hooks/use-locale';
 
 
 const DataTable = dynamic(() => import('@/components/admin/data-table'), {
@@ -51,6 +52,7 @@ const ACTION_OPTIONS = ['Create', 'Update', 'Delete', 'StatusChange', 'Login', '
 const PAGE_SIZE = 20;
 
 export default function AuditLogPage() {
+  const { ts } = useLocale();
   const [data, setData] = useState<PaginatedList<AuditLogDto> | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -99,7 +101,7 @@ export default function AuditLogPage() {
       );
       setData(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Audit loglarni yuklashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.auditLog.loadError'));
     } finally {
       setLoading(false);
     }
@@ -164,7 +166,7 @@ export default function AuditLogPage() {
     },
     {
       key: 'user',
-      header: 'Foydalanuvchi',
+      header: ts('admin.auditLog.user'),
       className: 'min-w-[120px]',
       render: (log) => (
         <span className="text-sm font-medium">{log.userName || log.userId.slice(0, 8)}</span>
@@ -172,19 +174,19 @@ export default function AuditLogPage() {
     },
     {
       key: 'action',
-      header: 'Harakat',
+      header: ts('admin.auditLog.action'),
       className: 'w-24',
       render: (log) => renderActionBadge(log.action),
     },
     {
       key: 'entityType',
-      header: 'Turi',
+      header: ts('admin.auditLog.type'),
       className: 'min-w-[100px]',
       render: (log) => <span className="text-sm">{log.entityType}</span>,
     },
     {
       key: 'entityId',
-      header: 'ID',
+      header: ts('admin.auditLog.entityId'),
       className: 'min-w-[80px]',
       render: (log) => (
         <span className="text-xs font-mono text-muted-foreground">
@@ -194,7 +196,7 @@ export default function AuditLogPage() {
     },
     {
       key: 'ip',
-      header: 'IP manzil',
+      header: ts('admin.auditLog.ipAddress'),
       className: 'min-w-[110px]',
       render: (log) => (
         <span className="text-xs font-mono text-muted-foreground">
@@ -204,7 +206,7 @@ export default function AuditLogPage() {
     },
     {
       key: 'createdAt',
-      header: 'Sana',
+      header: ts('admin.auditLog.date'),
       className: 'min-w-[140px]',
       render: (log) => (
         <span className="text-sm">
@@ -235,7 +237,7 @@ export default function AuditLogPage() {
                 {item.oldValues !== null && (
                   <div>
                     <p className="mb-1 text-xs font-medium text-muted-foreground">
-                      Oldingi qiymatlar
+                      {ts('admin.auditLog.oldValues')}
                     </p>
                     <pre className="rounded-md bg-muted p-3 text-xs overflow-auto max-h-48">
                       {JSON.stringify(item.oldValues, null, 2)}
@@ -245,7 +247,7 @@ export default function AuditLogPage() {
                 {item.newValues !== null && (
                   <div>
                     <p className="mb-1 text-xs font-medium text-muted-foreground">
-                      Yangi qiymatlar
+                      {ts('admin.auditLog.newValues')}
                     </p>
                     <pre className="rounded-md bg-muted p-3 text-xs overflow-auto max-h-48">
                       {JSON.stringify(item.newValues, null, 2)}
@@ -264,21 +266,21 @@ export default function AuditLogPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">Audit log</h1>
+        <h1 className="text-xl font-bold tracking-tight">{ts('admin.auditLog.title')}</h1>
         <p className="text-sm text-muted-foreground">
-          Tizim harakatlari jurnali
+          {ts('admin.auditLog.subtitle')}
         </p>
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="min-w-[160px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Harakat turi</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.auditLog.actionType')}</label>
           <Select value={actionFilter} onValueChange={(val) => setActionFilter(val ?? 'all')}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Barchasi" />
+              <SelectValue placeholder={ts('common.all')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Barchasi</SelectItem>
+              <SelectItem value="all">{ts('common.all')}</SelectItem>
               {ACTION_OPTIONS.map((action) => (
                 <SelectItem key={action} value={action}>
                   {action}
@@ -289,25 +291,25 @@ export default function AuditLogPage() {
         </div>
 
         <div className="min-w-[140px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Entity turi</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.auditLog.entityType')}</label>
           <Input
-            placeholder="Masalan: Question"
+            placeholder={ts('admin.auditLog.entityPlaceholder')}
             value={entityTypeFilter}
             onChange={(e) => setEntityTypeFilter(e.target.value)}
           />
         </div>
 
         <div className="min-w-[160px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Foydalanuvchi</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.auditLog.user')}</label>
           <Input
-            placeholder="Ism yoki ID"
+            placeholder={ts('admin.auditLog.userPlaceholder')}
             value={userSearch}
             onChange={(e) => setUserSearch(e.target.value)}
           />
         </div>
 
         <div className="min-w-[140px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Sanadan</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.auditLog.dateFrom')}</label>
           <Input
             type="date"
             value={dateFrom}
@@ -316,7 +318,7 @@ export default function AuditLogPage() {
         </div>
 
         <div className="min-w-[140px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Sanagacha</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.auditLog.dateTo')}</label>
           <Input
             type="date"
             value={dateTo}
@@ -336,7 +338,7 @@ export default function AuditLogPage() {
         page={page}
         totalPages={data?.meta.totalPages}
         onPageChange={setPage}
-        emptyMessage="Audit loglar topilmadi"
+        emptyMessage={ts('admin.auditLog.notFound')}
       />
     </div>
   );

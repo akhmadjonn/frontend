@@ -7,11 +7,11 @@ import { usePracticeStore } from '@/stores/practice-store';
 import PracticeQuestion from '@/components/practice/practice-question';
 import ExplanationPanel from '@/components/practice/explanation-panel';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, ArrowRight, RotateCcw, CheckCircle, XCircle, Trophy } from 'lucide-react';
 import { PRACTICE_BATCH_SIZE } from '@/lib/constants';
+import { useLocale } from '@/hooks/use-locale';
 
 interface PracticeQuestionData {
   id: string;
@@ -40,7 +40,7 @@ export default function PracticeSessionPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryId = searchParams.get('categoryId');
-  const isReview = searchParams.get('review') === 'true';
+  const { ts } = useLocale();
 
   const { questions, currentIndex, answers, batchComplete, setQuestions, addAnswer, nextQuestion, completeBatch, reset } = usePracticeStore();
 
@@ -97,7 +97,6 @@ export default function PracticeSessionPage() {
         correctAnswerId: result.correctAnswerId,
       });
     } catch {
-      // fallback: just show as answered
       setFeedback(null);
     } finally {
       setSubmitting(false);
@@ -115,7 +114,6 @@ export default function PracticeSessionPage() {
     }
   }, [currentIndex, questions.length, completeBatch, nextQuestion]);
 
-  // Enter key → next question
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && selectedAnswerId && !submitting) {
@@ -160,16 +158,16 @@ export default function PracticeSessionPage() {
               <Trophy className={`h-8 w-8 ${accuracy >= 80 ? 'text-green-600' : 'text-orange-600'}`} />
             </div>
           </div>
-          <h1 className="text-xl font-bold tracking-tight">Mashq yakunlandi!</h1>
+          <h1 className="text-xl font-bold tracking-tight">{ts('practice.sessionComplete')}</h1>
           <p className="text-muted-foreground">
-            {total} ta savoldan {correct} tasi to&apos;g&apos;ri
+            {total} {ts('practice.outOf')} {correct} {ts('practice.wereCorrect')}
           </p>
         </div>
 
         <Card>
           <CardContent className="p-4 space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Aniqlik</span>
+              <span className="text-sm text-muted-foreground">{ts('common.accuracy')}</span>
               <span className="text-xl font-bold tracking-tight">{accuracy}%</span>
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -178,11 +176,11 @@ export default function PracticeSessionPage() {
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                <span>{correct} to&apos;g&apos;ri</span>
+                <span>{correct} {ts('common.correct').toLowerCase()}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <XCircle className="h-4 w-4 text-red-600" />
-                <span>{total - correct} noto&apos;g&apos;ri</span>
+                <span>{total - correct} {ts('common.incorrect').toLowerCase()}</span>
               </div>
             </div>
           </CardContent>
@@ -190,10 +188,10 @@ export default function PracticeSessionPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <Button variant="outline" onClick={() => router.push('/practice')} className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Orqaga
+            <ArrowLeft className="h-4 w-4" /> {ts('common.back')}
           </Button>
           <Button onClick={handleNewBatch} className="gap-2">
-            <RotateCcw className="h-4 w-4" /> Yana mashq
+            <RotateCcw className="h-4 w-4" /> {ts('practice.practiceMore')}
           </Button>
         </div>
       </div>
@@ -203,8 +201,8 @@ export default function PracticeSessionPage() {
   if (questions.length === 0)
     return (
       <div className="text-center py-16 space-y-4">
-        <p className="text-muted-foreground">Savollar topilmadi</p>
-        <Button variant="outline" onClick={() => router.push('/practice')}>Orqaga</Button>
+        <p className="text-muted-foreground">{ts('practice.noQuestions')}</p>
+        <Button variant="outline" onClick={() => router.push('/practice')}>{ts('common.back')}</Button>
       </div>
     );
 
@@ -250,7 +248,7 @@ export default function PracticeSessionPage() {
       {selectedAnswerId && (
         <div className="flex justify-end pt-2">
           <Button onClick={handleNext} className="gap-2">
-            {currentIndex + 1 >= questions.length ? 'Yakunlash' : 'Keyingi'}
+            {currentIndex + 1 >= questions.length ? ts('common.finish') : ts('common.next')}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

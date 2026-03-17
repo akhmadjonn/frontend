@@ -27,6 +27,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react';
+import { useLocale } from '@/hooks/use-locale';
 
 interface ImportResult {
   imported: number;
@@ -43,6 +44,7 @@ interface ImportDialogProps {
 type DuplicateStrategy = 'skip' | 'overwrite' | 'merge';
 
 export default function ImportDialog({ open, onOpenChange, onImported }: ImportDialogProps) {
+  const { ts } = useLocale();
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [strategy, setStrategy] = useState<DuplicateStrategy>('skip');
@@ -65,7 +67,6 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
     onOpenChange(nextOpen);
   };
 
-  // drag & drop handlers for Excel
   const handleExcelDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -73,10 +74,9 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
     if (file && file.name.endsWith('.xlsx'))
       setExcelFile(file);
     else
-      toast.error('Faqat .xlsx formatdagi fayl qabul qilinadi');
-  }, []);
+      toast.error(ts('admin.import.onlyXlsx'));
+  }, [ts]);
 
-  // drag & drop handlers for ZIP
   const handleZipDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -84,8 +84,8 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
     if (file && file.name.endsWith('.zip'))
       setZipFile(file);
     else
-      toast.error('Faqat .zip formatdagi fayl qabul qilinadi');
-  }, []);
+      toast.error(ts('admin.import.onlyZip'));
+  }, [ts]);
 
   const preventDefault = (e: React.DragEvent) => {
     e.preventDefault();
@@ -119,15 +119,15 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      toast.success('Shablon yuklab olindi');
+      toast.success(ts('admin.questions.templateDownloaded'));
     } catch {
-      toast.error('Shablonni yuklab olishda xatolik');
+      toast.error(ts('admin.questions.templateDownloadError'));
     }
   };
 
   const handleUpload = async () => {
     if (!excelFile) {
-      toast.error('Excel faylni tanlang');
+      toast.error(ts('admin.import.selectExcel'));
       return;
     }
 
@@ -142,11 +142,11 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
       setResult(data);
 
       if (data.imported > 0) {
-        toast.success(`${data.imported} ta savol muvaffaqiyatli import qilindi`);
+        toast.success(ts('admin.import.importSuccess').replace('{count}', String(data.imported)));
         onImported();
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Import qilishda xatolik yuz berdi');
+      toast.error(err instanceof Error ? err.message : ts('admin.import.importError'));
     } finally {
       setUploading(false);
     }
@@ -158,9 +158,9 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Savollarni import qilish</DialogTitle>
+          <DialogTitle>{ts('admin.import.title')}</DialogTitle>
           <DialogDescription>
-            Excel fayl va rasmlar arxivini yuklang. Shablon formatiga mos bo&apos;lishi kerak.
+            {ts('admin.import.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -169,7 +169,7 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
             {/* Excel file drop zone */}
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Excel fayl (.xlsx) <span className="text-destructive">*</span>
+                {ts('admin.import.excelLabel')} <span className="text-destructive">*</span>
               </label>
               <div
                 onDrop={handleExcelDrop}
@@ -190,8 +190,8 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
                   </div>
                 ) : (
                   <div className="text-center">
-                    <p className="text-sm font-medium">Faylni shu yerga tashlang</p>
-                    <p className="text-xs text-muted-foreground">yoki bosib tanlang (.xlsx)</p>
+                    <p className="text-sm font-medium">{ts('admin.import.dropFile')}</p>
+                    <p className="text-xs text-muted-foreground">{ts('admin.import.dropFileHint')}</p>
                   </div>
                 )}
                 <input
@@ -207,7 +207,7 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
             {/* ZIP file drop zone */}
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Rasmlar arxivi (.zip)
+                {ts('admin.import.zipLabel')}
               </label>
               <div
                 onDrop={handleZipDrop}
@@ -228,8 +228,8 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
                   </div>
                 ) : (
                   <div className="text-center">
-                    <p className="text-sm font-medium">Rasmlar arxivini shu yerga tashlang</p>
-                    <p className="text-xs text-muted-foreground">ixtiyoriy (.zip)</p>
+                    <p className="text-sm font-medium">{ts('admin.import.dropZip')}</p>
+                    <p className="text-xs text-muted-foreground">{ts('admin.import.dropZipHint')}</p>
                   </div>
                 )}
                 <input
@@ -245,16 +245,16 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
             {/* Duplicate strategy */}
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Dublikat strategiyasi
+                {ts('admin.import.strategyLabel')}
               </label>
               <Select value={strategy} onValueChange={(v) => setStrategy(v as DuplicateStrategy)}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="skip">Tashlab ketish (mavjudlarni o&apos;zgartirmaydi)</SelectItem>
-                  <SelectItem value="overwrite">Qayta yozish (mavjudlarni yangilaydi)</SelectItem>
-                  <SelectItem value="merge">Birlashtirish (faqat bo&apos;sh maydonlarni to&apos;ldiradi)</SelectItem>
+                  <SelectItem value="skip">{ts('admin.import.strategySkip')}</SelectItem>
+                  <SelectItem value="overwrite">{ts('admin.import.strategyOverwrite')}</SelectItem>
+                  <SelectItem value="merge">{ts('admin.import.strategyMerge')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -266,7 +266,7 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
               className="inline-flex items-center gap-1.5 text-sm text-primary underline-offset-4 hover:underline"
             >
               <Download className="h-4 w-4" />
-              Shablon yuklab olish
+              {ts('admin.questions.downloadTemplate')}
             </button>
           </div>
         ) : (
@@ -276,14 +276,14 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
               <div className="flex items-center gap-2 rounded-lg border bg-green-50 p-3 dark:bg-green-950/20">
                 <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Import qilindi</p>
+                  <p className="text-xs text-muted-foreground">{ts('admin.import.imported')}</p>
                   <p className="text-lg font-semibold text-green-700 dark:text-green-400">{result.imported}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 rounded-lg border bg-yellow-50 p-3 dark:bg-yellow-950/20">
                 <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Tashlab ketildi</p>
+                  <p className="text-xs text-muted-foreground">{ts('admin.import.skipped')}</p>
                   <p className="text-lg font-semibold text-yellow-700 dark:text-yellow-400">{result.skipped}</p>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
             {hasErrors && (
               <div className="space-y-2">
                 <p className="text-sm font-medium text-destructive">
-                  Xatoliklar ({result.errors.length})
+                  {ts('admin.import.errors')} ({result.errors.length})
                 </p>
                 <div className="max-h-40 overflow-y-auto rounded-lg border border-destructive/20 bg-destructive/5 p-3">
                   <ul className="space-y-1">
@@ -312,24 +312,24 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
           {result === null ? (
             <>
               <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={uploading}>
-                Bekor qilish
+                {ts('common.cancel')}
               </Button>
               <Button onClick={handleUpload} disabled={!excelFile || uploading}>
                 {uploading ? (
                   <>
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    Yuklanmoqda...
+                    {ts('admin.import.uploading')}
                   </>
                 ) : (
                   <>
                     <Upload className="h-4 w-4" />
-                    Import qilish
+                    {ts('admin.import.importBtn')}
                   </>
                 )}
               </Button>
             </>
           ) : (
-            <Button onClick={() => handleOpenChange(false)}>Yopish</Button>
+            <Button onClick={() => handleOpenChange(false)}>{ts('common.close')}</Button>
           )}
         </DialogFooter>
       </DialogContent>

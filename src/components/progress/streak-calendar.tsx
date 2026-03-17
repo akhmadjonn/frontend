@@ -4,6 +4,7 @@ import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/hooks/use-locale';
 
 interface StreakDay {
   date: string;
@@ -18,6 +19,8 @@ interface StreakCalendarProps {
 }
 
 function StreakCalendar({ data, loading, days = 90 }: StreakCalendarProps) {
+  const { ts } = useLocale();
+
   const cells = useMemo(() => {
     const today = new Date();
     const activityMap = new Map<string, StreakDay>();
@@ -51,12 +54,10 @@ function StreakCalendar({ data, loading, days = 90 }: StreakCalendarProps) {
     'bg-green-800 dark:bg-green-400',
   ];
 
-  // Group into weeks (columns) for GitHub-style grid
   const weeks: Array<typeof cells> = [];
   let week: typeof cells = [];
   const firstDate = cells[0] ? new Date(cells[0].date) : new Date();
-  const startDow = firstDate.getDay(); // 0=Sun
-  // Pad first week
+  const startDow = firstDate.getDay();
   for (let i = 0; i < startDow; i++) week.push({ date: '', level: -1, count: 0 });
   for (const cell of cells) {
     week.push(cell);
@@ -70,7 +71,9 @@ function StreakCalendar({ data, loading, days = 90 }: StreakCalendarProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium">Faollik (90 kun)</CardTitle>
+        <CardTitle className="text-sm font-medium">
+          {ts('progress.activity')} ({ts('progress.last90Days')})
+        </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="flex gap-0.5 overflow-x-auto pb-1">
@@ -83,18 +86,18 @@ function StreakCalendar({ data, loading, days = 90 }: StreakCalendarProps) {
                     'h-2.5 w-2.5 rounded-[2px] transition-colors',
                     cell.level === -1 ? 'bg-transparent' : LEVEL_COLORS[cell.level],
                   )}
-                  title={cell.date ? `${cell.date}: ${cell.count} savol` : ''}
+                  title={cell.date ? `${cell.date}: ${cell.count} ${ts('common.question')}` : ''}
                 />
               ))}
             </div>
           ))}
         </div>
         <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
-          <span>Kam</span>
+          <span>{ts('progress.less')}</span>
           {LEVEL_COLORS.map((c, i) => (
             <div key={i} className={cn('h-2.5 w-2.5 rounded-[2px]', c)} />
           ))}
-          <span>Ko&apos;p</span>
+          <span>{ts('progress.more')}</span>
         </div>
       </CardContent>
     </Card>

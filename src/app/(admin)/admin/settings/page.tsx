@@ -14,6 +14,7 @@ import {
   Save, Settings, CreditCard, MessageSquare, GraduationCap, Shield,
   Wrench, Loader2, Clock, Hash, Gauge, Smartphone, ToggleRight, Globe,
 } from 'lucide-react';
+import { useLocale } from '@/hooks/use-locale';
 
 // --- Map each snake_case key to a semantic group ---
 const KEY_GROUP_MAP: Record<string, string> = {
@@ -34,23 +35,23 @@ const KEY_GROUP_MAP: Record<string, string> = {
   presigned_url_hours: 'system',
 };
 
-// --- Human-readable labels and icons per setting key ---
-const KEY_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-  free_daily_exam_limit: { label: 'Kunlik bepul imtihon limiti', icon: <Hash className="h-3.5 w-3.5" /> },
-  max_active_sessions: { label: 'Maksimal faol seanslar', icon: <Gauge className="h-3.5 w-3.5" /> },
-  max_exams_per_day: { label: "Kuniga maksimal imtihonlar", icon: <Hash className="h-3.5 w-3.5" /> },
-  otp_ttl_minutes: { label: 'OTP amal qilish vaqti (daqiqa)', icon: <Clock className="h-3.5 w-3.5" /> },
-  otp_rate_limit_count: { label: "OTP so'rovlar limiti", icon: <Hash className="h-3.5 w-3.5" /> },
-  otp_rate_limit_window_minutes: { label: 'OTP limit oynasi (daqiqa)', icon: <Clock className="h-3.5 w-3.5" /> },
-  otp_cooldown_seconds: { label: "OTP kutish vaqti (soniya)", icon: <Clock className="h-3.5 w-3.5" /> },
-  otp_expiry_seconds: { label: "OTP tugash vaqti (soniya)", icon: <Clock className="h-3.5 w-3.5" /> },
-  otp_max_attempts: { label: 'OTP maksimal urinishlar', icon: <Hash className="h-3.5 w-3.5" /> },
-  payme_enabled: { label: 'Payme yoqilgan', icon: <ToggleRight className="h-3.5 w-3.5" /> },
-  click_enabled: { label: 'Click yoqilgan', icon: <ToggleRight className="h-3.5 w-3.5" /> },
-  sms_provider: { label: 'SMS provayder', icon: <Smartphone className="h-3.5 w-3.5" /> },
-  maintenance_mode: { label: "Texnik xizmat rejimi", icon: <Wrench className="h-3.5 w-3.5" /> },
-  min_app_version: { label: 'Minimal ilova versiyasi', icon: <Globe className="h-3.5 w-3.5" /> },
-  presigned_url_hours: { label: "URL amal qilish muddati (soat)", icon: <Clock className="h-3.5 w-3.5" /> },
+// --- Icons per setting key (no translation needed) ---
+const KEY_ICONS: Record<string, React.ReactNode> = {
+  free_daily_exam_limit: <Hash className="h-3.5 w-3.5" />,
+  max_active_sessions: <Gauge className="h-3.5 w-3.5" />,
+  max_exams_per_day: <Hash className="h-3.5 w-3.5" />,
+  otp_ttl_minutes: <Clock className="h-3.5 w-3.5" />,
+  otp_rate_limit_count: <Hash className="h-3.5 w-3.5" />,
+  otp_rate_limit_window_minutes: <Clock className="h-3.5 w-3.5" />,
+  otp_cooldown_seconds: <Clock className="h-3.5 w-3.5" />,
+  otp_expiry_seconds: <Clock className="h-3.5 w-3.5" />,
+  otp_max_attempts: <Hash className="h-3.5 w-3.5" />,
+  payme_enabled: <ToggleRight className="h-3.5 w-3.5" />,
+  click_enabled: <ToggleRight className="h-3.5 w-3.5" />,
+  sms_provider: <Smartphone className="h-3.5 w-3.5" />,
+  maintenance_mode: <Wrench className="h-3.5 w-3.5" />,
+  min_app_version: <Globe className="h-3.5 w-3.5" />,
+  presigned_url_hours: <Clock className="h-3.5 w-3.5" />,
 };
 
 const BOOLEAN_KEYS = new Set(['maintenance_mode', 'payme_enabled', 'click_enabled']);
@@ -63,43 +64,7 @@ interface GroupConfig {
   order: number;
 }
 
-const GROUP_CONFIG: Record<string, GroupConfig> = {
-  exam: {
-    title: 'Imtihon sozlamalari',
-    description: "Savollar soni, limitlar va sessiya boshqaruvi",
-    icon: <GraduationCap className="h-5 w-5" />,
-    iconBg: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-    order: 1,
-  },
-  auth: {
-    title: 'Autentifikatsiya',
-    description: 'OTP vaqtlari, limitlar va urinishlar',
-    icon: <Shield className="h-5 w-5" />,
-    iconBg: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-    order: 2,
-  },
-  payment: {
-    title: "To'lov provayderlari",
-    description: "Payme va Click yoqish/o'chirish",
-    icon: <CreditCard className="h-5 w-5" />,
-    iconBg: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
-    order: 3,
-  },
-  sms: {
-    title: 'SMS xabarlar',
-    description: 'SMS provayder sozlamalari',
-    icon: <MessageSquare className="h-5 w-5" />,
-    iconBg: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
-    order: 4,
-  },
-  system: {
-    title: 'Tizim',
-    description: "Texnik xizmat rejimi va umumiy sozlamalar",
-    icon: <Wrench className="h-5 w-5" />,
-    iconBg: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
-    order: 5,
-  },
-};
+// GROUP_CONFIG is built dynamically inside the component to support localization
 
 interface SettingGroup {
   groupKey: string;
@@ -107,7 +72,7 @@ interface SettingGroup {
   settings: SystemSettingDto[];
 }
 
-function groupSettings(settings: SystemSettingDto[]): SettingGroup[] {
+function groupSettings(settings: SystemSettingDto[], groupConfig: Record<string, GroupConfig>): SettingGroup[] {
   const groups: Record<string, SystemSettingDto[]> = {};
 
   for (const setting of settings) {
@@ -118,9 +83,9 @@ function groupSettings(settings: SystemSettingDto[]): SettingGroup[] {
 
   return Object.entries(groups)
     .map(([groupKey, items]) => {
-      const config = GROUP_CONFIG[groupKey] ?? {
+      const config = groupConfig[groupKey] ?? {
         title: groupKey.charAt(0).toUpperCase() + groupKey.slice(1),
-        description: `${groupKey} sozlamalari`,
+        description: `${groupKey}`,
         icon: <Settings className="h-5 w-5" />,
         iconBg: 'bg-muted text-muted-foreground',
         order: 99,
@@ -130,20 +95,76 @@ function groupSettings(settings: SystemSettingDto[]): SettingGroup[] {
     .sort((a, b) => a.config.order - b.config.order);
 }
 
-function getLabel(key: string): string {
-  return KEY_LABELS[key]?.label ?? key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 function getIcon(key: string): React.ReactNode {
-  return KEY_LABELS[key]?.icon ?? <Settings className="h-3.5 w-3.5" />;
+  return KEY_ICONS[key] ?? <Settings className="h-3.5 w-3.5" />;
 }
 
 export default function SystemSettingsPage() {
+  const { ts } = useLocale();
   const [settings, setSettings] = useState<SystemSettingDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
   const [savingKeys, setSavingKeys] = useState<Set<string>>(new Set());
   const [savingGroups, setSavingGroups] = useState<Set<string>>(new Set());
+
+  const getKeyLabel = (key: string): string => {
+    const labels: Record<string, string> = {
+      free_daily_exam_limit: ts('admin.systemSettings.freeDailyExamLimit'),
+      max_active_sessions: ts('admin.systemSettings.maxActiveSessions'),
+      max_exams_per_day: ts('admin.systemSettings.maxExamsPerDay'),
+      otp_ttl_minutes: ts('admin.systemSettings.otpTtlMinutes'),
+      otp_rate_limit_count: ts('admin.systemSettings.otpRateLimitCount'),
+      otp_rate_limit_window_minutes: ts('admin.systemSettings.otpRateLimitWindow'),
+      otp_cooldown_seconds: ts('admin.systemSettings.otpCooldownSeconds'),
+      otp_expiry_seconds: ts('admin.systemSettings.otpExpirySeconds'),
+      otp_max_attempts: ts('admin.systemSettings.otpMaxAttempts'),
+      payme_enabled: ts('admin.systemSettings.paymeEnabled'),
+      click_enabled: ts('admin.systemSettings.clickEnabled'),
+      sms_provider: ts('admin.systemSettings.smsProvider'),
+      maintenance_mode: ts('admin.systemSettings.maintenanceMode'),
+      min_app_version: ts('admin.systemSettings.minAppVersion'),
+      presigned_url_hours: ts('admin.systemSettings.presignedUrlHours'),
+    };
+    return labels[key] ?? key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
+  const groupConfig: Record<string, GroupConfig> = {
+    exam: {
+      title: ts('admin.systemSettings.examSettings'),
+      description: ts('admin.systemSettings.examSettingsDesc'),
+      icon: <GraduationCap className="h-5 w-5" />,
+      iconBg: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+      order: 1,
+    },
+    auth: {
+      title: ts('admin.systemSettings.authSettings'),
+      description: ts('admin.systemSettings.authSettingsDesc'),
+      icon: <Shield className="h-5 w-5" />,
+      iconBg: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+      order: 2,
+    },
+    payment: {
+      title: ts('admin.systemSettings.paymentSettings'),
+      description: ts('admin.systemSettings.paymentSettingsDesc'),
+      icon: <CreditCard className="h-5 w-5" />,
+      iconBg: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+      order: 3,
+    },
+    sms: {
+      title: ts('admin.systemSettings.smsSettings'),
+      description: ts('admin.systemSettings.smsSettingsDesc'),
+      icon: <MessageSquare className="h-5 w-5" />,
+      iconBg: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+      order: 4,
+    },
+    system: {
+      title: ts('admin.systemSettings.systemGroup'),
+      description: ts('admin.systemSettings.systemGroupDesc'),
+      icon: <Wrench className="h-5 w-5" />,
+      iconBg: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+      order: 5,
+    },
+  };
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);
@@ -152,7 +173,7 @@ export default function SystemSettingsPage() {
       setSettings(data);
       setEditedValues({});
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Sozlamalarni yuklashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.systemSettings.loadError'));
     } finally {
       setLoading(false);
     }
@@ -191,9 +212,9 @@ export default function SystemSettingsPage() {
         delete next[key];
         return next;
       });
-      toast.success(`"${getLabel(key)}" saqlandi`);
+      toast.success(`"${getKeyLabel(key)}" ${ts('admin.systemSettings.saved')}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : `"${key}" saqlashda xatolik`);
+      toast.error(err instanceof Error ? err.message : `"${key}" ${ts('admin.systemSettings.saveError')}`);
     } finally {
       setSavingKeys((prev) => {
         const next = new Set(prev);
@@ -206,7 +227,7 @@ export default function SystemSettingsPage() {
   const saveGroup = async (group: SettingGroup) => {
     const modifiedSettings = group.settings.filter((s) => isModified(s.key));
     if (modifiedSettings.length === 0) {
-      toast.info('Hech narsa o\'zgartirilmagan');
+      toast.info(ts('admin.systemSettings.nothingChanged'));
       return;
     }
 
@@ -224,9 +245,9 @@ export default function SystemSettingsPage() {
           return next;
         });
       }
-      toast.success(`${group.config.title} saqlandi`);
+      toast.success(`${group.config.title} ${ts('admin.systemSettings.saved')}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Saqlashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.systemSettings.saveError'));
     } finally {
       setSavingGroups((prev) => {
         const next = new Set(prev);
@@ -240,7 +261,7 @@ export default function SystemSettingsPage() {
     group.settings.some((s) => isModified(s.key));
 
   const totalModified = Object.keys(editedValues).filter((k) => isModified(k)).length;
-  const groups = groupSettings(settings);
+  const groups = groupSettings(settings, groupConfig);
 
   if (loading)
     return (
@@ -274,15 +295,15 @@ export default function SystemSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Tizim sozlamalari</h1>
+          <h1 className="text-xl font-bold tracking-tight">{ts('admin.systemSettings.title')}</h1>
           <p className="text-sm text-muted-foreground">
-            Platformaning barcha sozlamalarini boshqarish
+            {ts('admin.systemSettings.subtitle')}
           </p>
         </div>
         {totalModified > 0 && (
           <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
             <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-            {totalModified} o&#39;zgarish saqlanmagan
+            {totalModified} {ts('admin.systemSettings.unsavedChanges')}
           </div>
         )}
       </div>
@@ -320,7 +341,7 @@ export default function SystemSettingsPage() {
                       ? <Loader2 className="h-4 w-4 animate-spin" />
                       : <Save className="h-4 w-4" />
                     }
-                    {savingGroups.has(group.groupKey) ? 'Saqlanmoqda...' : 'Saqlash'}
+                    {savingGroups.has(group.groupKey) ? ts('admin.saving') : ts('admin.saveBtn')}
                   </Button>
                 </div>
               </CardHeader>
@@ -346,7 +367,7 @@ export default function SystemSettingsPage() {
                             {getIcon(setting.key)}
                           </div>
                           <div className="space-y-0.5">
-                            <Label className="text-sm font-medium">{getLabel(setting.key)}</Label>
+                            <Label className="text-sm font-medium">{getKeyLabel(setting.key)}</Label>
                             {setting.description && (
                               <p className="text-xs text-muted-foreground">{setting.description}</p>
                             )}
@@ -366,7 +387,7 @@ export default function SystemSettingsPage() {
                                   ? 'text-green-600 dark:text-green-400'
                                   : 'text-muted-foreground'
                               }`}>
-                                {currentValue === 'true' ? 'Yoqilgan' : "O'chirilgan"}
+                                {currentValue === 'true' ? ts('admin.systemSettings.enabled') : ts('admin.systemSettings.disabled')}
                               </span>
                             </div>
                           ) : (
@@ -402,8 +423,8 @@ export default function SystemSettingsPage() {
       {groups.length === 0 && (
         <div className="rounded-lg border border-dashed py-12 text-center">
           <Settings className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-          <p className="text-sm font-medium">Sozlamalar topilmadi</p>
-          <p className="text-xs text-muted-foreground mt-1">Hech qanday tizim sozlamasi mavjud emas</p>
+          <p className="text-sm font-medium">{ts('admin.systemSettings.noSettings')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{ts('admin.systemSettings.noSettingsDesc')}</p>
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recha
 import { Skeleton } from '@/components/ui/skeleton';
 import type { DailyRevenueDto } from '@/types/admin';
 import { format, parseISO } from 'date-fns';
+import { useLocale } from '@/hooks/use-locale';
 
 interface RevenueChartProps {
   data?: DailyRevenueDto[];
@@ -22,13 +23,15 @@ const formatDateLabel = (dateStr: string) => {
 };
 
 export default function RevenueChart({ data, loading }: RevenueChartProps) {
+  const { ts } = useLocale();
+
   if (loading || !data)
     return <Skeleton className="h-64 w-full" />;
 
   if (!data.length)
     return (
       <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
-        Daromad ma&apos;lumotlari topilmadi
+        {ts('admin.dashboard.noData')}
       </div>
     );
 
@@ -54,8 +57,8 @@ export default function RevenueChart({ data, loading }: RevenueChartProps) {
           width={60}
         />
         <Tooltip
-          formatter={(value) => [formatUzs(Number(value)), 'Daromad']}
-          labelFormatter={(label) => `Sana: ${label}`}
+          formatter={(value) => [formatUzs(Number(value)), ts('admin.dashboard.revenue')]}
+          labelFormatter={(label) => `${ts('admin.payments.date')}: ${label}`}
           contentStyle={{
             borderRadius: 8,
             border: '1px solid var(--border)',

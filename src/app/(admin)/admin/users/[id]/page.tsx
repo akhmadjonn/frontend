@@ -25,10 +25,12 @@ import { toast } from 'sonner';
 import { ArrowLeft, Shield, ShieldOff, Ban, CheckCircle } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { formatDistanceToNow, format } from 'date-fns';
+import { useLocale } from '@/hooks/use-locale';
 
 type ConfirmAction = 'role' | 'block' | null;
 
 export default function UserDetailPage() {
+  const { ts } = useLocale();
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<UserDetailDto | null>(null);
@@ -61,9 +63,9 @@ export default function UserDetailPage() {
     try {
       await apiClient.patch(`/admin/users/${id}/role`, { role: pendingRole });
       setUser({ ...user, role: pendingRole });
-      toast.success(`Rol "${pendingRole === 'admin' ? 'Admin' : 'Foydalanuvchi'}" ga o'zgartirildi`);
+      toast.success(`${pendingRole === 'admin' ? ts('admin.users.admin') : ts('admin.users.user')} ${ts('admin.userDetail.roleChanged')}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Rolni o'zgartirishda xatolik");
+      toast.error(err instanceof Error ? err.message : ts('admin.userDetail.roleChangeError'));
     } finally {
       setActionLoading(false);
       setConfirmAction(null);
@@ -78,9 +80,9 @@ export default function UserDetailPage() {
       const newBlocked = !user.isBlocked;
       await apiClient.patch(`/admin/users/${id}/block`, { isBlocked: newBlocked });
       setUser({ ...user, isBlocked: newBlocked });
-      toast.success(newBlocked ? 'Foydalanuvchi bloklandi' : 'Foydalanuvchi blokdan chiqarildi');
+      toast.success(newBlocked ? ts('admin.userDetail.userBlocked') : ts('admin.userDetail.userUnblocked'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Holatni ozgartirishda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.userDetail.blockError'));
     } finally {
       setActionLoading(false);
       setConfirmAction(null);
@@ -125,10 +127,10 @@ export default function UserDetailPage() {
       <div className="container mx-auto p-6 space-y-6">
         <Button variant="ghost" onClick={() => router.push('/admin/users')}>
           <ArrowLeft className="mr-1.5 h-4 w-4" />
-          Orqaga
+          {ts('common.back')}
         </Button>
         <div className="rounded-md border py-12 text-center">
-          <p className="text-muted-foreground">Foydalanuvchi topilmadi</p>
+          <p className="text-muted-foreground">{ts('admin.userDetail.notFound')}</p>
         </div>
       </div>
     );
@@ -137,9 +139,9 @@ export default function UserDetailPage() {
 
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || '-';
   const languageLabels: Record<string, string> = {
-    uz: "O'zbek (Kirill)",
-    uzLatin: "O'zbek (Lotin)",
-    ru: 'Ruscha',
+    uz: ts('admin.userDetail.langUzCyrillic'),
+    uzLatin: ts('admin.userDetail.langUzLatin'),
+    ru: ts('admin.userDetail.langRu'),
   };
 
   return (
@@ -147,7 +149,7 @@ export default function UserDetailPage() {
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => router.push('/admin/users')}>
           <ArrowLeft className="mr-1.5 h-4 w-4" />
-          Orqaga
+          {ts('common.back')}
         </Button>
         <div className="flex gap-2">
           <DropdownMenu>
@@ -155,7 +157,7 @@ export default function UserDetailPage() {
               render={
                 <Button variant="outline" disabled={actionLoading}>
                   <Shield className="mr-1.5 h-4 w-4" />
-                  Rolni o'zgartirish
+                  {ts('admin.userDetail.changeRole')}
                 </Button>
               }
             />
@@ -168,7 +170,7 @@ export default function UserDetailPage() {
                 }}
               >
                 <ShieldOff className="mr-1.5 h-4 w-4" />
-                Foydalanuvchi
+                {ts('admin.users.user')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={user.role === 'admin'}
@@ -178,7 +180,7 @@ export default function UserDetailPage() {
                 }}
               >
                 <Shield className="mr-1.5 h-4 w-4" />
-                Admin
+                {ts('admin.users.admin')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -191,12 +193,12 @@ export default function UserDetailPage() {
             {user.isBlocked ? (
               <>
                 <CheckCircle className="mr-1.5 h-4 w-4" />
-                Blokdan chiqarish
+                {ts('admin.userDetail.unblock')}
               </>
             ) : (
               <>
                 <Ban className="mr-1.5 h-4 w-4" />
-                Bloklash
+                {ts('admin.userDetail.block')}
               </>
             )}
           </Button>
@@ -206,38 +208,38 @@ export default function UserDetailPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Profil</CardTitle>
+            <CardTitle>{ts('admin.userDetail.profile')}</CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="space-y-3 text-sm">
-              <DetailRow label="Ism" value={fullName} />
-              <DetailRow label="Telefon" value={user.phoneNumber || '-'} />
+              <DetailRow label={ts('admin.users.name')} value={fullName} />
+              <DetailRow label={ts('admin.users.phone')} value={user.phoneNumber || '-'} />
               <DetailRow
-                label="Rol"
+                label={ts('admin.users.role')}
                 value={
                   <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                    {user.role === 'admin' ? 'Admin' : 'Foydalanuvchi'}
+                    {user.role === 'admin' ? ts('admin.users.admin') : ts('admin.users.user')}
                   </Badge>
                 }
               />
               <DetailRow
-                label="Auth"
+                label={ts('admin.users.auth')}
                 value={<Badge variant="outline">{user.authProvider}</Badge>}
               />
-              <DetailRow label="Til" value={languageLabels[user.preferredLanguage] ?? user.preferredLanguage} />
-              <DetailRow label="Telegram ID" value={user.telegramId ? String(user.telegramId) : '-'} />
+              <DetailRow label={ts('admin.userDetail.language')} value={languageLabels[user.preferredLanguage] ?? user.preferredLanguage} />
+              <DetailRow label={ts('admin.userDetail.telegramId')} value={user.telegramId ? String(user.telegramId) : '-'} />
               <DetailRow
-                label="Holat"
+                label={ts('admin.users.status')}
                 value={
                   user.isBlocked ? (
-                    <Badge variant="destructive">Bloklangan</Badge>
+                    <Badge variant="destructive">{ts('admin.users.blocked')}</Badge>
                   ) : (
-                    <Badge variant="secondary">Faol</Badge>
+                    <Badge variant="secondary">{ts('admin.active')}</Badge>
                   )
                 }
               />
               <DetailRow
-                label="So'nggi faollik"
+                label={ts('admin.users.lastActive')}
                 value={
                   user.lastActiveAt
                     ? formatDistanceToNow(new Date(user.lastActiveAt), { addSuffix: true })
@@ -245,7 +247,7 @@ export default function UserDetailPage() {
                 }
               />
               <DetailRow
-                label="Ro'yxatdan o'tgan"
+                label={ts('admin.users.registeredAt')}
                 value={format(new Date(user.createdAt), 'dd.MM.yyyy HH:mm')}
               />
             </dl>
@@ -256,19 +258,19 @@ export default function UserDetailPage() {
           {user.activeSubscription && (
             <Card>
               <CardHeader>
-                <CardTitle>Obuna</CardTitle>
+                <CardTitle>{ts('admin.userDetail.subscription')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <dl className="space-y-3 text-sm">
-                  <DetailRow label="Reja" value={user.activeSubscription.planName} />
+                  <DetailRow label={ts('admin.userDetail.plan')} value={user.activeSubscription.planName} />
                   <DetailRow
-                    label="Holat"
+                    label={ts('admin.users.status')}
                     value={
                       <Badge variant="default">{user.activeSubscription.status}</Badge>
                     }
                   />
                   <DetailRow
-                    label="Tugash sanasi"
+                    label={ts('admin.userDetail.expiresAt')}
                     value={format(new Date(user.activeSubscription.expiresAt), 'dd.MM.yyyy HH:mm')}
                   />
                 </dl>
@@ -278,14 +280,14 @@ export default function UserDetailPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Statistika</CardTitle>
+              <CardTitle>{ts('admin.userDetail.statistics')}</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="space-y-3 text-sm">
-                <DetailRow label="Jami imtihonlar" value={String(user.totalExams)} />
-                <DetailRow label="Yakunlangan" value={String(user.completedExams)} />
+                <DetailRow label={ts('admin.userDetail.totalExams')} value={String(user.totalExams)} />
+                <DetailRow label={ts('admin.userDetail.completedExams')} value={String(user.completedExams)} />
                 <DetailRow
-                  label="O'rtacha ball"
+                  label={ts('admin.userDetail.averageScore')}
                   value={`${Math.round(user.averageScore)}%`}
                 />
               </dl>
@@ -305,18 +307,17 @@ export default function UserDetailPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rolni o'zgartirish</DialogTitle>
+            <DialogTitle>{ts('admin.userDetail.changeRoleTitle')}</DialogTitle>
             <DialogDescription>
-              {fullName} uchun rolni &quot;{pendingRole === 'admin' ? 'Admin' : 'Foydalanuvchi'}&quot; ga
-              o'zgartirmoqchimisiz?
+              {fullName} — {pendingRole === 'admin' ? ts('admin.users.admin') : ts('admin.users.user')}?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setConfirmAction(null); setPendingRole(null); }}>
-              Bekor qilish
+              {ts('common.cancel')}
             </Button>
             <Button onClick={handleRoleChange} disabled={actionLoading}>
-              {actionLoading ? 'Saqlanmoqda...' : 'Tasdiqlash'}
+              {actionLoading ? ts('admin.saving') : ts('common.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -330,22 +331,22 @@ export default function UserDetailPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{user.isBlocked ? 'Blokdan chiqarish' : 'Bloklash'}</DialogTitle>
+            <DialogTitle>{user.isBlocked ? ts('admin.userDetail.unblock') : ts('admin.userDetail.block')}</DialogTitle>
             <DialogDescription>
-              {fullName} ni {user.isBlocked ? 'blokdan chiqarmoqchimisiz' : 'bloklashni xohlaysizmi'}?
-              {!user.isBlocked && " Bloklangan foydalanuvchi tizimga kira olmaydi."}
+              {fullName} {user.isBlocked ? ts('admin.userDetail.unblockConfirmMsg') : ts('admin.userDetail.blockConfirmMsg')}
+              {!user.isBlocked && ` ${ts('admin.userDetail.blockWarning')}`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmAction(null)}>
-              Bekor qilish
+              {ts('common.cancel')}
             </Button>
             <Button
               variant={user.isBlocked ? 'default' : 'destructive'}
               onClick={handleBlockToggle}
               disabled={actionLoading}
             >
-              {actionLoading ? 'Saqlanmoqda...' : 'Tasdiqlash'}
+              {actionLoading ? ts('admin.saving') : ts('common.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

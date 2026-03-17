@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
+import { useLocale } from '@/hooks/use-locale';
 
 export interface Column<T> {
   key: string;
@@ -30,7 +31,7 @@ export default function DataTable<T>({
   columns,
   data,
   loading,
-  emptyMessage = "Ma'lumot topilmadi",
+  emptyMessage,
   page,
   totalPages,
   onPageChange,
@@ -39,6 +40,7 @@ export default function DataTable<T>({
   selectedIds,
   onSelectChange,
 }: DataTableProps<T>) {
+  const { ts } = useLocale();
   const hasSelection = !!onSelectChange;
   const allSelected = data.length > 0 && selectedIds?.size === data.length;
 
@@ -84,7 +86,7 @@ export default function DataTable<T>({
     return (
       <div className="rounded-lg border py-16 text-center">
         <Inbox className="h-10 w-10 text-muted-foreground/60 mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+        <p className="text-sm text-muted-foreground">{emptyMessage ?? ts('common.noDataFound')}</p>
       </div>
     );
 
@@ -141,7 +143,7 @@ export default function DataTable<T>({
       {totalPages && totalPages > 1 && onPageChange && (
         <div className="flex items-center justify-between py-3">
           <span className="text-xs text-muted-foreground">
-            Sahifa {page} / {totalPages}
+            {ts('common.pageOf').replace('{page}', String(page)).replace('{total}', String(totalPages))}
           </span>
           <div className="flex items-center gap-1.5">
             <Button
@@ -151,7 +153,7 @@ export default function DataTable<T>({
               onClick={() => onPageChange(Math.max(1, (page ?? 1) - 1))}
             >
               <ChevronLeft className="h-4 w-4" />
-              Oldingi
+              {ts('common.previous')}
             </Button>
             <Button
               variant="outline"
@@ -159,7 +161,7 @@ export default function DataTable<T>({
               disabled={page === totalPages}
               onClick={() => onPageChange(Math.min(totalPages, (page ?? 1) + 1))}
             >
-              Keyingi
+              {ts('common.next')}
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

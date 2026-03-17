@@ -5,7 +5,6 @@ import { apiClient } from '@/lib/api-client';
 import { useLocale } from '@/hooks/use-locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-// Badge removed — using inline colored dot status
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -53,7 +52,7 @@ function formatPrice(tiyins: number): string {
 }
 
 export default function SubscriptionPage() {
-  const { t } = useLocale();
+  const { t, ts } = useLocale();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -123,11 +122,10 @@ export default function SubscriptionPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">Obuna</h1>
-        <p className="text-sm text-muted-foreground mt-1">Obuna rejangizni boshqaring</p>
+        <h1 className="text-xl font-bold tracking-tight">{ts('subscription.title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{ts('subscription.subtitle')}</p>
       </div>
 
-      {/* Current subscription — compact row */}
       <Card>
         <CardContent className="flex items-center justify-between p-4">
           {isActive ? (
@@ -137,23 +135,23 @@ export default function SubscriptionPage() {
                   <Crown className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">{subscription?.planName ? t(subscription.planName) : 'Faol reja'}</p>
+                  <p className="text-sm font-semibold">{subscription?.planName ? t(subscription.planName) : ts('subscription.activePlan')}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-green-700 dark:text-green-400">
                       <span className="h-2 w-2 rounded-full bg-green-500" />
-                      Faol
+                      {ts('subscription.active')}
                     </span>
                     {subscription?.expiresAt && (
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(subscription.expiresAt), 'dd.MM.yyyy')} gacha
+                        {format(new Date(subscription.expiresAt), 'dd.MM.yyyy')} {ts('subscription.until')}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground hidden sm:inline">Avtomatik</span>
+                <span className="text-xs text-muted-foreground hidden sm:inline">{ts('subscription.autoRenewShort')}</span>
                 <Switch
                   checked={subscription?.autoRenew ?? false}
                   onCheckedChange={() => {
@@ -168,15 +166,14 @@ export default function SubscriptionPage() {
                 <Crown className="h-4 w-4 text-muted-foreground" />
               </div>
               <div>
-                <p className="text-sm font-medium">Faol obuna yo&apos;q</p>
-                <p className="text-xs text-muted-foreground">Quyidagi rejalardan birini tanlang</p>
+                <p className="text-sm font-medium">{ts('subscription.noActivePlan')}</p>
+                <p className="text-xs text-muted-foreground">{ts('subscription.choosePlan')}</p>
               </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Stacked plan cards */}
       <div className="space-y-3">
         {plans.map((plan) => {
           const isPopular = plan.durationDays === 30;
@@ -195,23 +192,20 @@ export default function SubscriptionPage() {
             >
               {isPopular && (
                 <span className="absolute -top-2.5 left-4 bg-violet-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full">
-                  Ommabop
+                  {ts('subscription.popular')}
                 </span>
               )}
               <CardContent className="p-0">
-                {/* Main row */}
                 <div className="flex items-center gap-4 p-4 sm:p-5">
-                  {/* Price block */}
                   <div className="shrink-0 w-28 sm:w-36">
                     <h3 className="text-sm font-bold">{t(plan.name)}</h3>
                     <div className="mt-1">
                       <span className="text-2xl font-extrabold tracking-tight">{formatPrice(plan.priceInTiyins)}</span>
                     </div>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">so&apos;m / {plan.durationDays} kun</p>
-                    <p className="text-[10px] text-violet-600 dark:text-violet-400 font-medium mt-0.5">~{perDay.toLocaleString()} so&apos;m/kun</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{ts('common.sum')} / {plan.durationDays} {ts('common.days')}</p>
+                    <p className="text-[10px] text-violet-600 dark:text-violet-400 font-medium mt-0.5">~{perDay.toLocaleString()} {ts('common.perDay')}</p>
                   </div>
 
-                  {/* Features — inline on desktop */}
                   <div className="hidden sm:flex flex-1 items-center gap-x-4 gap-y-1 flex-wrap">
                     {plan.features.map((f, i) => (
                       <span key={i} className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -221,7 +215,6 @@ export default function SubscriptionPage() {
                     ))}
                   </div>
 
-                  {/* Action buttons — desktop */}
                   <div className="hidden sm:flex items-center gap-2 shrink-0">
                     <Button
                       size="sm"
@@ -240,7 +233,6 @@ export default function SubscriptionPage() {
                     </Button>
                   </div>
 
-                  {/* Mobile expand toggle */}
                   <button
                     className="sm:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted transition-colors"
                     onClick={() => setExpandedPlan(isExpanded ? null : plan.id)}
@@ -249,7 +241,6 @@ export default function SubscriptionPage() {
                   </button>
                 </div>
 
-                {/* Mobile expanded section */}
                 {isExpanded && (
                   <div className="sm:hidden border-t px-4 pb-4 pt-3 space-y-3">
                     {plan.features.length > 0 && (
@@ -287,37 +278,35 @@ export default function SubscriptionPage() {
         })}
       </div>
 
-      {/* Cancel link for active subscription */}
       {isActive && subscription?.subscriptionId && (
         <div className="pt-2">
           <button
             onClick={() => setCancelDialogOpen(true)}
             className="text-xs text-muted-foreground hover:text-destructive transition-colors"
           >
-            Obunani bekor qilish
+            {ts('subscription.cancelSubscription')}
           </button>
         </div>
       )}
 
-      {/* Cancel confirmation dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-orange-500" />
-              Obunani bekor qilish
+              {ts('subscription.cancelSubscription')}
             </DialogTitle>
             <DialogDescription>
-              Obunani bekor qilsangiz, joriy muddat tugaguniga qadar barcha imkoniyatlardan foydalanishingiz mumkin.
-              Muddat tugagach, bepul reja cheklovlari qo&apos;llaniladi.
+              {ts('subscription.cancelConfirm')}
+              {' '}{ts('subscription.cancelExplanation')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setCancelDialogOpen(false)} disabled={cancelling}>
-              Ortga
+              {ts('subscription.goBack')}
             </Button>
             <Button variant="destructive" onClick={handleCancel} disabled={cancelling}>
-              {cancelling ? 'Bekor qilinmoqda...' : 'Bekor qilish'}
+              {cancelling ? ts('subscription.cancelling') : ts('common.cancel')}
             </Button>
           </DialogFooter>
         </DialogContent>

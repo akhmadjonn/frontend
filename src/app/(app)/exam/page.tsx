@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api-client';
 import { useExamStore } from '@/stores/exam-store';
+import { useLocale } from '@/hooks/use-locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,18 +54,19 @@ interface ActiveExamDto {
 }
 
 const TICKET_NUMBERS = Array.from({ length: 57 }, (_, i) => i + 1);
-const MODE_LABELS: Record<string, string> = { exam: 'Imtihon', ticket: 'Bilet', marathon: 'Maraton' };
 
 export default function ExamPage() {
   const router = useRouter();
   const startExam = useExamStore((s) => s.startExam);
+  const { ts } = useLocale();
   const [loading, setLoading] = useState<ExamMode | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<number>(1);
   const [activeExam, setActiveExam] = useState<ActiveExamDto | null>(null);
   const [checkingActive, setCheckingActive] = useState(true);
   const [abandoning, setAbandoning] = useState(false);
 
-  // Check for active session on mount
+  const MODE_LABELS: Record<string, string> = { exam: ts('exam.startExam'), ticket: ts('exam.startTicket'), marathon: ts('exam.startMarathon') };
+
   useEffect(() => {
     apiClient.get<ActiveExamDto | null>('/exams/active')
       .then((data) => setActiveExam(data))
@@ -77,7 +79,6 @@ export default function ExamPage() {
     setLoading(activeExam.mode as ExamMode);
     try {
       const data = await apiClient.get<ExamSessionDto>(`/exams/${activeExam.id}`);
-      // Restore previously submitted answers
       const existingAnswers = new Map<string, string>();
       for (const q of data.questions) {
         if (q.selectedAnswerId) existingAnswers.set(q.id, q.selectedAnswerId);
@@ -85,7 +86,7 @@ export default function ExamPage() {
       startExam(data.id, data.questions, data.expiresAt, data.mode, existingAnswers);
       router.push(`/exam/session/${data.id}`);
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Xatolik yuz berdi');
+      toast.error(err instanceof Error ? err.message : ts('common.error'));
     } finally {
       setLoading(null);
     }
@@ -97,9 +98,9 @@ export default function ExamPage() {
     try {
       await apiClient.post(`/exams/${activeExam.id}/abandon`, {});
       setActiveExam(null);
-      toast.success('Imtihon bekor qilindi');
+      toast.success(ts('exam.abandoned'));
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Xatolik yuz berdi');
+      toast.error(err instanceof Error ? err.message : ts('common.error'));
     } finally {
       setAbandoning(false);
     }
@@ -118,7 +119,7 @@ export default function ExamPage() {
       startExam(data.id, data.questions, data.expiresAt, mode);
       router.push(`/exam/session/${data.id}`);
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Xatolik yuz berdi');
+      toast.error(err instanceof Error ? err.message : ts('common.error'));
     } finally {
       setLoading(null);
     }
@@ -129,31 +130,30 @@ export default function ExamPage() {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">Imtihon</h1>
-        <p className="text-sm text-muted-foreground mt-1">Rejim tanlang va imtihonni boshlang</p>
+        <h1 className="text-xl font-bold tracking-tight">{ts('exam.title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{ts('exam.subtitle')}</p>
       </div>
 
-      {/* Active session banner */}
       {!checkingActive && hasActive && (
         <Card className="border border-amber-300 dark:border-amber-700">
           <CardContent className="pt-4 space-y-3">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="font-medium text-sm">Tugallanmagan imtihon bor</p>
+                <p className="font-medium text-sm">{ts('exam.activeExamBanner')}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {MODE_LABELS[activeExam.mode] ?? activeExam.mode} &mdash; {activeExam.answeredQuestions}/{activeExam.totalQuestions} javob berilgan
+                  {MODE_LABELS[activeExam.mode] ?? activeExam.mode} &mdash; {activeExam.answeredQuestions}/{activeExam.totalQuestions} {ts('exam.answered')}
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
               <Button className="flex-1 gap-2" onClick={handleResume} disabled={loading !== null}>
                 <Play className="h-4 w-4" />
-                {loading ? 'Yuklanmoqda...' : 'Davom ettirish'}
+                {loading ? ts('common.loading') : ts('exam.resume')}
               </Button>
               <Button variant="outline" className="gap-2 text-destructive hover:text-destructive" onClick={handleAbandon} disabled={abandoning}>
                 <Trash2 className="h-4 w-4" />
-                {abandoning ? '...' : 'Bekor qilish'}
+                {abandoning ? '...' : ts('exam.abandon')}
               </Button>
             </div>
           </CardContent>
@@ -164,7 +164,7 @@ export default function ExamPage() {
         {/* Exam mode */}
         <Card className="relative hover:border-foreground/20 transition-colors">
           <div className="absolute right-3 top-3">
-            <Badge variant="secondary" className="text-[11px]">Haqiqiy imtihon</Badge>
+            <Badge variant="secondary" className="text-[11px]">{ts('exam.realExam')}</Badge>
           </div>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
@@ -172,19 +172,19 @@ export default function ExamPage() {
                 <GraduationCap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <CardTitle className="text-base font-semibold">Imtihon (Sinov)</CardTitle>
-                <p className="text-xs text-muted-foreground">UBDD imtihoniga tayyorlanish</p>
+                <CardTitle className="text-base font-semibold">{ts('exam.examMode')}</CardTitle>
+                <p className="text-xs text-muted-foreground">{ts('exam.examDesc')}</p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{EXAM_QUESTION_COUNT} savol</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />{EXAM_TIME_MINUTES} daqiqa</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Trophy className="h-3.5 w-3.5" />O&apos;tish: {EXAM_PASSING_SCORE}%</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{EXAM_QUESTION_COUNT} {ts('common.question')}</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />{EXAM_TIME_MINUTES} {ts('common.minutes')}</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Trophy className="h-3.5 w-3.5" />{ts('exam.passingRate')} {EXAM_PASSING_SCORE}%</span>
             </div>
             <Button className="w-full" onClick={() => handleStart('exam')} disabled={loading !== null || hasActive}>
-              {loading === 'exam' ? 'Yuklanmoqda...' : 'Imtihonni boshlash'}
+              {loading === 'exam' ? ts('common.loading') : ts('exam.start')}
             </Button>
           </CardContent>
         </Card>
@@ -197,30 +197,30 @@ export default function ExamPage() {
                 <Hash className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
-                <CardTitle className="text-base font-semibold">Bilet (Ticket)</CardTitle>
-                <p className="text-xs text-muted-foreground">Bilet raqami bo&apos;yicha savollar</p>
+                <CardTitle className="text-base font-semibold">{ts('exam.ticketMode')}</CardTitle>
+                <p className="text-xs text-muted-foreground">{ts('exam.ticketDesc')}</p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />20 savol</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />25 daqiqa</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />57 bilet</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />20 {ts('common.question')}</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />25 {ts('common.minutes')}</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />57 {ts('exam.tickets')}</span>
             </div>
             <div className="flex gap-2">
               <Select value={String(selectedTicket)} onValueChange={(v) => setSelectedTicket(Number(v))}>
                 <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Bilet tanlang" />
+                  <SelectValue placeholder={ts('exam.selectTicket')} />
                 </SelectTrigger>
                 <SelectContent className="max-h-48">
                   {TICKET_NUMBERS.map((n) => (
-                    <SelectItem key={n} value={String(n)}>Bilet #{n}</SelectItem>
+                    <SelectItem key={n} value={String(n)}>{ts('exam.ticketPrefix')}{n}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Button variant="outline" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive} className="shrink-0">
-                {loading === 'ticket' ? '...' : 'Boshlash'}
+                {loading === 'ticket' ? '...' : ts('exam.startBtn')}
               </Button>
             </div>
           </CardContent>
@@ -234,18 +234,18 @@ export default function ExamPage() {
                 <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <CardTitle className="text-base font-semibold">Maraton</CardTitle>
-                <p className="text-xs text-muted-foreground">Barcha 1200+ savol, taymer yo&apos;q</p>
+                <CardTitle className="text-base font-semibold">{ts('exam.marathonTitle')}</CardTitle>
+                <p className="text-xs text-muted-foreground">{ts('exam.marathonAllQuestions')}</p>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />1200+ savol</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />Jarayon saqlanadi</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{ts('exam.questionsCount')}</span>
+              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />{ts('exam.progressSaved')}</span>
             </div>
             <Button variant="outline" className="w-full" onClick={() => handleStart('marathon')} disabled={loading !== null || hasActive}>
-              {loading === 'marathon' ? 'Yuklanmoqda...' : 'Maratonni boshlash'}
+              {loading === 'marathon' ? ts('common.loading') : ts('exam.startMarathonBtn')}
             </Button>
           </CardContent>
         </Card>
@@ -253,7 +253,7 @@ export default function ExamPage() {
 
       <div className="rounded-lg bg-muted p-4 text-center">
         <Link href="/progress" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          Imtihon tarixini ko&apos;rish
+          {ts('exam.viewHistory')}
         </Link>
       </div>
     </div>

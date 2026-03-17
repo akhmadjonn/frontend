@@ -36,6 +36,7 @@ import {
   GripVertical,
 } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 
 function slugify(text: string): string {
   return text
@@ -114,6 +115,7 @@ function CategoryTreeRow({
   onEdit,
   onToggleStatus,
   togglingId,
+  ts,
 }: {
   category: CategoryDto;
   depth: number;
@@ -123,6 +125,7 @@ function CategoryTreeRow({
   onEdit: (cat: CategoryDto) => void;
   onToggleStatus: (cat: CategoryDto) => void;
   togglingId: string | null;
+  ts: (key: string) => string;
 }) {
   const hasChildren = category.children?.length > 0;
   const isExpanded = expandedIds.has(category.id);
@@ -160,7 +163,7 @@ function CategoryTreeRow({
             </span>
             {!category.isActive && (
               <span className="inline-flex items-center rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                Nofaol
+                {ts('admin.inactive')}
               </span>
             )}
             {hasChildren && (
@@ -178,7 +181,7 @@ function CategoryTreeRow({
 
         <div className="flex items-center gap-3 shrink-0">
           <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 tabular-nums dark:bg-blue-950/30 dark:text-blue-300">
-            {category.questionCount} savol
+            {category.questionCount} {ts('common.question')}
           </span>
 
           <span className="text-[11px] text-muted-foreground tabular-nums w-8 text-center font-mono">
@@ -214,6 +217,7 @@ function CategoryTreeRow({
             onEdit={onEdit}
             onToggleStatus={onToggleStatus}
             togglingId={togglingId}
+            ts={ts}
           />
         ))}
     </>
@@ -222,6 +226,7 @@ function CategoryTreeRow({
 
 export default function CategoriesPage() {
   const { language } = useLocaleStore();
+  const { ts } = useLocale();
   const lang = language as keyof LocalizedText;
 
   const [categories, setCategories] = useState<CategoryDto[]>([]);
@@ -240,7 +245,7 @@ export default function CategoriesPage() {
       const result = await apiClient.get<CategoryDto[]>('/admin/categories');
       setCategories(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Kategoriyalarni yuklashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.categories.loadError'));
     } finally {
       setLoading(false);
     }
@@ -308,11 +313,11 @@ export default function CategoriesPage() {
 
   const handleSubmit = async () => {
     if (!form.nameUzLatin.trim()) {
-      toast.error('Kategoriya nomi (UZ Lotin) kiritilishi shart');
+      toast.error(ts('admin.categories.nameRequired'));
       return;
     }
     if (!form.slug.trim()) {
-      toast.error('Slug kiritilishi shart');
+      toast.error(ts('admin.categories.slugRequired'));
       return;
     }
 
@@ -334,16 +339,16 @@ export default function CategoriesPage() {
 
       if (editingCategory) {
         await apiClient.put(`/admin/categories/${editingCategory.id}`, { id: editingCategory.id, ...payload });
-        toast.success('Kategoriya yangilandi');
+        toast.success(ts('admin.categories.updated'));
       } else {
         await apiClient.post('/admin/categories', payload);
-        toast.success('Kategoriya yaratildi');
+        toast.success(ts('admin.categories.created'));
       }
 
       setDialogOpen(false);
       fetchCategories();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Xatolik yuz berdi');
+      toast.error(err instanceof Error ? err.message : ts('common.error'));
     } finally {
       setSubmitting(false);
     }
@@ -375,9 +380,9 @@ export default function CategoriesPage() {
         });
 
       setCategories((prev) => toggleInTree(prev));
-      toast.success(cat.isActive ? 'Kategoriya o\'chirildi' : 'Kategoriya faollashtirildi');
+      toast.success(cat.isActive ? ts('admin.categories.disabled') : ts('admin.categories.enabled'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Holatni o\'zgartirishda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.categories.statusError'));
     } finally {
       setTogglingId(null);
     }
@@ -399,10 +404,10 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Kategoriyalar</h1>
+          <h1 className="text-xl font-bold tracking-tight">{ts('admin.categories.title')}</h1>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
-              Jami {totalCategories} ta kategoriya
+              {ts('admin.categories.totalCount').replace('{count}', String(totalCategories))}
             </p>
           )}
         </div>
@@ -410,16 +415,16 @@ export default function CategoriesPage() {
           {categories.length > 0 && (
             <>
               <Button variant="outline" size="sm" onClick={expandAll}>
-                Hammasini ochish
+                {ts('admin.categories.expandAll')}
               </Button>
               <Button variant="outline" size="sm" onClick={collapseAll}>
-                Hammasini yopish
+                {ts('admin.categories.collapseAll')}
               </Button>
             </>
           )}
           <Button onClick={openCreateDialog}>
             <Plus className="h-4 w-4" />
-            Kategoriya qo&apos;shish
+            {ts('admin.categories.addCategory')}
           </Button>
         </div>
       </div>
@@ -442,13 +447,13 @@ export default function CategoriesPage() {
         <Card>
           <CardContent className="py-16 text-center">
             <FolderTree className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-lg font-medium mb-1">Kategoriyalar mavjud emas</p>
+            <p className="text-lg font-medium mb-1">{ts('admin.categories.noCategories')}</p>
             <p className="text-sm text-muted-foreground mb-4">
-              Birinchi kategoriyani yarating
+              {ts('admin.categories.createFirst')}
             </p>
             <Button onClick={openCreateDialog}>
               <Plus className="h-4 w-4" />
-              Kategoriya qo&apos;shish
+              {ts('admin.categories.addCategory')}
             </Button>
           </CardContent>
         </Card>
@@ -465,6 +470,7 @@ export default function CategoriesPage() {
               onEdit={openEditDialog}
               onToggleStatus={handleToggleStatus}
               togglingId={togglingId}
+              ts={ts}
             />
           ))}
         </div>
@@ -475,36 +481,36 @@ export default function CategoriesPage() {
           <DialogHeader>
             <DialogTitle>
               {editingCategory
-                ? 'Kategoriyani tahrirlash'
-                : 'Yangi kategoriya qo\'shish'}
+                ? ts('admin.categories.editTitle')
+                : ts('admin.categories.createTitle')}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <Tabs defaultValue="uzLatin">
               <TabsList className="w-full">
-                <TabsTrigger value="uzLatin" className="flex-1">UZ Lotin</TabsTrigger>
-                <TabsTrigger value="uz" className="flex-1">UZ Kirill</TabsTrigger>
-                <TabsTrigger value="ru" className="flex-1">Русский</TabsTrigger>
+                <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
+                <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="uzLatin" className="space-y-3 mt-3">
                 <div>
-                  <Label htmlFor="nameUzLatin">Nomi</Label>
+                  <Label htmlFor="nameUzLatin">{ts('admin.plans.nameSection')}</Label>
                   <Input
                     id="nameUzLatin"
                     value={form.nameUzLatin}
                     onChange={(e) => updateField('nameUzLatin', e.target.value)}
-                    placeholder="Kategoriya nomi (lotin)"
+                    placeholder={ts('admin.categories.namePlaceholderLatin')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="descUzLatin">Tavsif</Label>
+                  <Label htmlFor="descUzLatin">{ts('admin.plans.descSection')}</Label>
                   <Textarea
                     id="descUzLatin"
                     value={form.descriptionUzLatin}
                     onChange={(e) => updateField('descriptionUzLatin', e.target.value)}
-                    placeholder="Tavsif (lotin)"
+                    placeholder={ts('admin.categories.descPlaceholderLatin')}
                     rows={2}
                   />
                 </div>
@@ -512,7 +518,7 @@ export default function CategoriesPage() {
 
               <TabsContent value="uz" className="space-y-3 mt-3">
                 <div>
-                  <Label htmlFor="nameUz">Номи</Label>
+                  <Label htmlFor="nameUz">{ts('admin.plans.nameSection')}</Label>
                   <Input
                     id="nameUz"
                     value={form.nameUz}
@@ -521,7 +527,7 @@ export default function CategoriesPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="descUz">Тавсиф</Label>
+                  <Label htmlFor="descUz">{ts('admin.plans.descSection')}</Label>
                   <Textarea
                     id="descUz"
                     value={form.descriptionUz}
@@ -534,7 +540,7 @@ export default function CategoriesPage() {
 
               <TabsContent value="ru" className="space-y-3 mt-3">
                 <div>
-                  <Label htmlFor="nameRu">Название</Label>
+                  <Label htmlFor="nameRu">{ts('admin.plans.nameSection')}</Label>
                   <Input
                     id="nameRu"
                     value={form.nameRu}
@@ -543,7 +549,7 @@ export default function CategoriesPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="descRu">Описание</Label>
+                  <Label htmlFor="descRu">{ts('admin.plans.descSection')}</Label>
                   <Textarea
                     id="descRu"
                     value={form.descriptionRu}
@@ -556,7 +562,7 @@ export default function CategoriesPage() {
             </Tabs>
 
             <div>
-              <Label htmlFor="slug">Slug</Label>
+              <Label htmlFor="slug">{ts('admin.categories.slug')}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="slug"
@@ -565,7 +571,7 @@ export default function CategoriesPage() {
                     setAutoSlug(false);
                     updateField('slug', e.target.value);
                   }}
-                  placeholder="kategoriya-slug"
+                  placeholder={ts('admin.categories.slugPlaceholder')}
                   className="flex-1"
                 />
                 {!autoSlug && !editingCategory && (
@@ -580,26 +586,26 @@ export default function CategoriesPage() {
                       }));
                     }}
                   >
-                    Avto
+                    {ts('admin.categories.autoSlug')}
                   </Button>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                URL uchun ishlatiladi. UZ Lotin nomidan avtomatik yaratiladi.
+                {ts('admin.categories.slugHint')}
               </p>
             </div>
 
             <div>
-              <Label htmlFor="parentId">Ota kategoriya</Label>
+              <Label htmlFor="parentId">{ts('admin.categories.parentCategory')}</Label>
               <Select
                 value={form.parentId || '__none__'}
                 onValueChange={(v) => updateField('parentId', v === '__none__' ? '' : v as string)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Tanlang (ixtiyoriy)" />
+                  <SelectValue placeholder={ts('admin.categories.parentPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__">Yo&apos;q (asosiy kategoriya)</SelectItem>
+                  <SelectItem value="__none__">{ts('admin.categories.noParent')}</SelectItem>
                   {flatList.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {'— '.repeat(item.depth)}{item.name[lang] || item.name.uzLatin}
@@ -611,7 +617,7 @@ export default function CategoriesPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="sortOrder">Tartib raqami</Label>
+                <Label htmlFor="sortOrder">{ts('admin.categories.sortOrder')}</Label>
                 <Input
                   id="sortOrder"
                   type="number"
@@ -622,7 +628,7 @@ export default function CategoriesPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="iconUrl">Ikonka URL</Label>
+                <Label htmlFor="iconUrl">{ts('admin.categories.iconUrl')}</Label>
                 <Input
                   id="iconUrl"
                   value={form.iconUrl}
@@ -637,7 +643,7 @@ export default function CategoriesPage() {
                 checked={form.isActive}
                 onCheckedChange={(val) => updateField('isActive', val as boolean)}
               />
-              <Label>Faol holat</Label>
+              <Label>{ts('admin.activeState')}</Label>
             </div>
           </div>
 
@@ -647,14 +653,14 @@ export default function CategoriesPage() {
               onClick={() => setDialogOpen(false)}
               disabled={submitting}
             >
-              Bekor qilish
+              {ts('common.cancel')}
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>
               {submitting
-                ? 'Saqlanmoqda...'
+                ? ts('admin.saving')
                 : editingCategory
-                  ? 'Saqlash'
-                  : 'Yaratish'}
+                  ? ts('admin.saveBtn')
+                  : ts('admin.createBtn')}
             </Button>
           </DialogFooter>
         </DialogContent>

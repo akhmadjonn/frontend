@@ -23,30 +23,33 @@ const DataTable = dynamic(() => import('@/components/admin/data-table'), {
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Info, AlertTriangle, AlertCircle } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 import { format } from 'date-fns';
 
 type AnnouncementType = 'Info' | 'Warning' | 'Important';
 
-const TYPE_CONFIG: Record<AnnouncementType, { label: string; icon: React.ReactNode; badgeClassName: string; bannerClassName: string }> = {
-  Info: {
-    label: "Ma'lumot",
-    icon: <Info className="h-4 w-4" />,
-    badgeClassName: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    bannerClassName: 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-300',
-  },
-  Warning: {
-    label: 'Ogohlantirish',
-    icon: <AlertTriangle className="h-4 w-4" />,
-    badgeClassName: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    bannerClassName: 'border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-900 dark:bg-yellow-950/50 dark:text-yellow-300',
-  },
-  Important: {
-    label: 'Muhim',
-    icon: <AlertCircle className="h-4 w-4" />,
-    badgeClassName: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    bannerClassName: 'border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300',
-  },
-};
+function getTypeConfig(ts: (key: string) => string): Record<AnnouncementType, { label: string; icon: React.ReactNode; badgeClassName: string; bannerClassName: string }> {
+  return {
+    Info: {
+      label: ts('admin.announcements.typeInfo'),
+      icon: <Info className="h-4 w-4" />,
+      badgeClassName: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+      bannerClassName: 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-300',
+    },
+    Warning: {
+      label: ts('admin.announcements.typeWarning'),
+      icon: <AlertTriangle className="h-4 w-4" />,
+      badgeClassName: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+      bannerClassName: 'border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-900 dark:bg-yellow-950/50 dark:text-yellow-300',
+    },
+    Important: {
+      label: ts('admin.announcements.typeImportant'),
+      icon: <AlertCircle className="h-4 w-4" />,
+      badgeClassName: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+      bannerClassName: 'border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300',
+    },
+  };
+}
 
 interface AnnouncementFormState {
   titleUz: string;
@@ -78,7 +81,10 @@ const PAGE_SIZE = 20;
 
 export default function AnnouncementsPage() {
   const { language } = useLocaleStore();
+  const { ts } = useLocale();
   const lang = language as keyof LocalizedText;
+
+  const TYPE_CONFIG = getTypeConfig(ts);
 
   const [data, setData] = useState<PaginatedList<AnnouncementDto> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -105,7 +111,7 @@ export default function AnnouncementsPage() {
       );
       setData(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "E'lonlarni yuklashda xatolik");
+      toast.error(err instanceof Error ? err.message : ts('admin.announcements.loadError'));
     } finally {
       setLoading(false);
     }
@@ -147,7 +153,7 @@ export default function AnnouncementsPage() {
 
   const handleSave = async () => {
     if (!form.titleUzLatin.trim()) {
-      toast.error("E'lon sarlavhasini kiriting (UZ Lotin)");
+      toast.error(ts('admin.announcements.titleRequired'));
       return;
     }
 
@@ -172,16 +178,16 @@ export default function AnnouncementsPage() {
 
       if (editingId) {
         await apiClient.put(`/admin/announcements/${editingId}`, payload);
-        toast.success("E'lon yangilandi");
+        toast.success(ts('admin.announcements.updated'));
       } else {
         await apiClient.post('/admin/announcements', payload);
-        toast.success("E'lon yaratildi");
+        toast.success(ts('admin.announcements.created'));
       }
 
       setDialogOpen(false);
       fetchAnnouncements();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Saqlashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.announcements.saveError'));
     } finally {
       setSaving(false);
     }
@@ -193,12 +199,12 @@ export default function AnnouncementsPage() {
     setDeleting(true);
     try {
       await apiClient.delete(`/admin/announcements/${deletingId}`);
-      toast.success("E'lon o'chirildi");
+      toast.success(ts('admin.announcements.deleted'));
       setDeleteDialogOpen(false);
       setDeletingId(null);
       fetchAnnouncements();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "O'chirishda xatolik");
+      toast.error(err instanceof Error ? err.message : ts('admin.announcements.deleteError'));
     } finally {
       setDeleting(false);
     }
@@ -214,14 +220,14 @@ export default function AnnouncementsPage() {
     );
   };
 
-  const previewTitle = form.titleUzLatin || form.titleUz || form.titleRu || "E'lon sarlavhasi";
-  const previewContent = form.contentUzLatin || form.contentUz || form.contentRu || "E'lon matni shu yerda ko'rsatiladi.";
+  const previewTitle = form.titleUzLatin || form.titleUz || form.titleRu || ts('admin.announcements.previewTitle');
+  const previewContent = form.contentUzLatin || form.contentUz || form.contentRu || ts('admin.announcements.previewContent');
   const previewConfig = TYPE_CONFIG[form.type];
 
   const columns: Column<AnnouncementDto>[] = [
     {
       key: 'title',
-      header: 'Sarlavha',
+      header: ts('admin.announcements.heading'),
       className: 'min-w-[200px]',
       render: (a) => (
         <span className="font-medium text-sm">{getText(a.title)}</span>
@@ -229,30 +235,30 @@ export default function AnnouncementsPage() {
     },
     {
       key: 'type',
-      header: 'Turi',
+      header: ts('admin.announcements.type'),
       className: 'w-28',
       render: (a) => renderTypeBadge(a.type),
     },
     {
       key: 'isActive',
-      header: 'Holat',
+      header: ts('admin.announcements.statusLabel'),
       className: 'w-20',
       render: (a) =>
         a.isActive ? (
           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-400">
             <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-            Faol
+            {ts('admin.active')}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
-            Nofaol
+            {ts('admin.inactive')}
           </span>
         ),
     },
     {
       key: 'startsAt',
-      header: 'Boshlanish',
+      header: ts('admin.announcements.startDate'),
       className: 'min-w-[120px]',
       render: (a) =>
         a.startsAt ? (
@@ -263,7 +269,7 @@ export default function AnnouncementsPage() {
     },
     {
       key: 'expiresAt',
-      header: 'Tugash',
+      header: ts('admin.announcements.endDate'),
       className: 'min-w-[120px]',
       render: (a) =>
         a.expiresAt ? (
@@ -274,7 +280,7 @@ export default function AnnouncementsPage() {
     },
     {
       key: 'createdAt',
-      header: 'Yaratilgan',
+      header: ts('admin.announcements.createdAt'),
       className: 'min-w-[100px]',
       render: (a) => (
         <span className="text-sm">{format(new Date(a.createdAt), 'dd.MM.yyyy')}</span>
@@ -301,14 +307,14 @@ export default function AnnouncementsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">E&apos;lonlar</h1>
+          <h1 className="text-xl font-bold tracking-tight">{ts('admin.announcements.title')}</h1>
           <p className="text-sm text-muted-foreground">
-            Foydalanuvchilarga ko&apos;rsatiladigan e&apos;lonlarni boshqarish
+            {ts('admin.announcements.subtitle')}
           </p>
         </div>
         <Button size="sm" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
-          E&apos;lon qo&apos;shish
+          {ts('admin.announcements.addBtn')}
         </Button>
       </div>
 
@@ -320,31 +326,31 @@ export default function AnnouncementsPage() {
         page={page}
         totalPages={data?.meta.totalPages}
         onPageChange={setPage}
-        emptyMessage="E'lonlar topilmadi"
+        emptyMessage={ts('admin.announcements.notFound')}
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {editingId ? "E'lonni tahrirlash" : "Yangi e'lon yaratish"}
+              {editingId ? ts('admin.announcements.editTitle') : ts('admin.announcements.createTitle')}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
             <div className="space-y-3">
-              <Label className="text-sm font-semibold">Sarlavha</Label>
+              <Label className="text-sm font-semibold">{ts('admin.announcements.heading')}</Label>
               <div className="space-y-2">
                 <div>
-                  <Label className="text-xs text-muted-foreground">UZ Lotin</Label>
+                  <Label className="text-xs text-muted-foreground">{ts('admin.langUzLatin')}</Label>
                   <Input
                     value={form.titleUzLatin}
                     onChange={(e) => setForm((prev) => ({ ...prev, titleUzLatin: e.target.value }))}
-                    placeholder="E'lon sarlavhasi (lotin)"
+                    placeholder={ts('admin.announcements.headingPlaceholderLatin')}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">UZ Kirill</Label>
+                  <Label className="text-xs text-muted-foreground">{ts('admin.langUzCyrillic')}</Label>
                   <Input
                     value={form.titleUz}
                     onChange={(e) => setForm((prev) => ({ ...prev, titleUz: e.target.value }))}
@@ -352,7 +358,7 @@ export default function AnnouncementsPage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Рус</Label>
+                  <Label className="text-xs text-muted-foreground">{ts('admin.langRussian')}</Label>
                   <Input
                     value={form.titleRu}
                     onChange={(e) => setForm((prev) => ({ ...prev, titleRu: e.target.value }))}
@@ -363,19 +369,19 @@ export default function AnnouncementsPage() {
             </div>
 
             <div className="space-y-3">
-              <Label className="text-sm font-semibold">Matn</Label>
+              <Label className="text-sm font-semibold">{ts('admin.announcements.contentLabel')}</Label>
               <div className="space-y-2">
                 <div>
-                  <Label className="text-xs text-muted-foreground">UZ Lotin</Label>
+                  <Label className="text-xs text-muted-foreground">{ts('admin.langUzLatin')}</Label>
                   <Textarea
                     value={form.contentUzLatin}
                     onChange={(e) => setForm((prev) => ({ ...prev, contentUzLatin: e.target.value }))}
-                    placeholder="E'lon matni (lotin)"
+                    placeholder={ts('admin.announcements.contentPlaceholderLatin')}
                     rows={2}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">UZ Kirill</Label>
+                  <Label className="text-xs text-muted-foreground">{ts('admin.langUzCyrillic')}</Label>
                   <Textarea
                     value={form.contentUz}
                     onChange={(e) => setForm((prev) => ({ ...prev, contentUz: e.target.value }))}
@@ -384,7 +390,7 @@ export default function AnnouncementsPage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Рус</Label>
+                  <Label className="text-xs text-muted-foreground">{ts('admin.langRussian')}</Label>
                   <Textarea
                     value={form.contentRu}
                     onChange={(e) => setForm((prev) => ({ ...prev, contentRu: e.target.value }))}
@@ -397,7 +403,7 @@ export default function AnnouncementsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Turi</Label>
+                <Label>{ts('admin.announcements.type')}</Label>
                 <Select
                   value={form.type}
                   onValueChange={(val) => setForm((prev) => ({ ...prev, type: val as AnnouncementType }))}
@@ -406,15 +412,15 @@ export default function AnnouncementsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Info">Ma&apos;lumot</SelectItem>
-                    <SelectItem value="Warning">Ogohlantirish</SelectItem>
-                    <SelectItem value="Important">Muhim</SelectItem>
+                    <SelectItem value="Info">{ts('admin.announcements.typeInfo')}</SelectItem>
+                    <SelectItem value="Warning">{ts('admin.announcements.typeWarning')}</SelectItem>
+                    <SelectItem value="Important">{ts('admin.announcements.typeImportant')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Holati</Label>
+                <Label>{ts('admin.announcements.statusLabel')}</Label>
                 <div className="flex items-center gap-2 h-8">
                   <Switch
                     checked={form.isActive}
@@ -422,14 +428,14 @@ export default function AnnouncementsPage() {
                       setForm((prev) => ({ ...prev, isActive: checked }))
                     }
                   />
-                  <span className="text-sm">{form.isActive ? 'Faol' : 'Nofaol'}</span>
+                  <span className="text-sm">{form.isActive ? ts('admin.active') : ts('admin.inactive')}</span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="ann-starts">Boshlanish sanasi</Label>
+                <Label htmlFor="ann-starts">{ts('admin.announcements.startDateLabel')}</Label>
                 <Input
                   id="ann-starts"
                   type="datetime-local"
@@ -438,7 +444,7 @@ export default function AnnouncementsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ann-expires">Tugash sanasi</Label>
+                <Label htmlFor="ann-expires">{ts('admin.announcements.endDateLabel')}</Label>
                 <Input
                   id="ann-expires"
                   type="datetime-local"
@@ -449,7 +455,7 @@ export default function AnnouncementsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-semibold">Ko&apos;rinishi</Label>
+              <Label className="text-sm font-semibold">{ts('admin.announcements.preview')}</Label>
               <div className={`flex items-start gap-3 rounded-lg border p-3 ${previewConfig.bannerClassName}`}>
                 <div className="mt-0.5">{previewConfig.icon}</div>
                 <div className="space-y-0.5">
@@ -462,10 +468,10 @@ export default function AnnouncementsPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Bekor qilish
+              {ts('common.cancel')}
             </Button>
             <Button onClick={handleSave} disabled={saving}>
-              {saving ? 'Saqlanmoqda...' : editingId ? 'Yangilash' : 'Yaratish'}
+              {saving ? ts('admin.saving') : editingId ? ts('admin.updateBtn') : ts('admin.createBtn')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -474,17 +480,17 @@ export default function AnnouncementsPage() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>E&apos;lonni o&apos;chirish</DialogTitle>
+            <DialogTitle>{ts('admin.announcements.deleteTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Bu e&apos;lonni o&apos;chirishni tasdiqlaysizmi? Bu amalni qaytarib bo&apos;lmaydi.
+            {ts('admin.announcements.deleteConfirm')}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Bekor qilish
+              {ts('common.cancel')}
             </Button>
             <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? "O'chirilmoqda..." : "O'chirish"}
+              {deleting ? ts('admin.announcements.deleting') : ts('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

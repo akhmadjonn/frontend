@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
+import { useLocale } from '@/hooks/use-locale';
 
 interface DeleteDialogProps {
   open: boolean;
@@ -30,10 +31,10 @@ export default function DeleteDialog({
   onDeleted,
   mode,
 }: DeleteDialogProps) {
+  const { ts } = useLocale();
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
 
-  // reset confirmation text when dialog opens/closes or mode changes
   useEffect(() => {
     setConfirmText('');
     setDeleting(false);
@@ -55,14 +56,14 @@ export default function DeleteDialog({
 
       toast.success(
         isPermanent
-          ? "Savol butunlay o'chirildi"
-          : "Savol o'chirildi (nofaol qilindi)"
+          ? ts('admin.deleteQuestion.permanentDeleted')
+          : ts('admin.deleteQuestion.deleted')
       );
       onDeleted();
       onOpenChange(false);
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Savolni o'chirishda xatolik yuz berdi"
+        err instanceof Error ? err.message : ts('admin.deleteQuestion.deleteError')
       );
     } finally {
       setDeleting(false);
@@ -75,12 +76,12 @@ export default function DeleteDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className={`h-5 w-5 ${isPermanent ? 'text-destructive' : 'text-yellow-500'}`} />
-            {isPermanent ? "Savolni butunlay o'chirish" : "Savolni o'chirish"}
+            {isPermanent ? ts('admin.deleteQuestion.permanentTitle') : ts('admin.deleteQuestion.title')}
           </DialogTitle>
           <DialogDescription>
             {isPermanent
-              ? "Bu amalni ortga qaytarib bo'lmaydi. Savol, barcha javob variantlari va bog'langan rasmlar serverdan butunlay o'chiriladi."
-              : "Savol nofaol qilinadi va foydalanuvchilarga ko'rinmaydi. Keyinroq qayta faollashtirish mumkin."}
+              ? ts('admin.deleteQuestion.permanentDescription')
+              : ts('admin.deleteQuestion.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -88,7 +89,7 @@ export default function DeleteDialog({
           <div className="space-y-2">
             <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3">
               <p className="text-sm text-destructive">
-                Tasdiqlash uchun quyidagi maydonga <span className="font-mono font-bold">DELETE</span> so&apos;zini yozing.
+                {ts('admin.deleteQuestion.confirmHint').replace('{word}', 'DELETE')}
               </p>
             </div>
             <Input
@@ -103,7 +104,7 @@ export default function DeleteDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={deleting}>
-            Bekor qilish
+            {ts('common.cancel')}
           </Button>
           <Button
             variant="destructive"
@@ -113,12 +114,12 @@ export default function DeleteDialog({
             {deleting ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                O&apos;chirilmoqda...
+                {ts('admin.deleteQuestion.deleting')}
               </>
             ) : isPermanent ? (
-              "Butunlay o'chirish"
+              ts('admin.deleteQuestion.permanentDeleteBtn')
             ) : (
-              "O'chirish"
+              ts('common.delete')
             )}
           </Button>
         </DialogFooter>
