@@ -164,13 +164,14 @@ export interface CategoryDto {
 // Exam Templates
 export interface ExamTemplateDto {
   id: string;
-  name: string;
-  questionCount: number;
-  durationMinutes: number;
-  passScore: number;
+  titleUz: string;
+  titleUzLatin: string;
+  titleRu: string;
+  totalQuestions: number;
+  passingScore: number;
+  timeLimitMinutes: number;
+  isActive: boolean;
   poolRules: PoolRuleDto[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface PoolRuleDto {
