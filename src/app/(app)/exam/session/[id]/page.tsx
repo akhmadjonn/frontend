@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useExamStore } from '@/stores/exam-store';
 import { useShallow } from 'zustand/react/shallow';
+import { useLocale } from '@/hooks/use-locale';
 import { apiClient } from '@/lib/api-client';
 import QuestionCard from '@/components/exam/question-card';
 import QuestionNavigator from '@/components/exam/question-navigator';
@@ -17,6 +18,7 @@ export default function ExamSessionPage() {
   const params = useParams();
   const router = useRouter();
   const examId = params.id as string;
+  const { ts } = useLocale();
   const { questions, currentIndex, answers, expiresAt, status, mode } = useExamStore(
     useShallow((s) => ({ questions: s.questions, currentIndex: s.currentIndex, answers: s.answers, expiresAt: s.expiresAt, status: s.status, mode: s.mode }))
   );
@@ -27,26 +29,23 @@ export default function ExamSessionPage() {
   const [completing, setCompleting] = useState(false);
   const submittedRef = useRef(false);
 
-  // Redirect if no active exam
   useEffect(() => {
     if (status === 'idle' || questions.length === 0) {
       router.replace('/exam');
     }
   }, [status, questions.length, router]);
 
-  // Anti-cheat: visibilitychange
   useEffect(() => {
     const handleVisibility = () => {
       if (document.hidden) {
         incrementTabSwitch();
-        toast.warning('Tab almashtirildi! Bu qayd etildi.');
+        toast.warning(ts('exam.tabSwitchWarning'));
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [incrementTabSwitch]);
+  }, [incrementTabSwitch, ts]);
 
-  // Anti-cheat: beforeunload
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (mode !== 'marathon') {
@@ -66,7 +65,7 @@ export default function ExamSessionPage() {
         selectedAnswerId: answerId,
       });
     } catch {
-      // Silent fail — answer already saved locally
+      // Silent fail
     }
   }, [examId, selectAnswer]);
 
@@ -80,11 +79,11 @@ export default function ExamSessionPage() {
       router.replace(`/exam/result/${examId}`);
     } catch (err: unknown) {
       submittedRef.current = false;
-      toast.error(err instanceof Error ? err.message : 'Xatolik yuz berdi');
+      toast.error(err instanceof Error ? err.message : ts('common.error'));
     } finally {
       setCompleting(false);
     }
-  }, [examId, submitExam, router, completing]);
+  }, [examId, submitExam, router, completing, ts]);
 
   const currentQuestion = questions[currentIndex];
   const answeredIds = useMemo(() => new Set(answers.keys()), [answers]);
@@ -94,7 +93,6 @@ export default function ExamSessionPage() {
   const isMarathon = mode === 'marathon';
   const progressPct = Math.round((answeredCount / totalQuestions) * 100);
 
-  // Enter/ArrowRight → next question, ArrowLeft → previous
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === 'ArrowRight') {
@@ -125,7 +123,6 @@ export default function ExamSessionPage() {
       className="flex flex-col min-h-[calc(100vh-3.5rem)]"
       style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
     >
-      {/* Sticky header */}
       <div className="sticky top-14 z-30 bg-background/95 backdrop-blur border-b px-4 py-2">
         <div className="flex items-center justify-between max-w-3xl mx-auto gap-4">
           <div className="flex items-center gap-2 min-w-0">
@@ -150,14 +147,12 @@ export default function ExamSessionPage() {
             className="shrink-0"
           >
             <CheckCircle className="h-4 w-4 mr-1.5" />
-            {completing ? 'Yakunlanmoqda...' : 'Yakunlash'}
+            {completing ? ts('exam.completing') : ts('exam.finish')}
           </Button>
         </div>
       </div>
 
-      {/* Main content */}
       <div className="flex-1 max-w-3xl mx-auto w-full px-4 py-6 space-y-6">
-        {/* Question card */}
         <QuestionCard
           question={currentQuestion}
           questionNumber={currentIndex + 1}
@@ -166,7 +161,6 @@ export default function ExamSessionPage() {
           onSelectAnswer={handleSelectForCurrentQuestion}
         />
 
-        {/* Navigation buttons */}
         <div className="flex items-center justify-between gap-2">
           <Button
             variant="outline"
@@ -175,7 +169,7 @@ export default function ExamSessionPage() {
             disabled={currentIndex === 0}
           >
             <ChevronLeft className="h-4 w-4" />
-            Oldingi
+            {ts('common.previous')}
           </Button>
           <div className="flex-1 overflow-x-auto">
             <QuestionNavigator
@@ -192,7 +186,7 @@ export default function ExamSessionPage() {
             onClick={() => goToQuestion(currentIndex + 1)}
             disabled={currentIndex === totalQuestions - 1}
           >
-            Keyingi
+            {ts('common.next')}
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

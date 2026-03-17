@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import { DollarSign, CheckCircle, XCircle, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import dynamic from 'next/dynamic';
+import { useLocale } from '@/hooks/use-locale';
 
 const RevenueChart = dynamic(() => import('@/components/admin/revenue-chart'), {
   ssr: false,
@@ -27,34 +28,35 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5228/a
 const formatMoney = (tiyins: number) =>
   `${(tiyins / 100).toLocaleString('uz-UZ')} so'm`;
 
-const STATUS_CONFIG: Record<string, { label: string; dotColor: string; textColor: string }> = {
-  Completed: { label: 'Bajarildi', dotColor: 'bg-green-500', textColor: 'text-green-700 dark:text-green-400' },
-  Pending: { label: 'Kutilmoqda', dotColor: 'bg-yellow-500', textColor: 'text-yellow-700 dark:text-yellow-400' },
-  Failed: { label: 'Muvaffaqiyatsiz', dotColor: 'bg-red-500', textColor: 'text-red-700 dark:text-red-400' },
-  Refunded: { label: 'Qaytarildi', dotColor: 'bg-blue-500', textColor: 'text-blue-700 dark:text-blue-400' },
+const STATUS_STYLES: Record<string, { dotColor: string; textColor: string }> = {
+  Completed: { dotColor: 'bg-green-500', textColor: 'text-green-700 dark:text-green-400' },
+  Pending: { dotColor: 'bg-yellow-500', textColor: 'text-yellow-700 dark:text-yellow-400' },
+  Failed: { dotColor: 'bg-red-500', textColor: 'text-red-700 dark:text-red-400' },
+  Refunded: { dotColor: 'bg-blue-500', textColor: 'text-blue-700 dark:text-blue-400' },
 };
 
-const PROVIDER_CONFIG: Record<string, { label: string; className: string }> = {
-  Payme: { label: 'Payme', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
-  Click: { label: 'Click', className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+const PROVIDER_STYLES: Record<string, string> = {
+  Payme: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  Click: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
 };
 
-function StatusBadge({ status }: { status: string }) {
-  const config = STATUS_CONFIG[status] ?? { label: status, dotColor: 'bg-gray-400', textColor: 'text-muted-foreground' };
+function StatusBadge({ status, label }: { status: string; label: string }) {
+  const styles = STATUS_STYLES[status] ?? { dotColor: 'bg-gray-400', textColor: 'text-muted-foreground' };
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${config.textColor}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${config.dotColor}`} />
-      {config.label}
+    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${styles.textColor}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${styles.dotColor}`} />
+      {label}
     </span>
   );
 }
 
 function ProviderBadge({ provider }: { provider: string }) {
-  const config = PROVIDER_CONFIG[provider] ?? { label: provider, className: '' };
-  return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}>{config.label}</span>;
+  const className = PROVIDER_STYLES[provider] ?? '';
+  return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${className}`}>{provider}</span>;
 }
 
 function TransactionsTab() {
+  const { ts } = useLocale();
   const [data, setData] = useState<PaginatedList<PaymentTransactionDto> | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -64,6 +66,13 @@ function TransactionsTab() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+
+  const STATUS_LABELS: Record<string, string> = {
+    Completed: ts('admin.payments.statusCompleted'),
+    Pending: ts('admin.payments.statusPending'),
+    Failed: ts('admin.payments.statusFailed'),
+    Refunded: ts('admin.payments.statusRefunded'),
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setSearchDebounce(search), 400);
@@ -87,7 +96,7 @@ function TransactionsTab() {
       );
       setData(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Tranzaksiyalarni yuklashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.payments.loadError'));
     } finally {
       setLoading(false);
     }
@@ -104,31 +113,31 @@ function TransactionsTab() {
   const columns: Column<PaymentTransactionDto>[] = [
     {
       key: 'userPhone',
-      header: 'Telefon',
+      header: ts('admin.payments.phone'),
       render: (tx) => (
         <span className="font-medium">{tx.userPhone || '-'}</span>
       ),
     },
     {
       key: 'provider',
-      header: 'Provayder',
+      header: ts('admin.payments.provider'),
       render: (tx) => <ProviderBadge provider={tx.provider} />,
     },
     {
       key: 'amount',
-      header: 'Summa',
+      header: ts('admin.payments.amount'),
       render: (tx) => (
         <span className="font-medium">{formatMoney(tx.amountInTiyins)}</span>
       ),
     },
     {
       key: 'status',
-      header: 'Holat',
-      render: (tx) => <StatusBadge status={tx.status} />,
+      header: ts('admin.payments.status'),
+      render: (tx) => <StatusBadge status={tx.status} label={STATUS_LABELS[tx.status] ?? tx.status} />,
     },
     {
       key: 'createdAt',
-      header: 'Sana',
+      header: ts('admin.payments.date'),
       render: (tx) => format(new Date(tx.createdAt), 'dd.MM.yyyy HH:mm'),
     },
   ];
@@ -137,44 +146,44 @@ function TransactionsTab() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="flex-1 min-w-[180px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Qidirish</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('common.search')}</label>
           <Input
-            placeholder="Telefon raqami..."
+            placeholder={ts('admin.payments.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="min-w-[150px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Provayder</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.payments.provider')}</label>
           <Select value={providerFilter} onValueChange={(v) => setProviderFilter(v ?? 'all')}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Provayder" />
+              <SelectValue placeholder={ts('admin.payments.provider')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Barcha provayderlar</SelectItem>
+              <SelectItem value="all">{ts('admin.payments.allProviders')}</SelectItem>
               <SelectItem value="Payme">Payme</SelectItem>
               <SelectItem value="Click">Click</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="min-w-[150px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Holat</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.payments.status')}</label>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Holat" />
+              <SelectValue placeholder={ts('admin.payments.status')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Barcha holatlar</SelectItem>
-              <SelectItem value="Completed">Bajarildi</SelectItem>
-              <SelectItem value="Pending">Kutilmoqda</SelectItem>
-              <SelectItem value="Failed">Muvaffaqiyatsiz</SelectItem>
-              <SelectItem value="Refunded">Qaytarildi</SelectItem>
+              <SelectItem value="all">{ts('admin.payments.allStatuses')}</SelectItem>
+              <SelectItem value="Completed">{ts('admin.payments.statusCompleted')}</SelectItem>
+              <SelectItem value="Pending">{ts('admin.payments.statusPending')}</SelectItem>
+              <SelectItem value="Failed">{ts('admin.payments.statusFailed')}</SelectItem>
+              <SelectItem value="Refunded">{ts('admin.payments.statusRefunded')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2">
           <div>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground">Sanadan</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.payments.dateFrom')}</label>
             <Input
               type="date"
               value={dateFrom}
@@ -184,7 +193,7 @@ function TransactionsTab() {
           </div>
           <span className="text-sm text-muted-foreground mt-5">—</span>
           <div>
-            <label className="mb-1 block text-xs font-medium text-muted-foreground">Sanagacha</label>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.payments.dateTo')}</label>
             <Input
               type="date"
               value={dateTo}
@@ -203,13 +212,14 @@ function TransactionsTab() {
         page={page}
         totalPages={data?.meta.totalPages}
         onPageChange={setPage}
-        emptyMessage="Tranzaksiyalar topilmadi"
+        emptyMessage={ts('admin.payments.notFound')}
       />
     </div>
   );
 }
 
 function RevenueTab() {
+  const { ts } = useLocale();
   const [revenue, setRevenue] = useState<RevenueReportDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateFrom, setDateFrom] = useState('');
@@ -229,7 +239,7 @@ function RevenueTab() {
       );
       setRevenue(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Hisobotni yuklashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.payments.revenueLoadError'));
     } finally {
       setLoading(false);
     }
@@ -259,7 +269,7 @@ function RevenueTab() {
       );
 
       if (!response.ok)
-        throw new Error('Eksport qilishda xatolik');
+        throw new Error(ts('admin.payments.exportError'));
 
       const blob = await response.blob();
       const disposition = response.headers.get('Content-Disposition');
@@ -278,9 +288,9 @@ function RevenueTab() {
       a.remove();
       URL.revokeObjectURL(url);
 
-      toast.success('Fayl yuklandi');
+      toast.success(ts('admin.payments.fileDownloaded'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Eksport qilishda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.payments.exportError'));
     } finally {
       setExporting(false);
     }
@@ -310,42 +320,42 @@ function RevenueTab() {
           disabled={exporting}
         >
           <Download className="h-4 w-4" />
-          {exporting ? 'Yuklanmoqda...' : 'Excel eksport'}
+          {exporting ? ts('admin.payments.downloading') : ts('admin.payments.excelExport')}
         </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
-          title="Umumiy daromad"
+          title={ts('admin.payments.totalRevenue')}
           value={loading ? 0 : formatMoney(revenue?.totalRevenue ?? 0)}
           icon={DollarSign}
           iconColor="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
-          description={`${revenue?.totalTransactions ?? 0} ta tranzaksiya`}
+          description={`${revenue?.totalTransactions ?? 0} ${ts('admin.payments.transactions')}`}
           loading={loading}
         />
         <StatCard
-          title="Bajarilgan"
+          title={ts('admin.payments.completed')}
           value={loading ? 0 : (revenue?.completedTransactions ?? 0).toLocaleString()}
           icon={CheckCircle}
           iconColor="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
           loading={loading}
         />
         <StatCard
-          title="Muvaffaqiyatsiz"
+          title={ts('admin.payments.failed')}
           value={loading ? 0 : (revenue?.failedTransactions ?? 0).toLocaleString()}
           icon={XCircle}
           iconColor="bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
           loading={loading}
         />
         <StatCard
-          title="Payme daromadi"
+          title={ts('admin.payments.paymeRevenue')}
           value={loading ? 0 : formatMoney(revenue?.paymeRevenue ?? 0)}
           icon={DollarSign}
           iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
           loading={loading}
         />
         <StatCard
-          title="Click daromadi"
+          title={ts('admin.payments.clickRevenue')}
           value={loading ? 0 : formatMoney(revenue?.clickRevenue ?? 0)}
           icon={DollarSign}
           iconColor="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
@@ -355,7 +365,7 @@ function RevenueTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Kunlik daromad</CardTitle>
+          <CardTitle>{ts('admin.payments.dailyRevenue')}</CardTitle>
         </CardHeader>
         <CardContent>
           <RevenueChart data={revenue?.dailyBreakdown} loading={loading} />
@@ -366,14 +376,16 @@ function RevenueTab() {
 }
 
 export default function PaymentsPage() {
+  const { ts } = useLocale();
+
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold tracking-tight">To&apos;lovlar</h1>
+      <h1 className="text-xl font-bold tracking-tight">{ts('admin.payments.title')}</h1>
 
       <Tabs defaultValue="transactions">
         <TabsList>
-          <TabsTrigger value="transactions">Tranzaksiyalar</TabsTrigger>
-          <TabsTrigger value="revenue">Daromad hisoboti</TabsTrigger>
+          <TabsTrigger value="transactions">{ts('admin.payments.transactionsTab')}</TabsTrigger>
+          <TabsTrigger value="revenue">{ts('admin.payments.revenueTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="transactions">

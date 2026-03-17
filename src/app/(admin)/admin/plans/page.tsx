@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Plus, Pencil, CreditCard, Check, Clock, Sparkles } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 
 const formatMoney = (tiyins: number) =>
   `${(tiyins / 100).toLocaleString('uz-UZ')} so'm`;
@@ -81,6 +82,7 @@ function getPlanDescription(plan: AdminPlanDto, language: string) {
 
 export default function PlansPage() {
   const { language } = useLocaleStore();
+  const { ts } = useLocale();
   const [plans, setPlans] = useState<AdminPlanDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,7 +97,7 @@ export default function PlansPage() {
       const result = await apiClient.get<AdminPlanDto[]>('/admin/plans');
       setPlans(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Rejalarni yuklashda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.plans.loadError'));
     } finally {
       setLoading(false);
     }
@@ -123,19 +125,19 @@ export default function PlansPage() {
 
   const handleSubmit = async () => {
     if (!form.nameUzLatin.trim()) {
-      toast.error('Reja nomi (UZ Lotin) kiritilishi shart');
+      toast.error(ts('admin.plans.nameRequired'));
       return;
     }
 
     const priceNumber = Number(form.priceUzs);
     if (!priceNumber || priceNumber <= 0) {
-      toast.error('Narx musbat son bo\'lishi kerak');
+      toast.error(ts('admin.plans.pricePositive'));
       return;
     }
 
     const durationNumber = Number(form.durationDays);
     if (!durationNumber || durationNumber <= 0) {
-      toast.error('Davomiylik musbat son bo\'lishi kerak');
+      toast.error(ts('admin.plans.durationPositive'));
       return;
     }
 
@@ -156,16 +158,16 @@ export default function PlansPage() {
 
       if (editingPlan) {
         await apiClient.put(`/admin/plans/${editingPlan.id}`, payload);
-        toast.success('Reja yangilandi');
+        toast.success(ts('admin.plans.updated'));
       } else {
         await apiClient.post('/admin/plans', payload);
-        toast.success('Reja yaratildi');
+        toast.success(ts('admin.plans.created'));
       }
 
       setDialogOpen(false);
       fetchPlans();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Xatolik yuz berdi');
+      toast.error(err instanceof Error ? err.message : ts('common.error'));
     } finally {
       setSubmitting(false);
     }
@@ -178,9 +180,9 @@ export default function PlansPage() {
       setPlans((prev) =>
         prev.map((p) => (p.id === plan.id ? { ...p, isActive: !p.isActive } : p))
       );
-      toast.success(plan.isActive ? 'Reja o\'chirildi' : 'Reja faollashtirildi');
+      toast.success(plan.isActive ? ts('admin.plans.disabled') : ts('admin.plans.enabled'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Holatni o\'zgartirishda xatolik');
+      toast.error(err instanceof Error ? err.message : ts('admin.plans.statusError'));
     } finally {
       setTogglingId(null);
     }
@@ -189,10 +191,10 @@ export default function PlansPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold tracking-tight">Obuna rejalari</h1>
+        <h1 className="text-xl font-bold tracking-tight">{ts('admin.plans.title')}</h1>
         <Button onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
-          Reja qo&apos;shish
+          {ts('admin.plans.addPlan')}
         </Button>
       </div>
 
@@ -217,7 +219,7 @@ export default function PlansPage() {
           <CardContent className="py-12 text-center">
             <CreditCard className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
             <p className="text-sm text-muted-foreground">
-              Hozircha rejalar mavjud emas
+              {ts('admin.plans.noPlans')}
             </p>
           </CardContent>
         </Card>
@@ -251,7 +253,7 @@ export default function PlansPage() {
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
                     <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
                       <Sparkles className="h-3 w-3" />
-                      Mashhur
+                      {ts('admin.plans.popular')}
                     </span>
                   </div>
                 )}
@@ -279,7 +281,7 @@ export default function PlansPage() {
                     <div className="flex items-center gap-1.5 mt-1.5">
                       <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">
-                        {plan.durationDays} kun
+                        {plan.durationDays} {ts('admin.plans.days')}
                       </span>
                     </div>
                   </div>
@@ -312,7 +314,7 @@ export default function PlansPage() {
                         size="sm"
                       />
                       <span className={`text-xs font-medium ${plan.isActive ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
-                        {plan.isActive ? 'Faol' : 'Nofaol'}
+                        {plan.isActive ? ts('admin.active') : ts('admin.inactive')}
                       </span>
                     </div>
                   </div>
@@ -327,25 +329,25 @@ export default function PlansPage() {
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingPlan ? 'Rejani tahrirlash' : 'Yangi reja qo\'shish'}
+              {editingPlan ? ts('admin.plans.editTitle') : ts('admin.plans.createTitle')}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-3">
-              <p className="text-sm font-medium text-muted-foreground">Nomi</p>
+              <p className="text-sm font-medium text-muted-foreground">{ts('admin.plans.nameSection')}</p>
               <div className="space-y-2">
                 <div>
-                  <Label htmlFor="nameUzLatin">UZ Lotin</Label>
+                  <Label htmlFor="nameUzLatin">{ts('admin.langUzLatin')}</Label>
                   <Input
                     id="nameUzLatin"
                     value={form.nameUzLatin}
                     onChange={(e) => updateField('nameUzLatin', e.target.value)}
-                    placeholder="Reja nomi (lotin)"
+                    placeholder={ts('admin.plans.namePlaceholderLatin')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="nameUz">UZ Kirill</Label>
+                  <Label htmlFor="nameUz">{ts('admin.langUzCyrillic')}</Label>
                   <Input
                     id="nameUz"
                     value={form.nameUz}
@@ -354,7 +356,7 @@ export default function PlansPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="nameRu">Русский</Label>
+                  <Label htmlFor="nameRu">{ts('admin.langRussian')}</Label>
                   <Input
                     id="nameRu"
                     value={form.nameRu}
@@ -366,10 +368,10 @@ export default function PlansPage() {
             </div>
 
             <div className="space-y-3">
-              <p className="text-sm font-medium text-muted-foreground">Tavsif</p>
+              <p className="text-sm font-medium text-muted-foreground">{ts('admin.plans.descSection')}</p>
               <div className="space-y-2">
                 <div>
-                  <Label htmlFor="descUzLatin">UZ Lotin</Label>
+                  <Label htmlFor="descUzLatin">{ts('admin.langUzLatin')}</Label>
                   <Textarea
                     id="descUzLatin"
                     value={form.descriptionUzLatin}
@@ -379,7 +381,7 @@ export default function PlansPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="descUz">UZ Kirill</Label>
+                  <Label htmlFor="descUz">{ts('admin.langUzCyrillic')}</Label>
                   <Textarea
                     id="descUz"
                     value={form.descriptionUz}
@@ -389,7 +391,7 @@ export default function PlansPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="descRu">Русский</Label>
+                  <Label htmlFor="descRu">{ts('admin.langRussian')}</Label>
                   <Textarea
                     id="descRu"
                     value={form.descriptionRu}
@@ -403,7 +405,7 @@ export default function PlansPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="priceUzs">Narx (UZS)</Label>
+                <Label htmlFor="priceUzs">{ts('admin.plans.price')}</Label>
                 <Input
                   id="priceUzs"
                   type="number"
@@ -415,7 +417,7 @@ export default function PlansPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="durationDays">Davomiylik (kun)</Label>
+                <Label htmlFor="durationDays">{ts('admin.plans.duration')}</Label>
                 <Input
                   id="durationDays"
                   type="number"
@@ -428,12 +430,12 @@ export default function PlansPage() {
             </div>
 
             <div>
-              <Label htmlFor="features">Xususiyatlar (vergul bilan ajratilgan)</Label>
+              <Label htmlFor="features">{ts('admin.plans.features')}</Label>
               <Textarea
                 id="features"
                 value={form.features}
                 onChange={(e) => updateField('features', e.target.value)}
-                placeholder="Barcha savollar, Cheksiz imtihonlar, Statistika"
+                placeholder={ts('admin.plans.featuresPlaceholder')}
                 rows={2}
               />
             </div>
@@ -443,7 +445,7 @@ export default function PlansPage() {
                 checked={form.isActive}
                 onCheckedChange={(val) => updateField('isActive', val as boolean)}
               />
-              <Label>Faol holat</Label>
+              <Label>{ts('admin.activeState')}</Label>
             </div>
           </div>
 
@@ -453,14 +455,14 @@ export default function PlansPage() {
               onClick={() => setDialogOpen(false)}
               disabled={submitting}
             >
-              Bekor qilish
+              {ts('common.cancel')}
             </Button>
             <Button onClick={handleSubmit} disabled={submitting}>
               {submitting
-                ? 'Saqlanmoqda...'
+                ? ts('admin.saving')
                 : editingPlan
-                  ? 'Saqlash'
-                  : 'Yaratish'}
+                  ? ts('admin.saveBtn')
+                  : ts('admin.createBtn')}
             </Button>
           </DialogFooter>
         </DialogContent>

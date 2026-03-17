@@ -24,7 +24,7 @@ type SortKey = 'name' | 'accuracy' | 'progress' | 'attempts';
 type SortDir = 'asc' | 'desc';
 
 export default function ProgressPage() {
-  const { t } = useLocale();
+  const { t, ts } = useLocale();
   const { dashboard, categories, loading, fetch } = useDashboardStore();
   const [sortKey, setSortKey] = useState<SortKey>('accuracy');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -64,14 +64,12 @@ export default function ProgressPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">Progress</h1>
-        <p className="text-sm text-muted-foreground mt-1">Umumiy natijalar va statistika</p>
+        <h1 className="text-xl font-bold tracking-tight">{ts('progress.title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{ts('progress.subtitle')}</p>
       </div>
 
-      {/* Stats cards */}
       <StatsCards data={dashboard ?? undefined} loading={loading} />
 
-      {/* Overall stats */}
       {!loading && dashboard && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Card>
@@ -81,7 +79,7 @@ export default function ProgressPage() {
                   <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">O&apos;rtacha ball</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.averageScore')}</p>
                   <p className="text-lg font-bold">{Math.round(dashboard.averageExamScore)}%</p>
                 </div>
               </div>
@@ -94,7 +92,7 @@ export default function ProgressPage() {
                   <CalendarCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Bugun javoblar</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.answersToday')}</p>
                   <p className="text-lg font-bold">{dashboard.questionsAnsweredToday}</p>
                 </div>
               </div>
@@ -107,7 +105,7 @@ export default function ProgressPage() {
                   <RefreshCw className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Takrorlash kerak</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.needReview')}</p>
                   <p className="text-lg font-bold">{dashboard.dueForReview}</p>
                 </div>
               </div>
@@ -120,7 +118,7 @@ export default function ProgressPage() {
                   <BookOpen className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Jami savollar</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.totalQuestions')}</p>
                   <p className="text-lg font-bold">{dashboard.totalQuestionsPracticed.toLocaleString()}</p>
                 </div>
               </div>
@@ -129,25 +127,22 @@ export default function ProgressPage() {
         </div>
       )}
 
-      {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
         <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} />
         <CategoryChart data={categories ?? []} loading={loading} />
       </div>
 
-      {/* Streak calendar */}
       <StreakCalendar data={dashboard?.accuracyOverTime} loading={loading} />
 
-      {/* Category breakdown table */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Kategoriyalar bo&apos;yicha natijalar</CardTitle>
+          <CardTitle className="text-sm font-medium">{ts('progress.categoryResults')}</CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           {loading ? (
             <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
           ) : !categories?.length ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Ma&apos;lumot yo&apos;q</p>
+            <p className="text-sm text-muted-foreground py-4 text-center">{ts('common.noData')}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -155,22 +150,22 @@ export default function ProgressPage() {
                   <tr className="border-b">
                     <th className="text-left py-2 pr-2">
                       <button onClick={() => toggleSort('name')} className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground">
-                        Kategoriya <SortIcon col="name" />
+                        {ts('progress.category')} <SortIcon col="name" />
                       </button>
                     </th>
                     <th className="text-right py-2 px-2">
                       <button onClick={() => toggleSort('accuracy')} className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground ml-auto">
-                        Aniqlik <SortIcon col="accuracy" />
+                        {ts('progress.accuracy')} <SortIcon col="accuracy" />
                       </button>
                     </th>
                     <th className="text-right py-2 px-2 hidden sm:table-cell">
                       <button onClick={() => toggleSort('progress')} className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground ml-auto">
-                        Qamrov <SortIcon col="progress" />
+                        {ts('progress.coverage')} <SortIcon col="progress" />
                       </button>
                     </th>
                     <th className="text-right py-2 pl-2 hidden md:table-cell">
                       <button onClick={() => toggleSort('attempts')} className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground ml-auto">
-                        Urinishlar <SortIcon col="attempts" />
+                        {ts('progress.attempts')} <SortIcon col="attempts" />
                       </button>
                     </th>
                   </tr>
@@ -182,7 +177,7 @@ export default function ProgressPage() {
                       <tr key={cat.categoryId} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
                         <td className="py-2 pr-2">
                           <p className="font-medium truncate max-w-[200px]">{t(cat.categoryName)}</p>
-                          <p className="text-[10px] text-muted-foreground sm:hidden">{progress}% qamrov</p>
+                          <p className="text-[10px] text-muted-foreground sm:hidden">{progress}% {ts('progress.coverageLower')}</p>
                         </td>
                         <td className="text-right py-2 px-2 tabular-nums">
                           <div className="flex items-center justify-end gap-2">

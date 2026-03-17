@@ -3,22 +3,24 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/hooks/use-locale';
 import { LayoutDashboard, BookOpen, GraduationCap, TrendingUp, Settings } from 'lucide-react';
 
 const TABS = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Bosh', activeColor: 'text-blue-600 dark:text-blue-400' },
-  { href: '/practice', icon: BookOpen, label: 'Mashq', activeColor: 'text-emerald-600 dark:text-emerald-400' },
-  { href: '/exam', icon: GraduationCap, label: 'Imtihon', activeColor: 'text-violet-600 dark:text-violet-400' },
-  { href: '/progress', icon: TrendingUp, label: 'Progress', activeColor: 'text-orange-600 dark:text-orange-400' },
-  { href: '/settings', icon: Settings, label: 'Sozlama', activeColor: 'text-gray-600 dark:text-gray-400' },
+  { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboardShort', activeColor: 'text-blue-600 dark:text-blue-400' },
+  { href: '/practice', icon: BookOpen, labelKey: 'nav.practice', activeColor: 'text-emerald-600 dark:text-emerald-400' },
+  { href: '/exam', icon: GraduationCap, labelKey: 'nav.exam', activeColor: 'text-violet-600 dark:text-violet-400' },
+  { href: '/progress', icon: TrendingUp, labelKey: 'nav.progress', activeColor: 'text-orange-600 dark:text-orange-400' },
+  { href: '/settings', icon: Settings, labelKey: 'nav.settingsShort', activeColor: 'text-gray-600 dark:text-gray-400' },
 ];
 
 export default function MobileNav() {
   const pathname = usePathname();
+  const { ts } = useLocale();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 border-t bg-background md:hidden">
-      {TABS.map(({ href, icon: Icon, label, activeColor }) => {
+      {TABS.map(({ href, icon: Icon, labelKey, activeColor }) => {
         const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
         return (
           <Link
@@ -30,7 +32,7 @@ export default function MobileNav() {
             )}
           >
             <Icon className={cn('h-5 w-5', active && activeColor)} />
-            {label}
+            {ts(labelKey)}
           </Link>
         );
       })}

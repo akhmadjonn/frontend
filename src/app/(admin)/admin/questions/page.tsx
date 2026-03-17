@@ -21,6 +21,7 @@ import type { AdminQuestionDto, CategoryDto, PaginatedList, LocalizedText } from
 import { toast } from 'sonner';
 import { Plus, Upload, Download, MoreHorizontal, Pencil, Trash2, Power, PowerOff, Search, ImageIcon } from 'lucide-react';
 import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 
 
 const DataTable = dynamic(() => import('@/components/admin/data-table'), {
@@ -63,17 +64,24 @@ function flattenCategories(categories: CategoryDto[], language: keyof LocalizedT
   return result;
 }
 
-const DIFFICULTY_MAP: Record<number, { label: string; className: string }> = {
-  1: { label: 'Oson', className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
-  2: { label: "O'rta", className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
-  3: { label: 'Qiyin', className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+const DIFFICULTY_CLASSES: Record<number, string> = {
+  1: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  2: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  3: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
 const PAGE_SIZE = 20;
 
 export default function QuestionsManagementPage() {
   const { language } = useLocaleStore();
+  const { ts } = useLocale();
   const lang = language as keyof LocalizedText;
+
+  const DIFFICULTY_MAP: Record<number, { label: string; className: string }> = {
+    1: { label: ts('admin.questions.easy'), className: DIFFICULTY_CLASSES[1] },
+    2: { label: ts('admin.questions.medium'), className: DIFFICULTY_CLASSES[2] },
+    3: { label: ts('admin.questions.hard'), className: DIFFICULTY_CLASSES[3] },
+  };
 
   // data
   const [questions, setQuestions] = useState<AdminQuestionDto[]>([]);
@@ -128,7 +136,7 @@ export default function QuestionsManagementPage() {
         setRawCategories(data);
         setCategories(flattenCategories(data, lang));
       })
-      .catch(() => toast.error('Kategoriyalarni yuklashda xatolik'));
+      .catch(() => toast.error(ts('admin.questions.categoriesLoadError')));
   }, [lang]);
 
   // fetch questions
@@ -151,7 +159,7 @@ export default function QuestionsManagementPage() {
         setTotalPages(data.meta.totalPages);
         setTotalCount(data.meta.totalCount);
       } catch {
-        toast.error('Savollarni yuklashda xatolik');
+        toast.error(ts('admin.questions.loadError'));
       } finally {
         setLoading(false);
       }
@@ -175,7 +183,7 @@ export default function QuestionsManagementPage() {
       setTotalPages(data.meta.totalPages);
       setTotalCount(data.meta.totalCount);
     } catch {
-      toast.error('Savollarni yuklashda xatolik');
+      toast.error(ts('admin.questions.loadError'));
     } finally {
       setLoading(false);
     }
@@ -203,13 +211,13 @@ export default function QuestionsManagementPage() {
 
     try {
       await apiClient.patch(`/admin/questions/${question.id}/status`, { isActive: newStatus });
-      toast.success(newStatus ? 'Savol faollashtirildi' : 'Savol nofaol qilindi');
+      toast.success(newStatus ? ts('admin.questions.activated') : ts('admin.questions.deactivated'));
     } catch {
       // rollback
       setQuestions((prev) =>
         prev.map((q) => (q.id === question.id ? { ...q, isActive: !newStatus } : q))
       );
-      toast.error('Statusni o\'zgartirishda xatolik');
+      toast.error(ts('admin.questions.statusError'));
     } finally {
       setTogglingIds((prev) => {
         const next = new Set(prev);
@@ -234,14 +242,14 @@ export default function QuestionsManagementPage() {
       await apiClient.patch('/admin/questions/bulk-status', { questionIds, isActive });
       toast.success(
         isActive
-          ? `${questionIds.length} ta savol faollashtirildi`
-          : `${questionIds.length} ta savol nofaol qilindi`
+          ? `${questionIds.length} ${ts('admin.questions.bulkActivated')}`
+          : `${questionIds.length} ${ts('admin.questions.bulkDeactivated')}`
       );
       setSelectedIds(new Set());
     } catch {
       // rollback by refetching
       fetchQuestions();
-      toast.error('Ommaviy statusni o\'zgartirishda xatolik');
+      toast.error(ts('admin.questions.bulkStatusError'));
     }
   };
 
@@ -265,9 +273,9 @@ export default function QuestionsManagementPage() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      toast.success('Shablon yuklab olindi');
+      toast.success(ts('admin.questions.templateDownloaded'));
     } catch {
-      toast.error('Shablonni yuklab olishda xatolik');
+      toast.error(ts('admin.questions.templateDownloadError'));
     }
   };
 
@@ -278,7 +286,7 @@ export default function QuestionsManagementPage() {
   const columns: Column<AdminQuestionDto>[] = [
     {
       key: 'thumbnail',
-      header: 'Rasm',
+      header: ts('admin.questions.image'),
       className: 'w-14',
       render: (q) =>
         q.thumbnailUrl ? (
@@ -295,7 +303,7 @@ export default function QuestionsManagementPage() {
     },
     {
       key: 'text',
-      header: 'Savol matni',
+      header: ts('admin.questions.questionText'),
       className: 'min-w-[200px] max-w-[400px]',
       render: (q) => (
         <span className="line-clamp-2 text-sm">{getText(q.text)}</span>
@@ -303,7 +311,7 @@ export default function QuestionsManagementPage() {
     },
     {
       key: 'category',
-      header: 'Kategoriya',
+      header: ts('admin.questions.category'),
       className: 'min-w-[120px]',
       render: (q) => (
         <span className="text-sm text-muted-foreground">{getText(q.categoryName)}</span>
@@ -311,7 +319,7 @@ export default function QuestionsManagementPage() {
     },
     {
       key: 'ticket',
-      header: 'Bilet',
+      header: ts('admin.questions.ticket'),
       className: 'w-16 text-center',
       render: (q) => (
         <span className="text-sm font-medium">{q.ticketNumber}</span>
@@ -319,7 +327,7 @@ export default function QuestionsManagementPage() {
     },
     {
       key: 'difficulty',
-      header: 'Qiyinlik',
+      header: ts('admin.questions.difficulty'),
       className: 'w-20',
       render: (q) => {
         const diff = DIFFICULTY_MAP[q.difficulty];
@@ -333,7 +341,7 @@ export default function QuestionsManagementPage() {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: ts('admin.questions.status'),
       className: 'w-16',
       render: (q) => (
         <div onClick={(e) => e.stopPropagation()}>
@@ -368,7 +376,7 @@ export default function QuestionsManagementPage() {
                 }}
               >
                 <Pencil className="h-4 w-4" />
-                Tahrirlash
+                {ts('admin.questions.editBtn')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -378,7 +386,7 @@ export default function QuestionsManagementPage() {
                 }}
               >
                 <Trash2 className="h-4 w-4" />
-                Nofaollashtirish
+                {ts('admin.questions.deactivateBtn')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 variant="destructive"
@@ -388,7 +396,7 @@ export default function QuestionsManagementPage() {
                 }}
               >
                 <Trash2 className="h-4 w-4" />
-                Butunlay o&apos;chirish
+                {ts('admin.questions.deleteForever')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -402,15 +410,15 @@ export default function QuestionsManagementPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Savollar boshqaruvi</h1>
+          <h1 className="text-xl font-bold tracking-tight">{ts('admin.questions.title')}</h1>
           <p className="text-sm text-muted-foreground">
-            Jami: {totalCount} ta savol
+            {ts('common.total')}: {totalCount} {ts('common.question')}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={downloadTemplate}>
             <Download className="h-4 w-4" />
-            Shablon yuklab olish
+            {ts('admin.questions.downloadTemplate')}
           </Button>
           <Button
             variant="outline"
@@ -418,11 +426,11 @@ export default function QuestionsManagementPage() {
             onClick={() => setShowImportDialog(true)}
           >
             <Upload className="h-4 w-4" />
-            Import
+            {ts('admin.questions.import')}
           </Button>
           <Button size="sm" onClick={() => setShowCreateDrawer(true)}>
             <Plus className="h-4 w-4" />
-            Savol qo&apos;shish
+            {ts('admin.questions.addQuestion')}
           </Button>
         </div>
       </div>
@@ -430,11 +438,11 @@ export default function QuestionsManagementPage() {
       {/* Filters */}
       <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="flex-1 min-w-[200px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Qidirish</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('common.search')}</label>
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Savol matni bo'yicha qidirish..."
+              placeholder={ts('admin.questions.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-8"
@@ -443,13 +451,13 @@ export default function QuestionsManagementPage() {
         </div>
 
         <div className="min-w-[180px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Kategoriya</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.questions.category')}</label>
           <Select value={categoryId} onValueChange={(v) => setCategoryId(v as string)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Barcha kategoriyalar" />
+              <SelectValue placeholder={ts('admin.questions.allCategories')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Barcha kategoriyalar</SelectItem>
+              <SelectItem value="all">{ts('admin.questions.allCategories')}</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
                   {cat.name}
@@ -460,40 +468,40 @@ export default function QuestionsManagementPage() {
         </div>
 
         <div className="min-w-[120px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Qiyinlik</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.questions.difficulty')}</label>
           <Select value={difficulty} onValueChange={(v) => setDifficulty(v as string)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Barchasi" />
+              <SelectValue placeholder={ts('common.all')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Barchasi</SelectItem>
-              <SelectItem value="1">Oson</SelectItem>
-              <SelectItem value="2">O&apos;rta</SelectItem>
-              <SelectItem value="3">Qiyin</SelectItem>
+              <SelectItem value="all">{ts('common.all')}</SelectItem>
+              <SelectItem value="1">{ts('admin.questions.easy')}</SelectItem>
+              <SelectItem value="2">{ts('admin.questions.medium')}</SelectItem>
+              <SelectItem value="3">{ts('admin.questions.hard')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="min-w-[120px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Status</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.questions.status')}</label>
           <Select value={status} onValueChange={(v) => setStatus(v as string)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Barchasi" />
+              <SelectValue placeholder={ts('common.all')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Barchasi</SelectItem>
-              <SelectItem value="active">Faol</SelectItem>
-              <SelectItem value="inactive">Nofaol</SelectItem>
+              <SelectItem value="all">{ts('common.all')}</SelectItem>
+              <SelectItem value="active">{ts('admin.active')}</SelectItem>
+              <SelectItem value="inactive">{ts('admin.inactive')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="w-[100px]">
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Bilet raqami</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.questions.ticketNumber')}</label>
           <Input
             type="number"
             min={1}
-            placeholder="Bilet"
+            placeholder={ts('admin.questions.ticket')}
             value={ticketNumber}
             onChange={(e) => setTicketNumber(e.target.value)}
           />
@@ -504,7 +512,7 @@ export default function QuestionsManagementPage() {
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 dark:border-blue-900 dark:bg-blue-950/30">
           <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-            {selectedIds.size} ta savol tanlandi
+            {selectedIds.size} {ts('admin.questions.selectedCount')}
           </span>
           <div className="flex gap-2">
             <Button
@@ -514,7 +522,7 @@ export default function QuestionsManagementPage() {
               className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950/30"
             >
               <Power className="h-4 w-4" />
-              Faollashtirish
+              {ts('admin.questions.activate')}
             </Button>
             <Button
               variant="outline"
@@ -523,7 +531,7 @@ export default function QuestionsManagementPage() {
               className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
             >
               <PowerOff className="h-4 w-4" />
-              Nofaol qilish
+              {ts('admin.questions.deactivate')}
             </Button>
           </div>
           <Button
@@ -532,7 +540,7 @@ export default function QuestionsManagementPage() {
             onClick={() => setSelectedIds(new Set())}
             className="ml-auto"
           >
-            Bekor qilish
+            {ts('common.cancel')}
           </Button>
         </div>
       )}
@@ -542,7 +550,7 @@ export default function QuestionsManagementPage() {
         columns={columns}
         data={questions}
         loading={loading}
-        emptyMessage="Savollar topilmadi"
+        emptyMessage={ts('admin.questions.notFound')}
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}

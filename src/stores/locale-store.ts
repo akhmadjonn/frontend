@@ -14,6 +14,7 @@ export const useLocaleStore = create<LocaleState>((set) => ({
   language: 'uzLatin',
   _hydrated: false,
   setLanguage: (language) => {
+    if (!['uz', 'uzLatin', 'ru'].includes(language)) return;
     localStorage.setItem('locale', language);
     set({ language });
   },

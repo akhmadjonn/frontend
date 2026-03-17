@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Users, FileQuestion, GraduationCap, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import { useLocale } from '@/hooks/use-locale';
 
 const RevenueChart = dynamic(() => import('@/components/admin/revenue-chart'), {
   ssr: false,
@@ -19,12 +20,6 @@ const RevenueChart = dynamic(() => import('@/components/admin/revenue-chart'), {
 const formatMoney = (tiyins: number) =>
   `${(tiyins / 100).toLocaleString('uz-UZ')} so'm`;
 
-const EXAM_MODE_LABELS: Record<string, string> = {
-  Exam: 'Imtihon',
-  Ticket: 'Bilet',
-  Marathon: 'Maraton',
-};
-
 const EXAM_MODE_COLORS: Record<string, string> = {
   Exam: 'bg-blue-500',
   Ticket: 'bg-amber-500',
@@ -32,9 +27,16 @@ const EXAM_MODE_COLORS: Record<string, string> = {
 };
 
 export default function AdminDashboardPage() {
+  const { ts } = useLocale();
   const [dashboard, setDashboard] = useState<AdminDashboardDto | null>(null);
   const [revenue, setRevenue] = useState<RevenueReportDto | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const EXAM_MODE_LABELS: Record<string, string> = {
+    Exam: ts('admin.dashboard.modeExam'),
+    Ticket: ts('admin.dashboard.modeTicket'),
+    Marathon: ts('admin.dashboard.modeMarathon'),
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,7 +48,7 @@ export default function AdminDashboardPage() {
         setDashboard(dashData);
         setRevenue(revData);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Dashboard yuklanmadi');
+        toast.error(err instanceof Error ? err.message : ts('admin.dashboard.loadError'));
       } finally {
         setLoading(false);
       }
@@ -57,40 +59,40 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
+      <h1 className="text-xl font-bold tracking-tight">{ts('admin.dashboard.title')}</h1>
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Foydalanuvchilar"
+          title={ts('admin.dashboard.users')}
           value={loading ? 0 : dashboard?.totalUsers.toLocaleString() ?? '0'}
           icon={Users}
           iconColor="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-          description={`+${dashboard?.newUsersThisWeek ?? 0} shu hafta`}
+          description={`+${dashboard?.newUsersThisWeek ?? 0} ${ts('admin.dashboard.thisWeek')}`}
           loading={loading}
         />
         <StatCard
-          title="Faol savollar"
+          title={ts('admin.dashboard.activeQuestions')}
           value={loading ? 0 : dashboard?.activeQuestions.toLocaleString() ?? '0'}
           icon={FileQuestion}
           iconColor="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
-          description={`${dashboard?.totalQuestions.toLocaleString() ?? 0} jami`}
+          description={`${dashboard?.totalQuestions.toLocaleString() ?? 0} ${ts('admin.dashboard.totalLabel')}`}
           loading={loading}
         />
         <StatCard
-          title="Imtihon sessiyalari"
+          title={ts('admin.dashboard.examSessions')}
           value={loading ? 0 : dashboard?.totalExamSessions.toLocaleString() ?? '0'}
           icon={GraduationCap}
           iconColor="bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-          description={`${dashboard?.activeSubscriptions ?? 0} faol obuna`}
+          description={`${dashboard?.activeSubscriptions ?? 0} ${ts('admin.dashboard.activeSubscriptions')}`}
           loading={loading}
         />
         <StatCard
-          title="Daromad"
+          title={ts('admin.dashboard.revenue')}
           value={loading ? 0 : formatMoney(dashboard?.totalRevenue ?? 0)}
           icon={DollarSign}
           iconColor="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
-          description={`${dashboard?.activeSubscriptions ?? 0} faol obuna`}
+          description={`${dashboard?.activeSubscriptions ?? 0} ${ts('admin.dashboard.activeSubscriptions')}`}
           loading={loading}
         />
       </div>
@@ -99,7 +101,7 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Kunlik daromad</CardTitle>
+            <CardTitle className="text-base font-semibold">{ts('admin.dashboard.dailyRevenue')}</CardTitle>
           </CardHeader>
           <CardContent>
             <RevenueChart data={revenue?.dailyBreakdown} loading={loading} />
@@ -108,7 +110,7 @@ export default function AdminDashboardPage() {
 
         <Card className="lg:col-span-3">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Imtihon turlari</CardTitle>
+            <CardTitle className="text-base font-semibold">{ts('admin.dashboard.examTypes')}</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -122,7 +124,7 @@ export default function AdminDashboardPage() {
               </div>
             ) : !dashboard?.examModeBreakdown.length ? (
               <p className="text-sm text-muted-foreground py-4 text-center">
-                Ma&apos;lumot topilmadi
+                {ts('admin.dashboard.noData')}
               </p>
             ) : (
               <div className="space-y-4">
@@ -159,7 +161,7 @@ export default function AdminDashboardPage() {
       {/* Recent users */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">Yangi foydalanuvchilar</CardTitle>
+          <CardTitle className="text-base font-semibold">{ts('admin.dashboard.newUsers')}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -176,7 +178,7 @@ export default function AdminDashboardPage() {
             </div>
           ) : !dashboard?.recentUsers.length ? (
             <p className="text-sm text-muted-foreground py-4 text-center">
-              Foydalanuvchilar topilmadi
+              {ts('admin.dashboard.usersNotFound')}
             </p>
           ) : (
             <div className="space-y-2">
@@ -187,7 +189,7 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
-                      {user.firstName ?? user.phoneNumber ?? 'Noma\'lum'}
+                      {user.firstName ?? user.phoneNumber ?? ts('admin.dashboard.unknown')}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}

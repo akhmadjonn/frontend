@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 import type { Locale } from '@/stores/locale-store';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
@@ -39,6 +40,7 @@ function mapLocaleToBackend(locale: Locale): string {
 export default function SettingsPage() {
   const { user, setUser, logout } = useAuth();
   const { language, setLanguage } = useLocaleStore();
+  const { ts } = useLocale();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -78,9 +80,9 @@ export default function SettingsPage() {
         hasActiveSubscription: result.hasActiveSubscription,
       });
 
-      toast.success('Profil yangilandi');
+      toast.success(ts('settings.profileUpdated'));
     } catch (err: any) {
-      toast.error(err?.message || 'Xatolik yuz berdi');
+      toast.error(err?.message || ts('common.error'));
     } finally {
       setSavingProfile(false);
     }
@@ -111,9 +113,9 @@ export default function SettingsPage() {
       });
 
       setLanguage(selectedLang);
-      toast.success('Til yangilandi');
+      toast.success(ts('settings.languageUpdated'));
     } catch (err: any) {
-      toast.error(err?.message || 'Xatolik yuz berdi');
+      toast.error(err?.message || ts('common.error'));
     } finally {
       setSavingLang(false);
     }
@@ -133,21 +135,20 @@ export default function SettingsPage() {
     }
   };
 
-  const roleLabel = user?.role === 'admin' ? 'Administrator' : 'Foydalanuvchi';
+  const roleLabel = user?.role === 'admin' ? ts('settings.admin') : ts('settings.user');
   const phoneDisplay = user?.phoneNumber
     ? `+${user.phoneNumber.replace(/(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5')}`
-    : 'Kiritilmagan';
+    : ts('settings.notProvided');
 
   const initials = [user?.firstName?.[0], user?.lastName?.[0]].filter(Boolean).join('').toUpperCase() || '?';
 
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">Sozlamalar</h1>
-        <p className="text-sm text-muted-foreground mt-1">Profilingiz va tilni boshqaring</p>
+        <h1 className="text-xl font-bold tracking-tight">{ts('settings.title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{ts('settings.subtitle')}</p>
       </div>
 
-      {/* Profile Section */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -155,8 +156,8 @@ export default function SettingsPage() {
               <User className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-base">Profil</CardTitle>
-              <CardDescription>Ism va familiyangizni yangilang</CardDescription>
+              <CardTitle className="text-base">{ts('settings.profile')}</CardTitle>
+              <CardDescription>{ts('settings.profileDesc')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -166,26 +167,26 @@ export default function SettingsPage() {
               {initials}
             </div>
             <div>
-              <p className="font-medium">{[user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Ism kiritilmagan'}</p>
+              <p className="font-medium">{[user?.firstName, user?.lastName].filter(Boolean).join(' ') || ts('settings.noName')}</p>
               <p className="text-sm text-muted-foreground">{phoneDisplay}</p>
             </div>
           </div>
           <Separator />
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="firstName">Ism</Label>
+              <Label htmlFor="firstName">{ts('settings.firstName')}</Label>
               <Input
                 id="firstName"
-                placeholder="Ismingiz"
+                placeholder={ts('settings.firstNamePlaceholder')}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Familiya</Label>
+              <Label htmlFor="lastName">{ts('settings.lastName')}</Label>
               <Input
                 id="lastName"
-                placeholder="Familiyangiz"
+                placeholder={ts('settings.lastNamePlaceholder')}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
               />
@@ -193,12 +194,11 @@ export default function SettingsPage() {
           </div>
           <Button onClick={handleSaveProfile} disabled={savingProfile} className="gap-2">
             {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Saqlash
+            {ts('common.save')}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Language Section */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -206,8 +206,8 @@ export default function SettingsPage() {
               <Languages className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-base">Til</CardTitle>
-              <CardDescription>Interfeys va savollar tilini tanlang</CardDescription>
+              <CardTitle className="text-base">{ts('settings.language')}</CardTitle>
+              <CardDescription>{ts('settings.languageDesc')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -244,12 +244,11 @@ export default function SettingsPage() {
             className="gap-2"
           >
             {savingLang ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Tilni saqlash
+            {ts('settings.saveLanguage')}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Account Info Section */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -257,8 +256,8 @@ export default function SettingsPage() {
               <Shield className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-base">Hisob ma&#39;lumotlari</CardTitle>
-              <CardDescription>Hisobingiz haqida umumiy ma&#39;lumot</CardDescription>
+              <CardTitle className="text-base">{ts('settings.accountInfo')}</CardTitle>
+              <CardDescription>{ts('settings.accountDesc')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -267,7 +266,7 @@ export default function SettingsPage() {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Telefon raqam</span>
+                <span className="text-sm text-muted-foreground">{ts('settings.phoneNumber')}</span>
               </div>
               <span className="text-sm font-medium font-mono">{phoneDisplay}</span>
             </div>
@@ -275,7 +274,7 @@ export default function SettingsPage() {
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Crown className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Rol</span>
+                <span className="text-sm text-muted-foreground">{ts('settings.role')}</span>
               </div>
               <span className="text-sm font-medium">{roleLabel}</span>
             </div>
@@ -286,7 +285,7 @@ export default function SettingsPage() {
                   ? <CheckCircle2 className="h-4 w-4 text-green-500" />
                   : <XCircle className="h-4 w-4 text-muted-foreground" />
                 }
-                <span className="text-sm text-muted-foreground">Obuna</span>
+                <span className="text-sm text-muted-foreground">{ts('settings.subscriptionLabel')}</span>
               </div>
               <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${
                 user?.hasActiveSubscription
@@ -296,14 +295,13 @@ export default function SettingsPage() {
                 <span className={`h-2 w-2 rounded-full ${
                   user?.hasActiveSubscription ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
                 }`} />
-                {user?.hasActiveSubscription ? 'Faol' : 'Faol emas'}
+                {user?.hasActiveSubscription ? ts('settings.activeStatus') : ts('settings.inactiveStatus')}
               </span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
       <Card className="border-red-200 dark:border-red-900/50">
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -311,8 +309,8 @@ export default function SettingsPage() {
               <LogOut className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-base text-red-600 dark:text-red-400">Xavfli zona</CardTitle>
-              <CardDescription>Hisobdan chiqish barcha qurilmalardagi seansni tugatadi</CardDescription>
+              <CardTitle className="text-base text-red-600 dark:text-red-400">{ts('settings.dangerZone')}</CardTitle>
+              <CardDescription>{ts('settings.dangerDesc')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -324,7 +322,7 @@ export default function SettingsPage() {
             className="gap-2"
           >
             {loggingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
-            Hisobdan chiqish
+            {ts('settings.logoutBtn')}
           </Button>
         </CardContent>
       </Card>

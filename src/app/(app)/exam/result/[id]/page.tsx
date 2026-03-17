@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { useExamStore } from '@/stores/exam-store';
-import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 import ExamResultSummary from '@/components/exam/exam-result-summary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CheckCircle2, XCircle, RefreshCw, Home, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -43,7 +42,7 @@ interface ExamResult {
   questions: ExamResultQuestion[];
 }
 
-function QuestionReviewItem({ question, index, locale }: { question: ExamResultQuestion; index: number; locale: 'uz' | 'uzLatin' | 'ru' }) {
+function QuestionReviewItem({ question, index, locale, ts }: { question: ExamResultQuestion; index: number; locale: 'uz' | 'uzLatin' | 'ru'; ts: (key: string) => string }) {
   const [expanded, setExpanded] = useState(false);
   const text = question.text[locale] ?? question.text.uzLatin;
   const explanation = question.explanation?.[locale] ?? question.explanation?.uzLatin;
@@ -65,7 +64,7 @@ function QuestionReviewItem({ question, index, locale }: { question: ExamResultQ
           {!question.isCorrect && (
             <button onClick={() => setExpanded(!expanded)} className="mt-1 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
               {expanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-              {expanded ? 'Yashirish' : "Tushuntirishni ko'rish"}
+              {expanded ? ts('result.hide') : ts('result.showExplanation')}
             </button>
           )}
           {!question.isCorrect && expanded && explanation && (
@@ -81,7 +80,7 @@ export default function ExamResultPage() {
   const params = useParams();
   const router = useRouter();
   const examId = params.id as string;
-  const language = useLocaleStore((s) => s.language);
+  const { language, ts } = useLocale();
   const reset = useExamStore((s) => s.reset);
   const locale = language as 'uz' | 'uzLatin' | 'ru';
   const [result, setResult] = useState<ExamResult | null>(null);
@@ -89,7 +88,7 @@ export default function ExamResultPage() {
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    reset(); // clear exam state after viewing result
+    reset();
     apiClient.get<ExamResult>(`/exams/${examId}/result`)
       .then(setResult)
       .catch(() => router.replace('/exam'))
@@ -111,7 +110,6 @@ export default function ExamResultPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 py-4">
-      {/* Summary */}
       <Card>
         <CardContent className="pt-2">
           <ExamResultSummary
@@ -125,35 +123,33 @@ export default function ExamResultPage() {
         </CardContent>
       </Card>
 
-      {/* Actions */}
       <div className="flex flex-wrap gap-2">
         <Button className="flex-1" onClick={() => router.push('/exam')}>
-          <RefreshCw className="h-4 w-4 mr-2" />Qayta urinish
+          <RefreshCw className="h-4 w-4 mr-2" />{ts('result.retry')}
         </Button>
         <Button variant="outline" className="flex-1" onClick={() => router.push('/dashboard')}>
-          <Home className="h-4 w-4 mr-2" />Bosh sahifa
+          <Home className="h-4 w-4 mr-2" />{ts('result.home')}
         </Button>
       </div>
 
-      {/* Question review */}
       <Card>
         <CardHeader className="pb-2 flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-medium">
-            Xatolar ({incorrectQuestions.length})
+            {ts('result.errors')} ({incorrectQuestions.length})
           </CardTitle>
           <button onClick={() => setShowAll(!showAll)} className="text-xs text-primary hover:underline">
-            {showAll ? "Faqat xatolar" : "Barcha savollar"}
+            {showAll ? ts('result.onlyErrors') : ts('result.allQuestions')}
           </button>
         </CardHeader>
         <CardContent className="space-y-2">
           {result.questions
             .filter((q) => showAll || !q.isCorrect)
             .map((q, i) => (
-              <QuestionReviewItem key={q.questionId} question={q} index={i} locale={locale} />
+              <QuestionReviewItem key={q.questionId} question={q} index={i} locale={locale} ts={ts} />
             ))
           }
           {!showAll && incorrectQuestions.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">Barcha javoblar to&apos;g&apos;ri!</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{ts('result.allCorrect')}</p>
           )}
         </CardContent>
       </Card>
