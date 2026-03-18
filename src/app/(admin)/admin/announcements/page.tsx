@@ -160,16 +160,12 @@ export default function AnnouncementsPage() {
     setSaving(true);
     try {
       const payload = {
-        title: {
-          uz: form.titleUz,
-          uzLatin: form.titleUzLatin,
-          ru: form.titleRu,
-        },
-        content: {
-          uz: form.contentUz,
-          uzLatin: form.contentUzLatin,
-          ru: form.contentRu,
-        },
+        titleUz: form.titleUz,
+        titleUzLatin: form.titleUzLatin,
+        titleRu: form.titleRu,
+        contentUz: form.contentUz,
+        contentUzLatin: form.contentUzLatin,
+        contentRu: form.contentRu,
         type: form.type,
         isActive: form.isActive,
         startsAt: form.startsAt || null,

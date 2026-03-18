@@ -10,13 +10,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import {
@@ -41,13 +34,10 @@ interface ImportDialogProps {
   onImported: () => void;
 }
 
-type DuplicateStrategy = 'skip' | 'overwrite' | 'merge';
-
 export default function ImportDialog({ open, onOpenChange, onImported }: ImportDialogProps) {
   const { ts } = useLocale();
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [zipFile, setZipFile] = useState<File | null>(null);
-  const [strategy, setStrategy] = useState<DuplicateStrategy>('skip');
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
 
@@ -57,7 +47,6 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
   const reset = () => {
     setExcelFile(null);
     setZipFile(null);
-    setStrategy('skip');
     setUploading(false);
     setResult(null);
   };
@@ -134,9 +123,8 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
     setUploading(true);
     try {
       const formData = new FormData();
-      formData.append('excelFile', excelFile);
-      if (zipFile) formData.append('imagesZip', zipFile);
-      formData.append('duplicateStrategy', strategy);
+      formData.append('excel', excelFile);
+      if (zipFile) formData.append('images', zipFile);
 
       const data = await apiClient.post<ImportResult>('/admin/questions/import', formData);
       setResult(data);
@@ -240,23 +228,6 @@ export default function ImportDialog({ open, onOpenChange, onImported }: ImportD
                   className="hidden"
                 />
               </div>
-            </div>
-
-            {/* Duplicate strategy */}
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                {ts('admin.import.strategyLabel')}
-              </label>
-              <Select value={strategy} onValueChange={(v) => setStrategy(v as DuplicateStrategy)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="skip">{ts('admin.import.strategySkip')}</SelectItem>
-                  <SelectItem value="overwrite">{ts('admin.import.strategyOverwrite')}</SelectItem>
-                  <SelectItem value="merge">{ts('admin.import.strategyMerge')}</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             {/* Template download link */}
