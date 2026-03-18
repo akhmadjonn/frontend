@@ -37,17 +37,17 @@ function flattenCategories(categories: CategoryDto[], language: keyof LocalizedT
 
 interface TemplateFormState {
   name: string;
-  questionCount: number;
-  durationMinutes: number;
-  passScore: number;
+  totalQuestions: number;
+  timeLimitMinutes: number;
+  passingScore: number;
   poolRules: PoolRuleDto[];
 }
 
 const emptyForm: TemplateFormState = {
   name: '',
-  questionCount: 20,
-  durationMinutes: 25,
-  passScore: 18,
+  totalQuestions: 20,
+  timeLimitMinutes: 25,
+  passingScore: 18,
   poolRules: [],
 };
 
@@ -89,7 +89,7 @@ export default function ExamTemplatesPage() {
   }, [lang]);
 
   const poolRulesSum = form.poolRules.reduce((sum, r) => sum + r.questionCount, 0);
-  const isPoolValid = poolRulesSum === form.questionCount;
+  const isPoolValid = poolRulesSum === form.totalQuestions;
 
   const openCreateDialog = () => {
     setEditingId(null);
@@ -97,13 +97,19 @@ export default function ExamTemplatesPage() {
     setDialogOpen(true);
   };
 
+  const getTemplateName = (t: ExamTemplateDto) => {
+    if (lang === 'uz') return t.titleUz;
+    if (lang === 'ru') return t.titleRu;
+    return t.titleUzLatin;
+  };
+
   const openEditDialog = (template: ExamTemplateDto) => {
     setEditingId(template.id);
     setForm({
-      name: template.name,
-      questionCount: template.questionCount,
-      durationMinutes: template.durationMinutes,
-      passScore: template.passScore,
+      name: getTemplateName(template),
+      totalQuestions: template.totalQuestions,
+      timeLimitMinutes: template.timeLimitMinutes,
+      passingScore: template.passingScore,
       poolRules: template.poolRules.map((r) => ({ ...r })),
     });
     setDialogOpen(true);
@@ -137,7 +143,7 @@ export default function ExamTemplatesPage() {
       toast.error(ts('admin.examTemplates.nameRequired'));
       return;
     }
-    if (form.questionCount < 1) {
+    if (form.totalQuestions < 1) {
       toast.error(ts('admin.examTemplates.minQuestions'));
       return;
     }
@@ -145,7 +151,7 @@ export default function ExamTemplatesPage() {
       toast.error(
         ts('admin.examTemplates.poolSumError')
           .replace('{sum}', String(poolRulesSum))
-          .replace('{total}', String(form.questionCount))
+          .replace('{total}', String(form.totalQuestions))
       );
       return;
     }
@@ -156,11 +162,15 @@ export default function ExamTemplatesPage() {
 
     setSaving(true);
     try {
+      const trimmedName = form.name.trim();
       const payload = {
-        name: form.name.trim(),
-        questionCount: form.questionCount,
-        durationMinutes: form.durationMinutes,
-        passScore: form.passScore,
+        titleUz: trimmedName,
+        titleUzLatin: trimmedName,
+        titleRu: trimmedName,
+        totalQuestions: form.totalQuestions,
+        passingScore: form.passingScore,
+        timeLimitMinutes: form.timeLimitMinutes,
+        isActive: true,
         poolRules: form.poolRules,
       };
 
@@ -223,7 +233,7 @@ export default function ExamTemplatesPage() {
             <Card key={template.id} className="relative">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-base">{template.name}</CardTitle>
+                  <CardTitle className="text-base">{getTemplateName(template)}</CardTitle>
                   <Button
                     variant="ghost"
                     size="icon-sm"
@@ -237,17 +247,17 @@ export default function ExamTemplatesPage() {
                 <div className="grid grid-cols-3 gap-2">
                   <div className="flex flex-col items-center gap-1 rounded-lg bg-blue-50 p-2.5 dark:bg-blue-950/30">
                     <FileQuestion className="h-4 w-4 text-blue-500" />
-                    <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{template.questionCount}</span>
+                    <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{template.totalQuestions}</span>
                     <span className="text-[10px] text-blue-600/70 dark:text-blue-400/70">{ts('admin.examTemplates.questionLabel')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1 rounded-lg bg-amber-50 p-2.5 dark:bg-amber-950/30">
                     <Clock className="h-4 w-4 text-amber-500" />
-                    <span className="text-lg font-bold text-amber-700 dark:text-amber-300">{template.durationMinutes}</span>
+                    <span className="text-lg font-bold text-amber-700 dark:text-amber-300">{template.timeLimitMinutes}</span>
                     <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70">{ts('admin.examTemplates.minuteLabel')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1 rounded-lg bg-green-50 p-2.5 dark:bg-green-950/30">
                     <Target className="h-4 w-4 text-green-500" />
-                    <span className="text-lg font-bold text-green-700 dark:text-green-300">{template.passScore}</span>
+                    <span className="text-lg font-bold text-green-700 dark:text-green-300">{template.passingScore}</span>
                     <span className="text-[10px] text-green-600/70 dark:text-green-400/70">{ts('admin.examTemplates.passLabel')}</span>
                   </div>
                 </div>
@@ -296,9 +306,9 @@ export default function ExamTemplatesPage() {
                   id="tmpl-qcount"
                   type="number"
                   min={1}
-                  value={form.questionCount}
+                  value={form.totalQuestions}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, questionCount: Number(e.target.value) || 0 }))
+                    setForm((prev) => ({ ...prev, totalQuestions: Number(e.target.value) || 0 }))
                   }
                 />
               </div>
@@ -308,9 +318,9 @@ export default function ExamTemplatesPage() {
                   id="tmpl-duration"
                   type="number"
                   min={1}
-                  value={form.durationMinutes}
+                  value={form.timeLimitMinutes}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, durationMinutes: Number(e.target.value) || 0 }))
+                    setForm((prev) => ({ ...prev, timeLimitMinutes: Number(e.target.value) || 0 }))
                   }
                 />
               </div>
@@ -320,10 +330,10 @@ export default function ExamTemplatesPage() {
                   id="tmpl-pass"
                   type="number"
                   min={0}
-                  max={form.questionCount}
-                  value={form.passScore}
+                  max={form.totalQuestions}
+                  value={form.passingScore}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, passScore: Number(e.target.value) || 0 }))
+                    setForm((prev) => ({ ...prev, passingScore: Number(e.target.value) || 0 }))
                   }
                 />
               </div>
@@ -379,7 +389,7 @@ export default function ExamTemplatesPage() {
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
-                        {`${ts('common.total')}: ${poolRulesSum} / ${form.questionCount}`}
+                        {`${ts('common.total')}: ${poolRulesSum} / ${form.totalQuestions}`}
                       </span>
                       {isPoolValid ? (
                         <span className="flex items-center gap-1 text-green-600">
@@ -389,12 +399,12 @@ export default function ExamTemplatesPage() {
                       ) : (
                         <span className="flex items-center gap-1 text-destructive">
                           <AlertCircle className="h-4 w-4" />
-                          {poolRulesSum > form.questionCount ? ts('admin.examTemplates.poolExcess') : ts('admin.examTemplates.poolInsufficient')}
+                          {poolRulesSum > form.totalQuestions ? ts('admin.examTemplates.poolExcess') : ts('admin.examTemplates.poolInsufficient')}
                         </span>
                       )}
                     </div>
                     <Progress
-                      value={form.questionCount > 0 ? Math.min((poolRulesSum / form.questionCount) * 100, 100) : 0}
+                      value={form.totalQuestions > 0 ? Math.min((poolRulesSum / form.totalQuestions) * 100, 100) : 0}
                     />
                   </div>
                 </div>
