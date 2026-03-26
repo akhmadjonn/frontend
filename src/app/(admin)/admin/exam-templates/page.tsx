@@ -171,7 +171,10 @@ export default function ExamTemplatesPage() {
         passingScore: form.passingScore,
         timeLimitMinutes: form.timeLimitMinutes,
         isActive: true,
-        poolRules: form.poolRules,
+        poolRules: form.poolRules.map((r) => ({
+          categoryId: r.categoryId,
+          questionCount: r.questionCount,
+        })),
       };
 
       if (editingId) {
