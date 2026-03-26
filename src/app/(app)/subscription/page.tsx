@@ -46,6 +46,11 @@ interface InitiatePaymentResult {
   transactionId: string;
 }
 
+interface PaymentMethods {
+  paymeEnabled: boolean;
+  clickEnabled: boolean;
+}
+
 function formatPrice(tiyins: number): string {
   const sum = tiyins / 100;
   return sum.toLocaleString('uz-UZ').replace(/,/g, ' ');
@@ -55,6 +60,7 @@ export default function SubscriptionPage() {
   const { t, ts } = useLocale();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethods>({ paymeEnabled: true, clickEnabled: true });
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -65,8 +71,9 @@ export default function SubscriptionPage() {
     Promise.all([
       apiClient.get<Plan[]>('/subscriptions/plans'),
       apiClient.get<SubscriptionStatus>('/subscriptions/status'),
+      apiClient.get<PaymentMethods>('/payments/methods'),
     ])
-      .then(([p, s]) => { setPlans(p); setSubscription(s); })
+      .then(([p, s, m]) => { setPlans(p); setSubscription(s); setPaymentMethods(m); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -216,21 +223,25 @@ export default function SubscriptionPage() {
                   </div>
 
                   <div className="hidden sm:flex items-center gap-2 shrink-0">
-                    <Button
-                      size="sm"
-                      onClick={() => handleSubscribe(plan.id, 'payme')}
-                      disabled={!!subscribing}
-                    >
-                      {subscribing === plan.id ? '...' : 'Payme'}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSubscribe(plan.id, 'click')}
-                      disabled={!!subscribing}
-                    >
-                      {subscribing === plan.id ? '...' : 'Click'}
-                    </Button>
+                    {paymentMethods.paymeEnabled && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSubscribe(plan.id, 'payme')}
+                        disabled={!!subscribing}
+                      >
+                        {subscribing === plan.id ? '...' : 'Payme'}
+                      </Button>
+                    )}
+                    {paymentMethods.clickEnabled && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSubscribe(plan.id, 'click')}
+                        disabled={!!subscribing}
+                      >
+                        {subscribing === plan.id ? '...' : 'Click'}
+                      </Button>
+                    )}
                   </div>
 
                   <button
@@ -253,22 +264,26 @@ export default function SubscriptionPage() {
                         ))}
                       </ul>
                     )}
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleSubscribe(plan.id, 'payme')}
-                        disabled={!!subscribing}
-                      >
-                        {subscribing === plan.id ? '...' : 'Payme'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSubscribe(plan.id, 'click')}
-                        disabled={!!subscribing}
-                      >
-                        {subscribing === plan.id ? '...' : 'Click'}
-                      </Button>
+                    <div className={`grid gap-2 ${paymentMethods.paymeEnabled && paymentMethods.clickEnabled ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                      {paymentMethods.paymeEnabled && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleSubscribe(plan.id, 'payme')}
+                          disabled={!!subscribing}
+                        >
+                          {subscribing === plan.id ? '...' : 'Payme'}
+                        </Button>
+                      )}
+                      {paymentMethods.clickEnabled && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSubscribe(plan.id, 'click')}
+                          disabled={!!subscribing}
+                        >
+                          {subscribing === plan.id ? '...' : 'Click'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}
