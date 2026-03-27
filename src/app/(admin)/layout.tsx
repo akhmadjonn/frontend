@@ -10,6 +10,7 @@ import {
   LayoutGrid, CircleHelp, Layers, BookCopy,
   Crown, Wallet, UsersRound, Bell,
   History, SlidersHorizontal,
+  Banknote, AlertTriangle, Heart, BookOpenText,
 } from 'lucide-react';
 
 const ADMIN_NAV = [
@@ -18,6 +19,11 @@ const ADMIN_NAV = [
   { labelKey: 'admin.navQuestions', href: '/admin/questions', icon: CircleHelp, color: 'text-amber-500' },
   { labelKey: 'admin.navCategories', href: '/admin/categories', icon: Layers, color: 'text-green-500' },
   { labelKey: 'admin.navTemplates', href: '/admin/exam-templates', icon: BookCopy, color: 'text-purple-500' },
+  { sectionKey: 'admin.navReference' },
+  { labelKey: 'admin.navFines', href: '/admin/fines', icon: Banknote, color: 'text-red-500' },
+  { labelKey: 'admin.navHazardLabels', href: '/admin/hazard-labels', icon: AlertTriangle, color: 'text-orange-500' },
+  { labelKey: 'admin.navFirstAid', href: '/admin/first-aid', icon: Heart, color: 'text-rose-500' },
+  { labelKey: 'admin.navGlossary', href: '/admin/glossary', icon: BookOpenText, color: 'text-cyan-500' },
   { sectionKey: 'admin.navBusiness' },
   { labelKey: 'admin.navPlans', href: '/admin/plans', icon: Crown, color: 'text-amber-500' },
   { labelKey: 'admin.navPayments', href: '/admin/payments', icon: Wallet, color: 'text-emerald-500' },

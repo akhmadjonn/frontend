@@ -1,11 +1,21 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Toaster } from '@/components/ui/sonner';
 import LocaleHydrator from '@/components/locale-hydrator';
+import SwRegister from '@/components/sw-register';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'AutoTest — Haydovchilik imtihoniga tayyorlanish',
   description: "O'zbekiston UBDD haydovchilik nazariy imtihoniga tayyorlanish platformasi",
+  manifest: '/manifest.json',
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'AutoTest' },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#2563eb',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased">
         <LocaleHydrator />
+        <SwRegister />
         {children}
         <Toaster richColors position="top-right" />
       </body>

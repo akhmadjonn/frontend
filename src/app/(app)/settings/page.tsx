@@ -12,7 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { User, Languages, Shield, LogOut, Loader2, Save, Phone, Crown, CheckCircle2, XCircle } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { User, Languages, Shield, LogOut, Loader2, Save, Phone, Crown, CheckCircle2, XCircle, Bell } from 'lucide-react';
+import type { UserSettingsDto } from '@/types/engagement';
 
 const languageOptions: { value: Locale; label: string; flag: string; backendValue: string }[] = [
   { value: 'uzLatin', label: "O'zbek (Lotin)", flag: '🇺🇿', backendValue: 'UzLatin' },
@@ -48,6 +50,10 @@ export default function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingLang, setSavingLang] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [dailyReminderEnabled, setDailyReminderEnabled] = useState(false);
+  const [reminderHour, setReminderHour] = useState('09');
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -56,6 +62,46 @@ export default function SettingsPage() {
       setSelectedLang(mapBackendLanguage(user.preferredLanguage));
     }
   }, [user]);
+
+  useEffect(() => {
+    apiClient.get<UserSettingsDto>('/settings')
+      .then((settings) => {
+        setDailyReminderEnabled(settings.daily_reminder_enabled === 'true');
+        setReminderHour(settings.reminder_hour ?? '09');
+        setPushEnabled(settings.push_enabled === 'true');
+      })
+      .catch(() => {})
+      .finally(() => setLoadingSettings(false));
+  }, []);
+
+  const handleToggleDailyReminder = async (checked: boolean) => {
+    setDailyReminderEnabled(checked);
+    try {
+      await apiClient.put('/settings', { key: 'daily_reminder_enabled', value: String(checked) });
+    } catch {
+      setDailyReminderEnabled(!checked);
+      toast.error(ts('common.error'));
+    }
+  };
+
+  const handleReminderHourChange = async (hour: string) => {
+    setReminderHour(hour);
+    try {
+      await apiClient.put('/settings', { key: 'reminder_hour', value: hour });
+    } catch {
+      toast.error(ts('common.error'));
+    }
+  };
+
+  const handleTogglePush = async (checked: boolean) => {
+    setPushEnabled(checked);
+    try {
+      await apiClient.put('/settings', { key: 'push_enabled', value: String(checked) });
+    } catch {
+      setPushEnabled(!checked);
+      toast.error(ts('common.error'));
+    }
+  };
 
   const handleSaveProfile = async () => {
     setSavingProfile(true);
@@ -246,6 +292,62 @@ export default function SettingsPage() {
             {savingLang ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {ts('settings.saveLanguage')}
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+              <Bell className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base">{ts('settings.notifications')}</CardTitle>
+              <CardDescription>{ts('settings.notificationsDesc')}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>{ts('settings.dailyReminder')}</Label>
+              <p className="text-xs text-muted-foreground">{ts('settings.dailyReminderDesc')}</p>
+            </div>
+            <Switch
+              checked={dailyReminderEnabled}
+              onCheckedChange={handleToggleDailyReminder}
+              disabled={loadingSettings}
+            />
+          </div>
+          {dailyReminderEnabled && (
+            <div className="space-y-2 pl-1">
+              <Label htmlFor="reminderHour">{ts('settings.reminderTime')}</Label>
+              <select
+                id="reminderHour"
+                value={reminderHour}
+                onChange={(e) => handleReminderHourChange(e.target.value)}
+                className="flex h-8 w-full max-w-[140px] rounded-md border border-input bg-background px-2 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                {Array.from({ length: 17 }, (_, i) => i + 6).map((h) => (
+                  <option key={h} value={String(h).padStart(2, '0')}>
+                    {String(h).padStart(2, '0')}:00
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>{ts('settings.pushNotifications')}</Label>
+              <p className="text-xs text-muted-foreground">{ts('settings.pushDesc')}</p>
+            </div>
+            <Switch
+              checked={pushEnabled}
+              onCheckedChange={handleTogglePush}
+              disabled={loadingSettings}
+            />
+          </div>
         </CardContent>
       </Card>
 
