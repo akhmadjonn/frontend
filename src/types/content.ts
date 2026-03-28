@@ -85,6 +85,16 @@ export interface ColorVisionResultDto {
   total: number
 }
 
+export interface AdminColorVisionPlateDto {
+  id: string
+  plateNumber: number
+  imageUrl: string | null
+  expectedAnswer: string
+  alternateAnswer: string | null
+  isActive: boolean
+  sortOrder: number
+}
+
 // ── Paginated ──
 export interface PaginatedList<T> {
   items: T[]

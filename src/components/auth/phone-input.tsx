@@ -55,6 +55,7 @@ export default function PhoneInput({ value, onChange, disabled, error }: PhoneIn
         ref={inputRef}
         type="tel"
         inputMode="numeric"
+        autoFocus
         value={formatDisplay(value)}
         onChange={handleChange}
         onKeyDown={handleKeyDown}

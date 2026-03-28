@@ -76,7 +76,7 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
   const [difficulty, setDifficulty] = useState('1');
   const [ticketNumber, setTicketNumber] = useState('1');
   const [licenseCategory, setLicenseCategory] = useState('AB');
-  const [isActive, setIsActive] = useState(true);
+  const [questionStatus, setQuestionStatus] = useState<'active' | 'archived'>('active');
 
   // localized texts
   const [textUz, setTextUz] = useState('');
@@ -109,7 +109,7 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
       setDifficulty(String(question.difficulty));
       setTicketNumber(String(question.ticketNumber));
       setLicenseCategory(question.licenseCategory === 'Both' ? 'BOTH' : question.licenseCategory);
-      setIsActive(question.isActive);
+      setQuestionStatus(question.status === 'active' ? 'active' : 'archived');
 
       setTextUz(question.text.uz || '');
       setTextUzLatin(question.text.uzLatin || '');
@@ -139,7 +139,7 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
       setDifficulty('1');
       setTicketNumber('1');
       setLicenseCategory('AB');
-      setIsActive(true);
+      setQuestionStatus('active');
 
       setTextUz('');
       setTextUzLatin('');
@@ -244,7 +244,7 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
       formData.append('difficulty', difficulty);
       formData.append('ticketNumber', ticketNumber);
       formData.append('licenseCategory', licenseCategory);
-      formData.append('isActive', String(isActive));
+      formData.append('status', questionStatus);
 
       if (questionImageFile)
         formData.append('questionImage', questionImageFile);
@@ -369,11 +369,11 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
 
             <div className="flex items-end gap-2 pb-0.5">
               <Switch
-                checked={isActive}
-                onCheckedChange={(checked) => setIsActive(checked as boolean)}
+                checked={questionStatus === 'active'}
+                onCheckedChange={(checked) => setQuestionStatus(checked ? 'active' : 'archived')}
               />
-              <Label className="cursor-pointer" onClick={() => setIsActive(!isActive)}>
-                {isActive ? ts('admin.active') : ts('admin.inactive')}
+              <Label className="cursor-pointer" onClick={() => setQuestionStatus(questionStatus === 'active' ? 'archived' : 'active')}>
+                {questionStatus === 'active' ? ts('admin.active') : ts('admin.inactive')}
               </Label>
             </div>
           </div>

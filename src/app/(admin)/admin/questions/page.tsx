@@ -149,7 +149,7 @@ export default function QuestionsManagementPage() {
         params.set('pageSize', String(PAGE_SIZE));
         if (debouncedSearch) params.set('search', debouncedSearch);
         if (difficulty !== 'all') params.set('difficulty', difficulty);
-        if (status !== 'all') params.set('isActive', status === 'active' ? 'true' : 'false');
+        if (status !== 'all') params.set('status', status);
         if (ticketNumber) params.set('ticketNumber', ticketNumber);
 
         const data = await apiClient.get<PaginatedList<AdminQuestionDto>>(
@@ -173,7 +173,7 @@ export default function QuestionsManagementPage() {
       params.set('pageSize', String(PAGE_SIZE));
       if (debouncedSearch) params.set('search', debouncedSearch);
       if (difficulty !== 'all') params.set('difficulty', difficulty);
-      if (status !== 'all') params.set('isActive', status === 'active' ? 'true' : 'false');
+      if (status !== 'all') params.set('status', status);
       if (ticketNumber) params.set('ticketNumber', ticketNumber);
 
       const data = await apiClient.get<PaginatedList<AdminQuestionDto>>(
@@ -201,21 +201,22 @@ export default function QuestionsManagementPage() {
 
   // toggle single question status
   const toggleStatus = async (question: AdminQuestionDto) => {
-    const newStatus = !question.isActive;
+    const newStatus = question.status === 'active' ? 'archived' : 'active';
     setTogglingIds((prev) => new Set([...prev, question.id]));
 
     // optimistic update
     setQuestions((prev) =>
-      prev.map((q) => (q.id === question.id ? { ...q, isActive: newStatus } : q))
+      prev.map((q) => (q.id === question.id ? { ...q, status: newStatus as AdminQuestionDto['status'] } : q))
     );
 
     try {
-      await apiClient.patch(`/admin/questions/${question.id}/status`, { isActive: newStatus });
-      toast.success(newStatus ? ts('admin.questions.activated') : ts('admin.questions.deactivated'));
+      await apiClient.patch(`/admin/questions/${question.id}/status`, { status: newStatus });
+      toast.success(newStatus === 'active' ? ts('admin.questions.activated') : ts('admin.questions.deactivated'));
     } catch {
       // rollback
+      const rollback = newStatus === 'active' ? 'archived' : 'active';
       setQuestions((prev) =>
-        prev.map((q) => (q.id === question.id ? { ...q, isActive: !newStatus } : q))
+        prev.map((q) => (q.id === question.id ? { ...q, status: rollback as AdminQuestionDto['status'] } : q))
       );
       toast.error(ts('admin.questions.statusError'));
     } finally {
@@ -228,20 +229,21 @@ export default function QuestionsManagementPage() {
   };
 
   // bulk toggle status
-  const bulkToggleStatus = async (isActive: boolean) => {
+  const bulkToggleStatus = async (activate: boolean) => {
     if (selectedIds.size === 0) return;
 
     const questionIds = Array.from(selectedIds);
+    const newStatus = activate ? 'active' : 'archived';
 
     // optimistic update
     setQuestions((prev) =>
-      prev.map((q) => (selectedIds.has(q.id) ? { ...q, isActive } : q))
+      prev.map((q) => (selectedIds.has(q.id) ? { ...q, status: newStatus as AdminQuestionDto['status'] } : q))
     );
 
     try {
-      await apiClient.patch('/admin/questions/bulk-status', { questionIds, isActive });
+      await apiClient.patch('/admin/questions/bulk-status', { questionIds, status: newStatus });
       toast.success(
-        isActive
+        activate
           ? `${questionIds.length} ${ts('admin.questions.bulkActivated')}`
           : `${questionIds.length} ${ts('admin.questions.bulkDeactivated')}`
       );
@@ -347,7 +349,7 @@ export default function QuestionsManagementPage() {
         <div onClick={(e) => e.stopPropagation()}>
           <Switch
             size="sm"
-            checked={q.isActive}
+            checked={q.status === 'active'}
             onCheckedChange={() => toggleStatus(q)}
             disabled={togglingIds.has(q.id)}
           />

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 interface AccuracyDataPoint { date: string; accuracy: number; questionCount?: number }
-interface Props { data?: AccuracyDataPoint[]; loading?: boolean }
+interface Props { data?: AccuracyDataPoint[]; loading?: boolean; totalExams?: number }
 
 const STORAGE_KEY = 'avtolider-accuracy-chart-view';
 type ViewType = 'summary' | 'area';
@@ -53,31 +53,18 @@ function SummaryView({ data, stats }: { data: { date: string; accuracy: number }
         })}
       </div>
       <div className="flex-1 h-[130px]">
-        {stats.count < 2 ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-sm text-muted-foreground">Ma&apos;lumot yig&apos;ilmoqda...</p>
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={130}>
-            <LineChart data={data}>
-              <YAxis domain={[0, 100]} hide />
-              <Line type="monotone" dataKey="accuracy" stroke="var(--chart-1)" strokeWidth={1.5} strokeOpacity={0.35} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
+        <ResponsiveContainer width="100%" height={130}>
+          <LineChart data={data}>
+            <YAxis domain={[0, 100]} hide />
+            <Line type="monotone" dataKey="accuracy" stroke="var(--chart-1)" strokeWidth={1.5} strokeOpacity={0.35} dot={stats.count < 3} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
 }
 
 function AreaView({ data, count }: { data: { date: string; accuracy: number }[]; count: number }) {
-  if (count < 2)
-    return (
-      <div className="flex items-center justify-center h-[180px]">
-        <p className="text-sm text-muted-foreground">Kamida 2 ta imtihon topshiring</p>
-      </div>
-    );
-
   return (
     <ResponsiveContainer width="100%" height={180}>
       <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
@@ -91,13 +78,13 @@ function AreaView({ data, count }: { data: { date: string; accuracy: number }[];
         <XAxis dataKey="date" tick={{ fontSize: 11 }} className="text-muted-foreground" />
         <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} className="text-muted-foreground" />
         <Tooltip formatter={(v) => [`${v}%`, 'Aniqlik']} contentStyle={{ fontSize: 12 }} />
-        <Area type="monotone" dataKey="accuracy" stroke="#2563EB" strokeWidth={2} fill="url(#accGrad)" dot={false} />
+        <Area type="monotone" dataKey="accuracy" stroke="#2563EB" strokeWidth={2} fill="url(#accGrad)" dot={count < 3} />
       </AreaChart>
     </ResponsiveContainer>
   );
 }
 
-export default function AccuracyChartSwitcher({ data, loading }: Props) {
+export default function AccuracyChartSwitcher({ data, loading, totalExams = 0 }: Props) {
   const [view, setView] = useState<ViewType>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -144,7 +131,7 @@ export default function AccuracyChartSwitcher({ data, loading }: Props) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        {chartData.length === 0
+        {chartData.length === 0 && totalExams === 0
           ? <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">Ma&apos;lumot yo&apos;q</div>
           : (
             <div className="min-h-[180px] transition-opacity duration-150">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, KeyboardEvent, ClipboardEvent } from 'react';
+import { useRef, useEffect, KeyboardEvent, ClipboardEvent } from 'react';
 import { cn } from '@/lib/utils';
 
 interface OtpInputProps {
@@ -13,6 +13,10 @@ interface OtpInputProps {
 
 export default function OtpInput({ value, onChange, onComplete, disabled, error }: OtpInputProps) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+  useEffect(() => {
+    inputRefs.current[0]?.focus();
+  }, []);
 
   const digits = Array.from({ length: 6 }, (_, i) => value[i] || '');
 

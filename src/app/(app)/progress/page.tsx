@@ -128,7 +128,7 @@ export default function ProgressPage() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} />
+        <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} totalExams={dashboard?.totalExamsTaken} />
         <CategoryChart data={categories ?? []} loading={loading} />
       </div>
 
