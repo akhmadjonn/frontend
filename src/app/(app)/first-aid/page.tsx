@@ -29,7 +29,8 @@ export default function FirstAidPage() {
       }
     };
     fetchProcedures();
-  }, [ts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="space-y-6">

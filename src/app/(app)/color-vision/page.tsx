@@ -58,7 +58,8 @@ export default function ColorVisionPage() {
       }
     };
     fetchPlates();
-  }, [ts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const startTest = () => {
     setAnswers([]);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '@/hooks/use-locale';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
@@ -36,9 +36,10 @@ export default function GlossaryPage() {
       }
     };
     fetchCategories();
-  }, [ts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const fetchTerms = useCallback(async (categorySlug: string | null) => {
+  const fetchTerms = async (categorySlug: string | null) => {
     setLoadingTerms(true);
     setSearchResults(null);
     try {
@@ -62,12 +63,13 @@ export default function GlossaryPage() {
     } finally {
       setLoadingTerms(false);
     }
-  }, [categories, ts]);
+  };
 
   useEffect(() => {
     if (!loadingCategories && categories.length > 0)
       fetchTerms(null);
-  }, [loadingCategories, categories.length, fetchTerms]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingCategories, categories.length]);
 
   const handleCategoryChange = (slug: string | null) => {
     setActiveCategory(slug);
@@ -98,7 +100,8 @@ export default function GlossaryPage() {
     return () => {
       if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     };
-  }, [search, ts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const displayTerms = searchResults ?? terms;
 

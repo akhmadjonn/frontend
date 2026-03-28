@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocale } from '@/hooks/use-locale';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
@@ -30,8 +30,11 @@ export default function FinesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const mounted = useRef(false);
 
-  const fetchFines = useCallback(async (p: number, q: string) => {
+  useEffect(() => { mounted.current = true; }, []);
+
+  const fetchFines = async (p: number, q: string) => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(p), pageSize: '20' });
@@ -39,24 +42,27 @@ export default function FinesPage() {
       const result = await apiClient.get<PaginatedList<FineDto>>(`/fines?${params}`);
       setFines(result.items);
       setTotalPages(result.meta.totalPages);
-    } catch (err: any) {
-      toast.error(err?.message || ts('common.error'));
+    } catch {
+      toast.error(ts('common.error'));
     } finally {
       setLoading(false);
     }
-  }, [ts]);
+  };
 
   useEffect(() => {
     fetchFines(page, search);
-  }, [page, fetchFines]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
+    if (!mounted.current) return;
     const timeout = setTimeout(() => {
       setPage(1);
       fetchFines(1, search);
     }, 400);
     return () => clearTimeout(timeout);
-  }, [search, fetchFines]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));

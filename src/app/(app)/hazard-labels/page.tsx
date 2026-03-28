@@ -36,7 +36,8 @@ export default function HazardLabelsPage() {
       }
     };
     fetchLabels();
-  }, [ts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="space-y-6">

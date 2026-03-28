@@ -37,7 +37,8 @@ export default function FirstAidDetailPage() {
       }
     };
     fetchProcedure();
-  }, [slug, ts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   const steps = procedure?.steps ?? [];
   const totalSteps = steps.length;
