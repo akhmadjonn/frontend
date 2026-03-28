@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, BookOpen, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { GlossaryCategoryDto, GlossaryTermDto } from '@/types/content';
+import type { GlossaryCategoryDto, GlossaryTermDto, PaginatedList } from '@/types/content';
 
 export default function GlossaryPage() {
   const { t, ts } = useLocale();
@@ -44,17 +44,17 @@ export default function GlossaryPage() {
     setSearchResults(null);
     try {
       if (categorySlug) {
-        const result = await apiClient.get<GlossaryTermDto[]>(
+        const result = await apiClient.get<PaginatedList<GlossaryTermDto>>(
           `/glossary/categories/${categorySlug}/terms`
         );
-        setTerms(result);
+        setTerms(result.items);
       } else {
         const allTerms: GlossaryTermDto[] = [];
         for (const cat of categories) {
-          const catTerms = await apiClient.get<GlossaryTermDto[]>(
+          const catTerms = await apiClient.get<PaginatedList<GlossaryTermDto>>(
             `/glossary/categories/${cat.slug}/terms`
           );
-          allTerms.push(...catTerms);
+          allTerms.push(...catTerms.items);
         }
         setTerms(allTerms);
       }
@@ -85,10 +85,10 @@ export default function GlossaryPage() {
     if (search.trim().length > 2) {
       searchTimerRef.current = setTimeout(async () => {
         try {
-          const result = await apiClient.get<GlossaryTermDto[]>(
+          const result = await apiClient.get<PaginatedList<GlossaryTermDto>>(
             `/glossary/search?q=${encodeURIComponent(search.trim())}`
           );
-          setSearchResults(result);
+          setSearchResults(result.items);
         } catch (err: any) {
           toast.error(err?.message || ts('common.error'));
         }
@@ -211,9 +211,14 @@ export default function GlossaryPage() {
                           </Badge>
                         )}
                       </div>
+                      {isExpanded && (
+                        <p className="text-xs font-medium text-muted-foreground mt-2">
+                          {ts('glossary.definition')}
+                        </p>
+                      )}
                       <p className={cn(
-                        'text-sm text-muted-foreground mt-1 leading-relaxed',
-                        !isExpanded && 'line-clamp-2'
+                        'text-sm text-muted-foreground leading-relaxed',
+                        isExpanded ? 'mt-0.5' : 'mt-1 line-clamp-2'
                       )}>
                         {t(term.definition)}
                       </p>

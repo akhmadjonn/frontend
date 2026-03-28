@@ -139,7 +139,7 @@ export default function FinesPage() {
                     </div>
                   </div>
 
-                  {isExpanded && (
+                  {isExpanded && (fine.additionalNotes || fine.imageUrl) && (
                     <div className="mt-4 pt-4 border-t space-y-3">
                       {fine.additionalNotes && (
                         <div>
@@ -155,11 +155,6 @@ export default function FinesPage() {
                           alt={t(fine.violationDescription)}
                           className="rounded-lg max-w-full h-auto max-h-64 object-contain"
                         />
-                      )}
-                      {!fine.additionalNotes && !fine.imageUrl && (
-                        <p className="text-sm text-muted-foreground italic">
-                          {ts('fines.noResults')}
-                        </p>
                       )}
                     </div>
                   )}
