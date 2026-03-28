@@ -9,8 +9,9 @@ import ExamResultSummary from '@/components/exam/exam-result-summary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, XCircle, RefreshCw, Home, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle2, XCircle, RefreshCw, Home, ChevronDown, ChevronUp, Share2, Copy, Send, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface AnswerOptionDto {
   id: string;
@@ -86,6 +87,7 @@ export default function ExamResultPage() {
   const [result, setResult] = useState<ExamResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
 
   useEffect(() => {
     reset();
@@ -130,6 +132,82 @@ export default function ExamResultPage() {
         <Button variant="outline" className="flex-1" onClick={() => router.push('/dashboard')}>
           <Home className="h-4 w-4 mr-2" />{ts('result.home')}
         </Button>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Button
+          variant="outline"
+          className="w-full gap-2"
+          onClick={async () => {
+            const percent = Math.round((result.correctAnswers / result.totalQuestions) * 100);
+            const shareText = ts('share.shareText')
+              .replace('{score}', String(result.correctAnswers))
+              .replace('{total}', String(result.totalQuestions))
+              .replace('{percent}', String(percent));
+            const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+            if (typeof navigator !== 'undefined' && navigator.share) {
+              try {
+                await navigator.share({ title: 'AutoTest', text: shareText, url: shareUrl });
+              } catch {
+                // user cancelled share
+              }
+            } else {
+              setShowShareOptions((prev) => !prev);
+            }
+          }}
+        >
+          <Share2 className="h-4 w-4" />{ts('share.shareResult')}
+        </Button>
+
+        {showShareOptions && (() => {
+          const percent = Math.round((result.correctAnswers / result.totalQuestions) * 100);
+          const shareText = ts('share.shareText')
+            .replace('{score}', String(result.correctAnswers))
+            .replace('{total}', String(result.totalQuestions))
+            .replace('{percent}', String(percent));
+          const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+          const encodedText = encodeURIComponent(shareText + '\n' + shareUrl);
+          const encodedUrl = encodeURIComponent(shareUrl);
+          const telegramText = encodeURIComponent(shareText);
+
+          return (
+            <div className="flex gap-2">
+              <a
+                href={`https://t.me/share/url?url=${encodedUrl}&text=${telegramText}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1"
+              >
+                <Button variant="outline" size="sm" className="w-full gap-1.5">
+                  <Send className="h-4 w-4" />{ts('share.shareToTelegram')}
+                </Button>
+              </a>
+              <a
+                href={`https://wa.me/?text=${encodedText}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1"
+              >
+                <Button variant="outline" size="sm" className="w-full gap-1.5">
+                  <MessageCircle className="h-4 w-4" />{ts('share.shareToWhatsApp')}
+                </Button>
+              </a>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 gap-1.5"
+                onClick={() => {
+                  navigator.clipboard.writeText(shareUrl).then(() => {
+                    toast.success(ts('share.copied'));
+                  });
+                }}
+              >
+                <Copy className="h-4 w-4" />{ts('share.copyLink')}
+              </Button>
+            </div>
+          );
+        })()}
       </div>
 
       <Card>

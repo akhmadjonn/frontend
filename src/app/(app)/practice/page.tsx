@@ -9,7 +9,9 @@ import CategorySelector from '@/components/practice/category-selector';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Zap, BookOpen, ArrowRight } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { toast } from 'sonner';
+import { RefreshCw, Zap, BookOpen, ArrowRight, Brain, Timer, Lock, Crown } from 'lucide-react';
 
 interface CategoryPerformance {
   categoryId: string;
@@ -24,6 +26,7 @@ interface CategoryPerformance {
 export default function PracticePage() {
   const router = useRouter();
   const { ts } = useLocale();
+  const { user } = useAuth();
   const [categories, setCategories] = useState<CategoryPerformance[]>([]);
   const [dueCount, setDueCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -102,6 +105,105 @@ export default function PracticePage() {
             </CardContent>
           </Card>
         </Link>
+      </div>
+
+      <div>
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ts('practiceMode.additionalModes')}</h2>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <button
+            onClick={() => {
+              if (!user?.hasActiveSubscription) {
+                toast.error(ts('practiceMode.premiumRequired'));
+                return;
+              }
+              router.push('/practice/session?mode=review');
+            }}
+            className="text-left w-full"
+          >
+            <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-50 dark:bg-purple-950/30 relative">
+                  <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  {!user?.hasActiveSubscription && (
+                    <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">{ts('practiceMode.review')}</p>
+                    <Badge variant="secondary" className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{ts('practiceMode.reviewDesc')}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </button>
+
+          <button
+            onClick={() => {
+              if (!user?.hasActiveSubscription) {
+                toast.error(ts('practiceMode.premiumRequired'));
+                return;
+              }
+              router.push('/practice/session?mode=hard');
+            }}
+            className="text-left w-full"
+          >
+            <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/30 relative">
+                  <Zap className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  {!user?.hasActiveSubscription && (
+                    <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">{ts('practiceMode.hardMode')}</p>
+                    <Badge variant="secondary" className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{ts('practiceMode.hardModeDesc')}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </button>
+
+          <button
+            onClick={() => {
+              if (!user?.hasActiveSubscription) {
+                toast.error(ts('practiceMode.premiumRequired'));
+                return;
+              }
+              router.push('/practice/session?mode=speed');
+            }}
+            className="text-left w-full"
+          >
+            <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30 relative">
+                  <Timer className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  {!user?.hasActiveSubscription && (
+                    <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">{ts('practiceMode.speedChallenge')}</p>
+                    <Badge variant="secondary" className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{ts('practiceMode.speedChallengeDesc')}</p>
+                </div>
+                <Badge variant="outline" className="shrink-0 text-[10px]">{ts('practiceMode.timePerQuestion')}</Badge>
+              </CardContent>
+            </Card>
+          </button>
+        </div>
       </div>
 
       <div>
