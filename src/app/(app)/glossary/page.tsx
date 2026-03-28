@@ -211,9 +211,14 @@ export default function GlossaryPage() {
                           </Badge>
                         )}
                       </div>
+                      {isExpanded && (
+                        <p className="text-xs font-medium text-muted-foreground mt-2">
+                          {ts('glossary.definition')}
+                        </p>
+                      )}
                       <p className={cn(
-                        'text-sm text-muted-foreground mt-1 leading-relaxed',
-                        !isExpanded && 'line-clamp-2'
+                        'text-sm text-muted-foreground leading-relaxed',
+                        isExpanded ? 'mt-0.5' : 'mt-1 line-clamp-2'
                       )}>
                         {t(term.definition)}
                       </p>
