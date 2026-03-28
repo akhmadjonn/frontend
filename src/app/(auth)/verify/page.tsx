@@ -21,18 +21,20 @@ export default function VerifyPage() {
   const [resendCooldown, setResendCooldown] = useState(OTP_RESEND_SECONDS);
   const [attemptsLeft, setAttemptsLeft] = useState(3);
   const [error, setError] = useState('');
-  const [phone] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('otp_phone') ?? '' : '');
+  const [phone, setPhone] = useState('');
   const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('otp_phone') ?? '';
+    setPhone(stored);
+    if (!stored) router.replace('/login');
+  }, [router]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const t = setInterval(() => setResendCooldown((s) => s - 1), 1000);
     return () => clearInterval(t);
   }, [resendCooldown]);
-
-  useEffect(() => {
-    if (!phone && !verified) router.replace('/login');
-  }, [phone, verified, router]);
 
   const handleVerify = useCallback(async (code: string) => {
     if (code.length !== 6) return;
