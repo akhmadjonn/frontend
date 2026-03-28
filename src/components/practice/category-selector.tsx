@@ -5,7 +5,8 @@ import { apiClient } from '@/lib/api-client';
 import { useLocale } from '@/hooks/use-locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen, ChevronRight, Target, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Category {
   id: string;
@@ -28,8 +29,14 @@ interface CategorySelectorProps {
   performance?: CategoryPerformance[];
 }
 
+function accuracyColor(accuracy: number) {
+  if (accuracy >= 80) return { text: 'text-green-600 dark:text-green-400', bg: 'bg-green-500' };
+  if (accuracy >= 50) return { text: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500' };
+  return { text: 'text-red-600 dark:text-red-400', bg: 'bg-red-500' };
+}
+
 export default function CategorySelector({ onSelect, performance = [] }: CategorySelectorProps) {
-  const { t } = useLocale();
+  const { t, ts } = useLocale();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +51,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
     return (
       <div className="grid gap-2 sm:grid-cols-2">
         {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i}><CardContent className="p-3"><Skeleton className="h-14 w-full" /></CardContent></Card>
+          <Card key={i}><CardContent className="p-3"><Skeleton className="h-16 w-full" /></CardContent></Card>
         ))}
       </div>
     );
@@ -55,7 +62,10 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
     <div className="grid gap-2 sm:grid-cols-2">
       {categories.map((cat) => {
         const perf = getPerf(cat.id);
-        const accuracy = perf ? Math.round(perf.accuracy) : 0;
+        const hasPractice = perf && perf.totalAttempts > 0;
+        const accuracy = hasPractice ? Math.round(perf.accuracy) : 0;
+        const completionPct = hasPractice ? Math.round(perf.questionsPracticed / perf.questionsInCategory * 100) : 0;
+        const colors = accuracyColor(accuracy);
 
         return (
           <button
@@ -65,20 +75,42 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
           >
             <Card className="transition-all hover:border-foreground/20 hover:shadow-sm">
               <CardContent className="flex items-center gap-3 p-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
-                  <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <div className={cn(
+                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                  hasPractice && completionPct >= 100
+                    ? 'bg-green-50 dark:bg-green-950/30'
+                    : 'bg-blue-50 dark:bg-blue-950/30'
+                )}>
+                  {hasPractice && completionPct >= 100
+                    ? <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    : <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  }
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{t(cat.name)}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${accuracy}%` }} />
-                    </div>
-                    <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">{accuracy}%</span>
-                  </div>
-                  {perf && perf.totalAttempts > 0 && (
+                  {hasPractice ? (
+                    <>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${completionPct}%` }} />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                          {perf.questionsPracticed}/{perf.questionsInCategory}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2.5 mt-1">
+                        <span className={cn('text-[11px] font-semibold tabular-nums flex items-center gap-0.5', colors.text)}>
+                          <Target className="h-3 w-3" />
+                          {accuracy}%
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {perf.correctAttempts}/{perf.totalAttempts} {ts('common.correct')}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {perf.questionsPracticed}/{perf.questionsInCategory} savol
+                      {cat.questionCount} {ts('common.questions')}
                     </p>
                   )}
                 </div>
