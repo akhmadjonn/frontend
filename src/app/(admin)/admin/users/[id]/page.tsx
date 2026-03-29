@@ -2,11 +2,30 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/api-client';
-import type { UserDetailDto } from '@/types/admin';
+import type { UserDetailDto, GrantPremiumResultDto } from '@/types/admin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -22,12 +41,18 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Shield, ShieldOff, Ban, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Shield, ShieldOff, Ban, CheckCircle, Crown, Clock, XCircle } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { formatDistanceToNow, format } from 'date-fns';
 import { useLocale } from '@/hooks/use-locale';
 
-type ConfirmAction = 'role' | 'block' | null;
+type ConfirmAction = 'role' | 'block' | 'revoke' | null;
+type DurationOption = '30' | '90' | '365' | 'forever' | 'custom';
+
+interface PlanOption {
+  id: string;
+  name: string;
+}
 
 export default function UserDetailPage() {
   const { ts } = useLocale();
@@ -39,6 +64,15 @@ export default function UserDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const [pendingRole, setPendingRole] = useState<'user' | 'admin' | null>(null);
+
+  // Grant premium state
+  const [grantOpen, setGrantOpen] = useState(false);
+  const [plans, setPlans] = useState<PlanOption[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [durationOption, setDurationOption] = useState<DurationOption>('30');
+  const [customDays, setCustomDays] = useState('');
+  const [grantNote, setGrantNote] = useState('');
+  const [grantLoading, setGrantLoading] = useState(false);
 
   const fetchUser = useCallback(async () => {
     setLoading(true);
@@ -56,6 +90,16 @@ export default function UserDetailPage() {
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
+
+  const fetchPlans = useCallback(async () => {
+    try {
+      const result = await apiClient.get<Array<{ id: string; nameUzLatin: string }>>('/admin/plans');
+      const mapped = (Array.isArray(result) ? result : []).map(p => ({ id: p.id, name: p.nameUzLatin }));
+      setPlans(mapped);
+    } catch {
+      // plans load failed silently
+    }
+  }, []);
 
   const handleRoleChange = async () => {
     if (!user || !pendingRole) return;
@@ -88,6 +132,85 @@ export default function UserDetailPage() {
       setConfirmAction(null);
     }
   };
+
+  const openGrantDialog = () => {
+    fetchPlans();
+    setSelectedPlanId('');
+    setDurationOption('30');
+    setCustomDays('');
+    setGrantNote('');
+    setGrantOpen(true);
+  };
+
+  const handleGrantPremium = async () => {
+    if (!selectedPlanId) return;
+    setGrantLoading(true);
+    try {
+      const durationDays = durationOption === 'forever'
+        ? null
+        : durationOption === 'custom'
+          ? parseInt(customDays, 10)
+          : parseInt(durationOption, 10);
+
+      if (durationOption === 'custom' && (!durationDays || durationDays <= 0)) {
+        toast.error(ts('admin.userDetail.duration'));
+        setGrantLoading(false);
+        return;
+      }
+
+      await apiClient.post<GrantPremiumResultDto>(`/admin/users/${id}/premium`, {
+        planId: selectedPlanId,
+        durationDays,
+        note: grantNote || null,
+      });
+
+      toast.success(
+        user?.activeSubscription
+          ? ts('admin.userDetail.extendSuccess')
+          : ts('admin.userDetail.grantSuccess')
+      );
+      setGrantOpen(false);
+      await fetchUser();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : ts('admin.userDetail.grantSuccess'));
+    } finally {
+      setGrantLoading(false);
+    }
+  };
+
+  const handleRevokePremium = async () => {
+    setActionLoading(true);
+    try {
+      await apiClient.delete(`/admin/users/${id}/premium`);
+      toast.success(ts('admin.userDetail.revokeSuccess'));
+      setConfirmAction(null);
+      await fetchUser();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : ts('admin.userDetail.blockError'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const getProviderLabel = (provider: string | null) => {
+    switch (provider?.toLowerCase()) {
+      case 'manual': return ts('admin.userDetail.sourceManual');
+      case 'payme': return ts('admin.userDetail.sourcePayme');
+      case 'click': return ts('admin.userDetail.sourceClick');
+      default: return '-';
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active': return <Badge variant="default">{ts('admin.active')}</Badge>;
+      case 'expired': return <Badge variant="secondary">{status}</Badge>;
+      case 'cancelled': return <Badge variant="destructive">{status}</Badge>;
+      default: return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const isForeverDate = (dateStr: string) => new Date(dateStr).getFullYear() >= 2099;
 
   if (loading)
     return (
@@ -255,28 +378,62 @@ export default function UserDetailPage() {
         </Card>
 
         <div className="space-y-6">
-          {user.activeSubscription && (
-            <Card>
-              <CardHeader>
-                <CardTitle>{ts('admin.userDetail.subscription')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <dl className="space-y-3 text-sm">
-                  <DetailRow label={ts('admin.userDetail.plan')} value={user.activeSubscription.planName} />
-                  <DetailRow
-                    label={ts('admin.users.status')}
-                    value={
-                      <Badge variant="default">{user.activeSubscription.status}</Badge>
-                    }
-                  />
-                  <DetailRow
-                    label={ts('admin.userDetail.expiresAt')}
-                    value={format(new Date(user.activeSubscription.expiresAt), 'dd.MM.yyyy HH:mm')}
-                  />
-                </dl>
-              </CardContent>
-            </Card>
-          )}
+          {/* Premium Management Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-yellow-500" />
+                {ts('admin.userDetail.premiumManagement')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {user.activeSubscription ? (
+                <div className="space-y-4">
+                  <dl className="space-y-3 text-sm">
+                    <DetailRow label={ts('admin.userDetail.plan')} value={user.activeSubscription.planName} />
+                    <DetailRow
+                      label={ts('admin.users.status')}
+                      value={<Badge variant="default">{ts('admin.userDetail.premiumActive')}</Badge>}
+                    />
+                    {user.isManualPremium && (
+                      <DetailRow
+                        label={ts('admin.userDetail.source')}
+                        value={<Badge variant="outline">{ts('admin.userDetail.manuallyGranted')}</Badge>}
+                      />
+                    )}
+                    <DetailRow
+                      label={ts('admin.userDetail.expiresAt')}
+                      value={
+                        isForeverDate(user.activeSubscription.expiresAt)
+                          ? <span className="flex items-center gap-1">{ts('admin.userDetail.forever')} <span className="text-lg">&#8734;</span></span>
+                          : format(new Date(user.activeSubscription.expiresAt), 'dd.MM.yyyy HH:mm')
+                      }
+                    />
+                  </dl>
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" size="sm" onClick={openGrantDialog}>
+                      <Clock className="mr-1.5 h-4 w-4" />
+                      {ts('admin.userDetail.extendPremium')}
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => setConfirmAction('revoke')}>
+                      <XCircle className="mr-1.5 h-4 w-4" />
+                      {ts('admin.userDetail.revokePremium')}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Badge variant="secondary">{ts('admin.userDetail.noPremium')}</Badge>
+                  <div>
+                    <Button size="sm" onClick={openGrantDialog}>
+                      <Crown className="mr-1.5 h-4 w-4" />
+                      {ts('admin.userDetail.grantPremium')}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
@@ -296,6 +453,125 @@ export default function UserDetailPage() {
         </div>
       </div>
 
+      {/* Subscription History */}
+      {user.subscriptionHistory.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{ts('admin.userDetail.subscriptionHistory')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{ts('admin.userDetail.planName')}</TableHead>
+                  <TableHead>{ts('admin.userDetail.startDate')}</TableHead>
+                  <TableHead>{ts('admin.userDetail.endDate')}</TableHead>
+                  <TableHead>{ts('admin.users.status')}</TableHead>
+                  <TableHead>{ts('admin.userDetail.source')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {user.subscriptionHistory.map((sub, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell className="font-medium">{sub.planName}</TableCell>
+                    <TableCell>{format(new Date(sub.startsAt), 'dd.MM.yyyy')}</TableCell>
+                    <TableCell>
+                      {isForeverDate(sub.expiresAt)
+                        ? ts('admin.userDetail.forever')
+                        : format(new Date(sub.expiresAt), 'dd.MM.yyyy')}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(sub.status)}</TableCell>
+                    <TableCell>{getProviderLabel(sub.provider)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Grant Premium Dialog */}
+      <Dialog open={grantOpen} onOpenChange={setGrantOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {user.activeSubscription
+                ? ts('admin.userDetail.extendPremium')
+                : ts('admin.userDetail.grantPremium')}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>{ts('admin.userDetail.selectPlan')}</Label>
+              <Select value={selectedPlanId} onValueChange={(v) => setSelectedPlanId(v ?? '')}>
+                <SelectTrigger>
+                  <SelectValue placeholder={ts('admin.userDetail.selectPlan')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {plans.map((plan) => (
+                    <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>{ts('admin.userDetail.duration')}</Label>
+              <RadioGroup value={durationOption} onValueChange={(v) => setDurationOption(v as DurationOption)}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="30" id="d30" />
+                  <Label htmlFor="d30">{ts('admin.userDetail.days30')}</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="90" id="d90" />
+                  <Label htmlFor="d90">{ts('admin.userDetail.days90')}</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="365" id="d365" />
+                  <Label htmlFor="d365">{ts('admin.userDetail.days365')}</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="forever" id="dforever" />
+                  <Label htmlFor="dforever">{ts('admin.userDetail.forever')} &#8734;</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="custom" id="dcustom" />
+                  <Label htmlFor="dcustom">{ts('admin.userDetail.customDays')}</Label>
+                </div>
+              </RadioGroup>
+              {durationOption === 'custom' && (
+                <Input
+                  type="number"
+                  min={1}
+                  placeholder={ts('admin.userDetail.customDays')}
+                  value={customDays}
+                  onChange={(e) => setCustomDays(e.target.value)}
+                />
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>{ts('admin.userDetail.grantNote')}</Label>
+              <Textarea
+                placeholder={ts('admin.userDetail.grantNote')}
+                value={grantNote}
+                onChange={(e) => setGrantNote(e.target.value)}
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGrantOpen(false)}>
+              {ts('common.cancel')}
+            </Button>
+            <Button onClick={handleGrantPremium} disabled={grantLoading || !selectedPlanId}>
+              {grantLoading ? ts('admin.saving') : ts('admin.userDetail.grantConfirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Role Change Dialog */}
       <Dialog
         open={confirmAction === 'role'}
         onOpenChange={(open) => {
@@ -323,6 +599,7 @@ export default function UserDetailPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Block/Unblock Dialog */}
       <Dialog
         open={confirmAction === 'block'}
         onOpenChange={(open) => {
@@ -347,6 +624,29 @@ export default function UserDetailPage() {
               disabled={actionLoading}
             >
               {actionLoading ? ts('admin.saving') : ts('common.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Revoke Premium Dialog */}
+      <Dialog
+        open={confirmAction === 'revoke'}
+        onOpenChange={(open) => {
+          if (!open) setConfirmAction(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{ts('admin.userDetail.revokeConfirm')}</DialogTitle>
+            <DialogDescription>{ts('admin.userDetail.revokeWarning')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              {ts('common.cancel')}
+            </Button>
+            <Button variant="destructive" onClick={handleRevokePremium} disabled={actionLoading}>
+              {actionLoading ? ts('admin.saving') : ts('admin.userDetail.revokePremium')}
             </Button>
           </DialogFooter>
         </DialogContent>

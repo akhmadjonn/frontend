@@ -65,7 +65,7 @@ export default function ExamPage() {
   const [checkingActive, setCheckingActive] = useState(true);
   const [abandoning, setAbandoning] = useState(false);
 
-  const MODE_LABELS: Record<string, string> = { exam: ts('exam.startExam'), ticket: ts('exam.startTicket'), marathon: ts('exam.startMarathon') };
+  const MODE_LABELS: Record<string, string> = { exam: ts('exam.startExam'), ticket: ts('exam.startTicket'), marathon: ts('exam.startMarathon'), speedChallenge: ts('practiceMode.speedChallenge') };
 
   useEffect(() => {
     apiClient.get<ActiveExamDto | null>('/exams/active')
@@ -76,6 +76,11 @@ export default function ExamPage() {
 
   const handleResume = async () => {
     if (!activeExam) return;
+    // Speed challenge has its own UI — redirect there
+    if (activeExam.mode === 'speedChallenge') {
+      router.push('/practice/session?mode=speed');
+      return;
+    }
     setLoading(activeExam.mode as ExamMode);
     try {
       const data = await apiClient.get<ExamSessionDto>(`/exams/${activeExam.id}`);

@@ -7,4 +7,5 @@ export const OTP_RESEND_SECONDS = 60;
 export const PHONE_PREFIX = '998';
 export const LEITNER_INTERVALS = [1, 2, 4, 8, 16] as const;
 export const PRACTICE_BATCH_SIZE = 10;
+export const SPEED_CHALLENGE_DEFAULT_TIME_PER_QUESTION = 15;
 export const TIMEZONE = 'Asia/Tashkent';

@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow, format } from 'date-fns';
+import { Crown } from 'lucide-react';
 import { useLocale } from '@/hooks/use-locale';
 
 
@@ -69,7 +70,12 @@ export default function UsersPage() {
       header: ts('admin.users.name'),
       render: (user) => {
         const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
-        return <span className="font-medium">{name || '-'}</span>;
+        return (
+          <span className="inline-flex items-center gap-1.5 font-medium">
+            {name || '-'}
+            {user.hasPremium && <Crown className="h-3.5 w-3.5 text-yellow-500" />}
+          </span>
+        );
       },
     },
     {

@@ -23,6 +23,11 @@ const CategoryChart = dynamic(() => import('@/components/progress/category-chart
   loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
 });
 
+const DailyActivity = dynamic(() => import('@/components/progress/daily-activity'), {
+  ssr: false,
+  loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
+});
+
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const { dashboard, categories, loading, fetch } = useDashboardStore();
@@ -53,6 +58,12 @@ export default function DashboardPage() {
       </div>
 
       <StatsCards data={dashboard ?? undefined} loading={loading} />
+
+      <DailyActivity
+        accuracyData={dashboard?.accuracyOverTime}
+        questionsToday={dashboard?.questionsAnsweredToday}
+        loading={loading}
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         <AccuracyChart data={dashboard?.accuracyOverTime} loading={loading} totalExams={dashboard?.totalExamsTaken} />

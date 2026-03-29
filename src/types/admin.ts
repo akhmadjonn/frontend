@@ -52,6 +52,7 @@ export interface UserListItemDto {
   isBlocked: boolean;
   lastActiveAt: string | null;
   createdAt: string;
+  hasPremium: boolean;
 }
 
 export interface UserDetailDto {
@@ -74,7 +75,25 @@ export interface UserDetailDto {
     planName: string;
     status: string;
     expiresAt: string;
+    provider: 'Payme' | 'Click' | 'Manual' | null;
   } | null;
+  isManualPremium: boolean;
+  subscriptionHistory: SubscriptionHistoryItemDto[];
+}
+
+export interface SubscriptionHistoryItemDto {
+  planName: string;
+  startsAt: string;
+  expiresAt: string;
+  status: 'None' | 'Active' | 'Expired' | 'Cancelled';
+  provider: 'Payme' | 'Click' | 'Manual' | null;
+}
+
+export interface GrantPremiumResultDto {
+  subscriptionId: string;
+  expiresAt: string;
+  planName: string;
+  isForever: boolean;
 }
 
 // Payments
@@ -82,7 +101,7 @@ export interface PaymentTransactionDto {
   id: string;
   userId: string;
   userPhone: string | null;
-  provider: 'Payme' | 'Click';
+  provider: 'Payme' | 'Click' | 'Manual';
   providerTransactionId: string | null;
   amountInTiyins: number;
   currency: string;
