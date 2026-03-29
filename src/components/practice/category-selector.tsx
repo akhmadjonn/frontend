@@ -71,7 +71,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
           <button
             key={cat.id}
             onClick={() => onSelect(cat.id)}
-            className="group text-left w-full"
+            className="group text-left w-full cursor-pointer"
           >
             <Card className="transition-all hover:border-foreground/20 hover:shadow-sm">
               <CardContent className="flex items-center gap-3 p-3">

@@ -145,8 +145,23 @@
     "progressSaved": "Прогресс сохраняется",
     "startMarathonBtn": "Начать марафон",
     "viewHistory": "История экзаменов",
+    "recentHistory": "Последние результаты",
+    "viewAll": "Смотреть все",
     "completing": "Завершение...",
     "tabSwitchWarning": "Вкладка переключена! Это зафиксировано."
+  },
+  "history": {
+    "title": "История экзаменов",
+    "subtitle": "Все пройденные экзамены",
+    "backToExam": "К экзамену",
+    "noHistory": "Экзамены ещё не пройдены",
+    "startExam": "Начать экзамен",
+    "mode": {
+      "exam": "Экзамен",
+      "ticket": "Билет",
+      "marathon": "Марафон",
+      "speedChallenge": "Скоростной тест"
+    }
   },
   "practice": {
     "title": "Практика",

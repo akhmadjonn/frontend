@@ -9,7 +9,7 @@ export interface DashboardData {
   dueForReview: number;
   questionsAnsweredToday: number;
   examPassRate: number;
-  recentExams: Array<{ examId: string; score: number; passed: boolean; completedAt: string }>;
+  recentExams: Array<{ examId: string; mode: string; score: number; passed: boolean; completedAt: string }>;
   accuracyOverTime: Array<{ date: string; accuracy: number; questionCount?: number }>;
 }
 

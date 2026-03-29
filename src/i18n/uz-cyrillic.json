@@ -145,8 +145,23 @@
     "progressSaved": "Жараён сақланади",
     "startMarathonBtn": "Марафонни бошлаш",
     "viewHistory": "Имтиҳон тарихини кўриш",
+    "recentHistory": "Охирги натижалар",
+    "viewAll": "Барчасини кўриш",
     "completing": "Якунланмоқда...",
     "tabSwitchWarning": "Таб алмаштирилди! Бу қайд этилди."
+  },
+  "history": {
+    "title": "Имтиҳон тарихи",
+    "subtitle": "Барча ўтган имтиҳонлар",
+    "backToExam": "Имтиҳонга",
+    "noHistory": "Ҳали имтиҳон топширилмаган",
+    "startExam": "Имтиҳон бошлаш",
+    "mode": {
+      "exam": "Имтиҳон",
+      "ticket": "Билет",
+      "marathon": "Марафон",
+      "speedChallenge": "Тезлик синови"
+    }
   },
   "practice": {
     "title": "Машқ қилиш",

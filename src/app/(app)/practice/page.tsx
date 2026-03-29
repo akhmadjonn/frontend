@@ -56,7 +56,7 @@ export default function PracticePage() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <button onClick={() => router.push('/practice/session?review=true')} className="text-left w-full">
+        <button onClick={() => router.push('/practice/session?review=true')} className="text-left w-full cursor-pointer">
           <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors">
             <CardContent className="flex items-center gap-3 p-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-950/30">
@@ -76,7 +76,7 @@ export default function PracticePage() {
           </Card>
         </button>
 
-        <button onClick={() => router.push('/practice/session')} className="text-left w-full">
+        <button onClick={() => router.push('/practice/session')} className="text-left w-full cursor-pointer">
           <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors">
             <CardContent className="flex items-center gap-3 p-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
@@ -91,7 +91,7 @@ export default function PracticePage() {
           </Card>
         </button>
 
-        <Link href="/exam" className="w-full">
+        <Link href="/exam" className="w-full cursor-pointer">
           <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors h-full">
             <CardContent className="flex items-center gap-3 p-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
@@ -118,7 +118,7 @@ export default function PracticePage() {
               }
               router.push('/practice/session?mode=review');
             }}
-            className="text-left w-full"
+            className="text-left w-full cursor-pointer"
           >
             <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
               <CardContent className="flex items-center gap-3 p-4">
@@ -149,7 +149,7 @@ export default function PracticePage() {
               }
               router.push('/practice/session?mode=hard');
             }}
-            className="text-left w-full"
+            className="text-left w-full cursor-pointer"
           >
             <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
               <CardContent className="flex items-center gap-3 p-4">
@@ -180,7 +180,7 @@ export default function PracticePage() {
               }
               router.push('/practice/session?mode=speed');
             }}
-            className="text-left w-full"
+            className="text-left w-full cursor-pointer"
           >
             <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
               <CardContent className="flex items-center gap-3 p-4">
