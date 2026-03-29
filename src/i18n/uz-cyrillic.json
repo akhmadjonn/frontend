@@ -97,7 +97,11 @@
     "score": "балл",
     "startExam": "Имтиҳон бошлаш",
     "startPractice": "Машқ қилиш",
-    "review": "Такрорлаш"
+    "review": "Такрорлаш",
+    "dailyActivity": "Кунлик фаоллик",
+    "todayQuestions": "Бугун жавоб берилган",
+    "thisWeek": "Шу ҳафта",
+    "weekAvg": "Ҳафталик ўртача"
   },
   "exam": {
     "start": "Имтиҳонни бошлаш",
@@ -161,7 +165,14 @@
     "wereCorrect": "таси тўғри",
     "noQuestions": "Саволлар топилмади",
     "practiceMore": "Яна машқ",
-    "categories": "Категориялар"
+    "categories": "Категориялар",
+    "speedComplete": "Тезлик синови якунланди!",
+    "questionsAnswered": "саволга жавоб берилди",
+    "answered": "Жавоб берилган",
+    "skipped": "Ўтказиб юборилган",
+    "avgTime": "Ўртача вақт",
+    "speedResultHint": "Натижани кўриш учун имтиҳон тарихига ўтинг",
+    "tryAgain": "Қайта бошлаш"
   },
   "progress": {
     "title": "Прогресс",

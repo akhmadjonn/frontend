@@ -3,6 +3,7 @@
 import { memo } from 'react';
 import { useLocaleStore } from '@/stores/locale-store';
 import AnswerOption from './answer-option';
+import FavoriteButton from '@/components/common/favorite-button';
 
 interface AnswerOptionDto {
   id: string;
@@ -41,8 +42,11 @@ export default memo(function QuestionCard({ question, questionNumber, totalQuest
   return (
     <div className="space-y-4 select-none" style={{ WebkitUserSelect: 'none', userSelect: 'none' }}>
       {/* Question header */}
-      <div className="text-xs font-medium text-muted-foreground">
-        {questionNumber}/{totalQuestions} — savol
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-muted-foreground">
+          {questionNumber}/{totalQuestions} — savol
+        </span>
+        <FavoriteButton questionId={question.questionId} />
       </div>
 
       {/* Question text */}

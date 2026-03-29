@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useLocaleStore } from '@/stores/locale-store';
 import { cn } from '@/lib/utils';
 import { Check, Box } from 'lucide-react';
+import FavoriteButton from '@/components/common/favorite-button';
 
 interface AnswerOptionDto {
   id: string;
@@ -56,9 +57,12 @@ export default function PracticeQuestion({
     <div className="space-y-4 select-none">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground">{questionNumber}/{totalQuestions}</span>
-        <div className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${LEITNER_COLORS[boxIndex]}`}>
-          <Box className="h-2.5 w-2.5" />
-          Box {question.leitnerBox}
+        <div className="flex items-center gap-1.5">
+          <FavoriteButton questionId={question.id} />
+          <div className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${LEITNER_COLORS[boxIndex]}`}>
+            <Box className="h-2.5 w-2.5" />
+            Box {question.leitnerBox}
+          </div>
         </div>
       </div>
 

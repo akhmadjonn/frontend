@@ -97,7 +97,11 @@
     "score": "баллов",
     "startExam": "Начать экзамен",
     "startPractice": "Практика",
-    "review": "Повторение"
+    "review": "Повторение",
+    "dailyActivity": "Ежедневная активность",
+    "todayQuestions": "Отвечено сегодня",
+    "thisWeek": "За неделю",
+    "weekAvg": "Среднее за неделю"
   },
   "exam": {
     "start": "Начать экзамен",
@@ -161,7 +165,14 @@
     "wereCorrect": "правильных",
     "noQuestions": "Вопросы не найдены",
     "practiceMore": "Ещё практика",
-    "categories": "Категории"
+    "categories": "Категории",
+    "speedComplete": "Скоростной тест завершён!",
+    "questionsAnswered": "вопросов отвечено",
+    "answered": "Отвечено",
+    "skipped": "Пропущено",
+    "avgTime": "Среднее время",
+    "speedResultHint": "Перейдите в историю экзаменов для просмотра результатов",
+    "tryAgain": "Начать заново"
   },
   "progress": {
     "title": "Прогресс",
