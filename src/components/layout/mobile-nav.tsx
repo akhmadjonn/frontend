@@ -63,7 +63,7 @@ export default function MobileNav() {
                       active ? 'bg-blue-50 dark:bg-blue-950/30' : 'hover:bg-muted/60'
                     )}
                   >
-                    <Icon className={cn('h-5 w-5', active ? color : 'text-muted-foreground')} />
+                    <Icon className={cn('h-5 w-5', color)} />
                     <span className={cn('text-[10px] font-medium leading-tight', active ? 'text-foreground' : 'text-muted-foreground')}>
                       {ts(labelKey)}
                     </span>
@@ -87,7 +87,7 @@ export default function MobileNav() {
                 active ? activeColor : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <Icon className={cn('h-5 w-5', active && activeColor)} />
+              <Icon className={cn('h-5 w-5', activeColor)} />
               {ts(labelKey)}
             </Link>
           );

@@ -81,7 +81,7 @@ export default function Sidebar() {
                   : 'text-muted-foreground font-medium hover:bg-muted/60 hover:text-foreground'
               )}
             >
-              <Icon className={cn('h-4 w-4 shrink-0', active ? color : '')} />
+              <Icon className={cn('h-4 w-4 shrink-0', color)} />
               {label[language] ?? label.uzLatin}
             </Link>
           );

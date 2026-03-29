@@ -10,7 +10,8 @@ import StatsCards from '@/components/progress/stats-cards';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GraduationCap, BookOpen, RefreshCw, Flame, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
+import { GraduationCap, BookOpen, RefreshCw, Flame, CheckCircle2, XCircle, ChevronRight, Hash, Trophy, Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
 const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart-switcher'), {
@@ -73,7 +74,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium">{ts('dashboard.recentExams')}</CardTitle>
-          <Link href="/exam" className="text-xs text-primary hover:underline">{ts('common.all')}</Link>
+          <Link href="/exam/history" className="text-xs text-primary hover:underline">{ts('common.all')}</Link>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -94,7 +95,7 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-2">
               {dashboard.recentExams.map((exam) => (
-                <Link key={exam.examId} href={`/exam/result/${exam.examId}`} className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors">
+                <Link key={exam.examId} href={`/exam/result/${exam.examId}`} className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
                   <div className="flex items-center gap-3">
                     <div className={`flex h-8 w-8 items-center justify-center rounded-lg shrink-0 ${
                       exam.passed
@@ -107,7 +108,22 @@ export default function DashboardPage() {
                       }
                     </div>
                     <div>
-                      <p className="text-sm font-medium">{exam.score}% {ts('dashboard.score')}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium">{exam.score}% {ts('dashboard.score')}</p>
+                        {exam.mode && (() => {
+                          const modeColors: Record<string, string> = {
+                            exam: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                            ticket: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+                            marathon: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+                            speedChallenge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                          };
+                          return (
+                            <span className={cn('inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium', modeColors[exam.mode] ?? modeColors.exam)}>
+                              {ts(`history.mode.${exam.mode}`)}
+                            </span>
+                          );
+                        })()}
+                      </div>
                       <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(exam.completedAt), { addSuffix: true })}</p>
                     </div>
                   </div>

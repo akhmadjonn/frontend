@@ -95,7 +95,10 @@ export default function VerifyPage() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle>{ts('auth.otpTitle')}</CardTitle>
-            <CardDescription>{formatPhone(phone)} {ts('auth.otpSentTo')}</CardDescription>
+            <CardDescription>
+              <span className="block text-primary font-medium">{formatPhone(phone)}</span>
+              {ts('auth.otpSentTo')}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={(e) => { e.preventDefault(); if (!loading && otp.length === 6) handleVerify(otp); }} className="space-y-6">

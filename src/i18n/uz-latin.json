@@ -145,8 +145,23 @@
     "progressSaved": "Jarayon saqlanadi",
     "startMarathonBtn": "Maratonni boshlash",
     "viewHistory": "Imtihon tarixini ko'rish",
+    "recentHistory": "Oxirgi natijalar",
+    "viewAll": "Barchasini ko'rish",
     "completing": "Yakunlanmoqda...",
     "tabSwitchWarning": "Tab almashtirildi! Bu qayd etildi."
+  },
+  "history": {
+    "title": "Imtihon tarixi",
+    "subtitle": "Barcha o'tgan imtihonlar",
+    "backToExam": "Imtihonga",
+    "noHistory": "Hali imtihon topshirilmagan",
+    "startExam": "Imtihon boshlash",
+    "mode": {
+      "exam": "Imtihon",
+      "ticket": "Bilet",
+      "marathon": "Maraton",
+      "speedChallenge": "Tezlik sinovi"
+    }
   },
   "practice": {
     "title": "Mashq qilish",
