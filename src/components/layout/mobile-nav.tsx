@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useLocale } from '@/hooks/use-locale';
 import {
   LayoutDashboard, BookOpen, GraduationCap, TrendingUp, MoreHorizontal,
-  Banknote, AlertTriangle, Heart, BookOpenText, Eye, Trophy, Star, Settings, CreditCard, X,
+  Banknote, AlertTriangle, Heart, BookOpenText, Eye, Trophy, Star, Settings, CreditCard, X, Clapperboard,
 } from 'lucide-react';
 
 const TABS = [
@@ -18,6 +18,7 @@ const TABS = [
 ];
 
 const MORE_ITEMS = [
+  { href: '/animated-test', icon: Clapperboard, labelKey: 'nav.animatedTest', color: 'text-indigo-600' },
   { href: '/leaderboard', icon: Trophy, labelKey: 'nav.leaderboard', color: 'text-yellow-600' },
   { href: '/favorites', icon: Star, labelKey: 'nav.favorites', color: 'text-pink-600' },
   { href: '/fines', icon: Banknote, labelKey: 'nav.fines', color: 'text-red-600' },
