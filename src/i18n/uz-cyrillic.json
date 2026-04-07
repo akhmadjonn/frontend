@@ -79,7 +79,7 @@
     "more": "Кўпроқ"
   },
   "header": {
-    "appName": "AutoTest",
+    "appName": "AvtoLider",
     "defaultUser": "Фойдаланувчи",
     "settings": "Созламалар",
     "logout": "Чиқиш"
@@ -187,7 +187,10 @@
     "skipped": "Ўтказиб юборилган",
     "avgTime": "Ўртача вақт",
     "speedResultHint": "Натижани кўриш учун имтиҳон тарихига ўтинг",
-    "tryAgain": "Қайта бошлаш"
+    "tryAgain": "Қайта бошлаш",
+    "reviewAllDone": "Барча саволлар такрорланди!",
+    "reviewAllDoneDesc": "Ажойиб! Бугунги такрорлаш тугади.",
+    "reviewContinue": "Давом этиш"
   },
   "progress": {
     "title": "Прогресс",
@@ -285,7 +288,7 @@
     "hide": "Яшириш"
   },
   "marketing": {
-    "homeTitle": "AutoTest — Ҳайдовчилик имтиҳонига тайёрланиш"
+    "homeTitle": "AvtoLider — Ҳайдовчилик имтиҳонига тайёрланиш"
   },
   "admin": {
     "panelTitle": "Админ панел",
@@ -987,7 +990,7 @@
     "shareToWhatsApp": "ВотсАпп",
     "copied": "Нусхаланди!",
     "challengeFriend": "Дўстни чақириш",
-    "shareText": "Мен AutoTest да {score}/{total} ({percent}%) натижа олдим! Сен ҳам синаб кўр!"
+    "shareText": "Мен AvtoLider да {score}/{total} ({percent}%) натижа олдим! Сен ҳам синаб кўр!"
   },
   "landing": {
     "badge": "Ўзбекистон #1 имтиҳон тайёрлов платформаси",

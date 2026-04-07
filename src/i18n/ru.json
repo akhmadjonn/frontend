@@ -79,7 +79,7 @@
     "more": "Ещё"
   },
   "header": {
-    "appName": "AutoTest",
+    "appName": "AvtoLider",
     "defaultUser": "Пользователь",
     "settings": "Настройки",
     "logout": "Выйти"
@@ -187,7 +187,10 @@
     "skipped": "Пропущено",
     "avgTime": "Среднее время",
     "speedResultHint": "Перейдите в историю экзаменов для просмотра результатов",
-    "tryAgain": "Начать заново"
+    "tryAgain": "Начать заново",
+    "reviewAllDone": "Все вопросы повторены!",
+    "reviewAllDoneDesc": "Отлично! Повторение на сегодня завершено.",
+    "reviewContinue": "Продолжить"
   },
   "progress": {
     "title": "Прогресс",
@@ -285,7 +288,7 @@
     "hide": "Скрыть"
   },
   "marketing": {
-    "homeTitle": "AutoTest — Подготовка к экзамену на водительские права"
+    "homeTitle": "AvtoLider — Подготовка к экзамену на водительские права"
   },
   "admin": {
     "panelTitle": "Админ панель",
@@ -987,7 +990,7 @@
     "shareToWhatsApp": "WhatsApp",
     "copied": "Скопировано!",
     "challengeFriend": "Бросить вызов другу",
-    "shareText": "Я набрал {score}/{total} ({percent}%) на AutoTest! Попробуй и ты!"
+    "shareText": "Я набрал {score}/{total} ({percent}%) на AvtoLider! Попробуй и ты!"
   },
   "landing": {
     "badge": "Платформа #1 в Узбекистане для подготовки к экзамену",

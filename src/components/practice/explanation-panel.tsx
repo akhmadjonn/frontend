@@ -2,7 +2,7 @@
 
 import { useLocale } from '@/hooks/use-locale';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, XCircle, Box, CalendarDays } from 'lucide-react';
+import { CheckCircle, XCircle, Box, CalendarDays, RefreshCw } from 'lucide-react';
 import { LEITNER_INTERVALS } from '@/lib/constants';
 import { format } from 'date-fns';
 
@@ -24,6 +24,8 @@ const LEITNER_COLORS = [
 export default function ExplanationPanel({ isCorrect, explanation, newLeitnerBox, nextReviewDate }: ExplanationPanelProps) {
   const { t } = useLocale();
   const boxIndex = Math.max(0, Math.min(newLeitnerBox - 1, 4));
+
+  const isPastDate = nextReviewDate ? new Date(nextReviewDate) <= new Date() : false;
 
   return (
     <Card className={isCorrect ? 'border-green-200 dark:border-green-800' : 'border-red-200 dark:border-red-800'}>
@@ -48,16 +50,22 @@ export default function ExplanationPanel({ isCorrect, explanation, newLeitnerBox
             Box {newLeitnerBox}
           </div>
 
-          {nextReviewDate && (
-            <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <CalendarDays className="h-3 w-3" />
-              {format(new Date(nextReviewDate), 'dd.MM.yyyy')}
+          {nextReviewDate && isPastDate ? (
+            <div className="inline-flex items-center gap-1.5 text-xs text-orange-600 dark:text-orange-400">
+              <RefreshCw className="h-3 w-3" />
+              Yana ko'rinadi
             </div>
-          )}
-
-          <div className="text-[10px] text-muted-foreground">
-            ({LEITNER_INTERVALS[boxIndex]} kun keyin)
-          </div>
+          ) : nextReviewDate ? (
+            <>
+              <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <CalendarDays className="h-3 w-3" />
+                {format(new Date(nextReviewDate), 'dd.MM.yyyy')}
+              </div>
+              <div className="text-[10px] text-muted-foreground">
+                ({LEITNER_INTERVALS[boxIndex]} kun keyin)
+              </div>
+            </>
+          ) : null}
         </div>
       </CardContent>
     </Card>

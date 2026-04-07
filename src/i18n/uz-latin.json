@@ -79,7 +79,7 @@
     "more": "Ko'proq"
   },
   "header": {
-    "appName": "AutoTest",
+    "appName": "AvtoLider",
     "defaultUser": "Foydalanuvchi",
     "settings": "Sozlamalar",
     "logout": "Chiqish"
@@ -187,7 +187,10 @@
     "skipped": "O'tkazib yuborilgan",
     "avgTime": "O'rtacha vaqt",
     "speedResultHint": "Natijani ko'rish uchun imtihon tarixiga o'ting",
-    "tryAgain": "Qayta boshlash"
+    "tryAgain": "Qayta boshlash",
+    "reviewAllDone": "Barcha savollar takrorlandi!",
+    "reviewAllDoneDesc": "Ajoyib! Bugungi takrorlash tugadi.",
+    "reviewContinue": "Davom etish"
   },
   "progress": {
     "title": "Progress",
@@ -285,7 +288,7 @@
     "hide": "Yashirish"
   },
   "marketing": {
-    "homeTitle": "AutoTest — Haydovchilik imtihoniga tayyorlanish"
+    "homeTitle": "AvtoLider — Haydovchilik imtihoniga tayyorlanish"
   },
   "admin": {
     "panelTitle": "Admin Panel",
@@ -987,7 +990,7 @@
     "shareToWhatsApp": "WhatsApp",
     "copied": "Nusxalandi!",
     "challengeFriend": "Do'stni chaqirish",
-    "shareText": "Men AutoTest da {score}/{total} ({percent}%) natija oldim! Sen ham sinab ko'r!"
+    "shareText": "Men AvtoLider da {score}/{total} ({percent}%) natija oldim! Sen ham sinab ko'r!"
   },
   "landing": {
     "badge": "O'zbekiston #1 imtihon tayyorlov platformasi",

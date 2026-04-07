@@ -49,7 +49,7 @@ export default function PracticePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('practice.title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">{ts('practice.subtitle')}</p>
@@ -57,9 +57,9 @@ export default function PracticePage() {
 
       <div className="grid gap-3 sm:grid-cols-3">
         <button onClick={() => router.push('/practice/session?review=true')} className="text-left w-full cursor-pointer">
-          <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-950/30">
+          <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl">
+            <CardContent className="flex items-center gap-3 p-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-950/30">
                 <RefreshCw className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="flex-1 min-w-0">
@@ -70,16 +70,16 @@ export default function PracticePage() {
                 }
               </div>
               {!loading && dueCount > 0 && (
-                <Badge variant="secondary" className="shrink-0">{dueCount}</Badge>
+                <Badge variant="secondary" className="shrink-0 tabular-nums">{dueCount}</Badge>
               )}
             </CardContent>
           </Card>
         </button>
 
         <button onClick={() => router.push('/practice/session')} className="text-left w-full cursor-pointer">
-          <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
+          <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl">
+            <CardContent className="flex items-center gap-3 p-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/30">
                 <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1 min-w-0">
@@ -92,9 +92,9 @@ export default function PracticePage() {
         </button>
 
         <Link href="/exam" className="w-full cursor-pointer">
-          <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors h-full">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
+          <Card className="card-hover hover:border-foreground/20 transition-colors h-full rounded-xl">
+            <CardContent className="flex items-center gap-3 p-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
                 <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="flex-1 min-w-0">
@@ -120,9 +120,9 @@ export default function PracticePage() {
             }}
             className="text-left w-full cursor-pointer"
           >
-            <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-50 dark:bg-purple-950/30 relative">
+            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/30 relative">
                   <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   {!user?.hasActiveSubscription && (
                     <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
@@ -131,7 +131,7 @@ export default function PracticePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold">{ts('practiceMode.review')}</p>
-                    <Badge variant="secondary" className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
                       <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
                     </Badge>
                   </div>
@@ -151,9 +151,9 @@ export default function PracticePage() {
             }}
             className="text-left w-full cursor-pointer"
           >
-            <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 dark:bg-red-950/30 relative">
+            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 relative">
                   <Zap className="h-5 w-5 text-red-600 dark:text-red-400" />
                   {!user?.hasActiveSubscription && (
                     <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
@@ -162,7 +162,7 @@ export default function PracticePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold">{ts('practiceMode.hardMode')}</p>
-                    <Badge variant="secondary" className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
                       <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
                     </Badge>
                   </div>
@@ -182,9 +182,9 @@ export default function PracticePage() {
             }}
             className="text-left w-full cursor-pointer"
           >
-            <Card className="hover:border-foreground/20 hover:shadow-sm transition-colors relative overflow-hidden">
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30 relative">
+            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/30 relative">
                   <Timer className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                   {!user?.hasActiveSubscription && (
                     <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
@@ -193,7 +193,7 @@ export default function PracticePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold">{ts('practiceMode.speedChallenge')}</p>
-                    <Badge variant="secondary" className="text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
                       <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
                     </Badge>
                   </div>

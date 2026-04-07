@@ -10,7 +10,8 @@ import SpeedTimer from '@/components/practice/speed-timer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, ArrowRight, RotateCcw, CheckCircle, XCircle, Trophy, Zap, Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, ArrowRight, RotateCcw, CheckCircle, XCircle, Trophy, Zap, Clock, RefreshCw, PartyPopper } from 'lucide-react';
 import { PRACTICE_BATCH_SIZE } from '@/lib/constants';
 import { useLocale } from '@/hooks/use-locale';
 import { toast } from 'sonner';
@@ -28,6 +29,16 @@ interface PracticeQuestionData {
 interface PracticeSession {
   questions: PracticeQuestionData[];
   dueReviewCount: number;
+}
+
+// Shape returned by GET /practice/review
+interface ReviewQuestionDto {
+  id: string;
+  text: { uz: string; uzLatin: string; ru: string };
+  imageUrl: string | null;
+  leitnerBox: number;
+  nextReviewDate: string;
+  answerOptions: Array<{ id: string; text: { uz: string; uzLatin: string; ru: string }; imageUrl: string | null }>;
 }
 
 interface AnswerFeedback {
@@ -75,6 +86,8 @@ export default function PracticeSessionPage() {
   const categoryId = searchParams.get('categoryId');
   const mode = searchParams.get('mode');
   const isSpeedMode = mode === 'speed';
+  // review=true (free Takrorlash) OR mode=review (premium Takrorlash) → review-only mode
+  const isReviewMode = searchParams.get('review') === 'true' || mode === 'review';
   const { ts } = useLocale();
 
   // Regular practice state (from store)
@@ -87,6 +100,9 @@ export default function PracticeSessionPage() {
   const [speedComplete, setSpeedComplete] = useState(false);
   const [speedSelectedId, setSpeedSelectedId] = useState<string | null>(null);
   const [speedInitialSeconds, setSpeedInitialSeconds] = useState<number | null>(null);
+
+  // Review mode: tracks total remaining due questions (decrements after each answer)
+  const [reviewDueCount, setReviewDueCount] = useState<number | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<AnswerFeedback | null>(null);
@@ -257,25 +273,49 @@ export default function PracticeSessionPage() {
     submitSpeedAnswer(answerId);
   }, [submitSpeedAnswer, speedSelectedId]);
 
-  // --- REGULAR PRACTICE ---
+  // --- REGULAR PRACTICE & REVIEW ---
   const fetchSession = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (categoryId) params.set('categoryId', categoryId);
-      params.set('batchSize', String(PRACTICE_BATCH_SIZE));
-      const session = await apiClient.get<PracticeSession>(`/practice/session?${params}`);
-      if (session.questions.length === 0) {
-        completeBatch();
+      if (isReviewMode) {
+        // Fetch due-only questions + fresh due count in parallel
+        const [reviewQuestions, due] = await Promise.all([
+          apiClient.get<ReviewQuestionDto[]>(`/practice/review?limit=${PRACTICE_BATCH_SIZE}`),
+          apiClient.get<{ dueCount: number }>('/practice/due-count'),
+        ]);
+        setReviewDueCount(due.dueCount);
+        if (reviewQuestions.length === 0) {
+          completeBatch();
+        } else {
+          // Normalize ReviewQuestionDto → PracticeQuestionData (categoryName/difficulty not rendered)
+          const normalized: PracticeQuestionData[] = reviewQuestions.map(q => ({
+            id: q.id,
+            text: q.text,
+            imageUrl: q.imageUrl,
+            categoryName: { uz: '', uzLatin: '', ru: '' },
+            difficulty: 0,
+            answerOptions: q.answerOptions,
+            leitnerBox: q.leitnerBox,
+          }));
+          setQuestions(normalized);
+        }
       } else {
-        setQuestions(session.questions);
+        const params = new URLSearchParams();
+        if (categoryId) params.set('categoryId', categoryId);
+        params.set('batchSize', String(PRACTICE_BATCH_SIZE));
+        const session = await apiClient.get<PracticeSession>(`/practice/session?${params}`);
+        if (session.questions.length === 0) {
+          completeBatch();
+        } else {
+          setQuestions(session.questions);
+        }
       }
     } catch {
       // empty state
     } finally {
       setLoading(false);
     }
-  }, [categoryId, setQuestions, completeBatch]);
+  }, [isReviewMode, categoryId, setQuestions, completeBatch]);
 
   useEffect(() => {
     if (isSpeedMode) {
@@ -300,6 +340,7 @@ export default function PracticeSessionPage() {
         questionId: question.id,
         selectedAnswerId: answerId,
         timeSpentSeconds: timeSpent,
+        reviewMode: isReviewMode,
       });
       setFeedback(result);
       addAnswer({
@@ -308,12 +349,18 @@ export default function PracticeSessionPage() {
         isCorrect: result.isCorrect,
         correctAnswerId: result.correctAnswerId,
       });
+      // Only decrement count for correct answers:
+      // - correct → advances Leitner box, leaves due pool → count decreases
+      // - incorrect in review mode → NextReviewDate=now, stays due → count unchanged
+      if (isReviewMode && result.isCorrect) {
+        setReviewDueCount(prev => prev !== null ? Math.max(0, prev - 1) : null);
+      }
     } catch {
       setFeedback(null);
     } finally {
       setSubmitting(false);
     }
-  }, [submitting, selectedAnswerId, questions, currentIndex, addAnswer]);
+  }, [isReviewMode, submitting, selectedAnswerId, questions, currentIndex, addAnswer]);
 
   const handleNext = useCallback(() => {
     if (currentIndex + 1 >= questions.length) {
@@ -439,19 +486,32 @@ export default function PracticeSessionPage() {
     const correct = answers.filter((a) => a.isCorrect).length;
     const total = answers.length;
     const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+    // After the batch, how many due questions remain (updated live via reviewDueCount)
+    const remainingDue = reviewDueCount ?? 0;
+    const allDone = isReviewMode && remainingDue === 0;
 
     return (
       <div className="max-w-lg mx-auto space-y-6 py-8">
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className={`flex h-16 w-16 items-center justify-center rounded-full ${accuracy >= 80 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-orange-100 dark:bg-orange-900/30'}`}>
-              <Trophy className={`h-8 w-8 ${accuracy >= 80 ? 'text-green-600' : 'text-orange-600'}`} />
-            </div>
+            {allDone
+              ? <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                  <PartyPopper className="h-8 w-8 text-green-600" />
+                </div>
+              : <div className={`flex h-16 w-16 items-center justify-center rounded-full ${accuracy >= 80 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-orange-100 dark:bg-orange-900/30'}`}>
+                  <Trophy className={`h-8 w-8 ${accuracy >= 80 ? 'text-green-600' : 'text-orange-600'}`} />
+                </div>
+            }
           </div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('practice.sessionComplete')}</h1>
-          <p className="text-muted-foreground">
-            {total} {ts('practice.outOf')} {correct} {ts('practice.wereCorrect')}
-          </p>
+          <h1 className="text-xl font-bold tracking-tight">
+            {allDone ? ts('practice.reviewAllDone') : ts('practice.sessionComplete')}
+          </h1>
+          {allDone
+            ? <p className="text-muted-foreground">{ts('practice.reviewAllDoneDesc')}</p>
+            : <p className="text-muted-foreground">
+                {total} {ts('practice.outOf')} {correct} {ts('practice.wereCorrect')}
+              </p>
+          }
         </div>
 
         <Card>
@@ -473,6 +533,12 @@ export default function PracticeSessionPage() {
                 <span>{total - correct} {ts('common.incorrect').toLowerCase()}</span>
               </div>
             </div>
+            {isReviewMode && !allDone && (
+              <div className="flex items-center gap-1.5 pt-1 text-sm text-orange-600 dark:text-orange-400">
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span>{remainingDue} {ts('practice.reviewWaiting')}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -480,9 +546,14 @@ export default function PracticeSessionPage() {
           <Button variant="outline" onClick={() => router.push('/practice')} className="gap-2">
             <ArrowLeft className="h-4 w-4" /> {ts('common.back')}
           </Button>
-          <Button onClick={handleNewBatch} className="gap-2">
-            <RotateCcw className="h-4 w-4" /> {ts('practice.practiceMore')}
-          </Button>
+          {!allDone && (
+            <Button onClick={handleNewBatch} className="gap-2">
+              {isReviewMode
+                ? <><RefreshCw className="h-4 w-4" /> {ts('practice.reviewContinue')}</>
+                : <><RotateCcw className="h-4 w-4" /> {ts('practice.practiceMore')}</>
+              }
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -568,6 +639,12 @@ export default function PracticeSessionPage() {
           <span className="text-xs font-medium text-muted-foreground tabular-nums shrink-0">
             {currentIndex + 1}/{questions.length}
           </span>
+          {isReviewMode && reviewDueCount !== null && (
+            <Badge variant="secondary" className="shrink-0 tabular-nums gap-1 text-orange-700 bg-orange-100 dark:bg-orange-950/40 dark:text-orange-400">
+              <RefreshCw className="h-3 w-3" />
+              {reviewDueCount}
+            </Badge>
+          )}
         </div>
 
         {/* Question */}
