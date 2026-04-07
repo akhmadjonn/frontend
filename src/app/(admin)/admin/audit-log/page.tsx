@@ -264,20 +264,20 @@ export default function AuditLogPage() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">{ts('admin.auditLog.title')}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.auditLog.title')}</h1>
         <p className="text-sm text-muted-foreground">
           {ts('admin.auditLog.subtitle')}
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
+      <div className="glass-card flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="min-w-[160px]">
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.auditLog.actionType')}</label>
           <Select value={actionFilter} onValueChange={(val) => setActionFilter(val ?? 'all')}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('common.all')} />
+              <SelectValue placeholder={ts('common.all')}>{actionFilter === 'all' ? ts('common.all') : actionFilter}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('common.all')}</SelectItem>

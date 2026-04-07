@@ -33,7 +33,7 @@ export default function FirstAidPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('firstAid.title')}</h1>
       </div>
@@ -64,7 +64,7 @@ export default function FirstAidPage() {
           {procedures.map((proc) => (
             <Card
               key={proc.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
+              className="cursor-pointer transition-colors hover:bg-muted/50 card-hover rounded-xl group"
               onClick={() => router.push(`/first-aid/${proc.slug}`)}
             >
               <CardContent className="p-4">
@@ -94,7 +94,7 @@ export default function FirstAidPage() {
                       </p>
                     )}
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </CardContent>
             </Card>

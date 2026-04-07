@@ -1,6 +1,6 @@
 {
-  "name": "AutoTest - Haydovchilik imtihoniga tayyorlanish",
-  "short_name": "AutoTest",
+  "name": "AvtoLider - Haydovchilik imtihoniga tayyorlanish",
+  "short_name": "AvtoLider",
   "description": "Haydovchilik guvohnomasi imtihoniga tayyorlanish platformasi",
   "start_url": "/dashboard",
   "display": "standalone",

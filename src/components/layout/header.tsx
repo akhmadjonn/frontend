@@ -36,19 +36,20 @@ export default function Header() {
     : (user?.phoneNumber?.slice(-2) ?? 'U');
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background/95 backdrop-blur px-4 md:px-6">
-      <div className="flex items-center gap-2 md:hidden">
-        <span className="font-bold text-lg">{ts('header.appName')}</span>
+    <header className="sticky top-0 z-40 flex h-14 items-center justify-between shadow-[0_1px_0_0_var(--border)] bg-background/95 backdrop-blur-sm px-4 md:px-6">
+      <div className="flex items-center gap-2.5 md:hidden">
+        <img src="/logo-full.svg" alt="AvtoLider" className="h-8 w-auto" />
+        <span className="font-extrabold text-lg tracking-tight">{ts('header.appName')}</span>
       </div>
       <div className="flex-1" />
 
-      <div className="flex items-center gap-2">
-        <div className="flex rounded-lg border overflow-hidden">
+      <div className="flex items-center gap-2.5">
+        <div className="flex rounded-xl border border-border/60 overflow-hidden">
           {LANG_OPTIONS.map((opt) => (
             <button
               key={opt.key}
               onClick={() => setLanguage(opt.key)}
-              className={`px-2.5 py-1 text-xs font-medium transition-colors ${language === opt.key ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground'}`}
+              className={`px-3 py-1.5 text-xs font-medium transition-all ${language === opt.key ? 'bg-[oklch(0.588_0.158_241)] text-white' : 'hover:bg-muted/60 text-muted-foreground'}`}
             >
               {opt.label}
             </button>
@@ -57,23 +58,23 @@ export default function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger render={
-            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs bg-primary text-primary-foreground">{initials}</AvatarFallback>
+            <Button variant="ghost" size="icon" className="rounded-full h-9 w-9">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="text-xs bg-[oklch(0.588_0.158_241)] text-white font-semibold">{initials}</AvatarFallback>
               </Avatar>
             </Button>
           } />
-          <DropdownMenuContent align="end" className="w-48">
-            <div className="px-3 py-2">
-              <p className="text-sm font-medium">{user?.firstName ?? ts('header.defaultUser')}</p>
+          <DropdownMenuContent align="end" className="w-52 rounded-xl">
+            <div className="px-3 py-2.5">
+              <p className="text-sm font-semibold">{user?.firstName ?? ts('header.defaultUser')}</p>
               <p className="text-xs text-muted-foreground">{user?.phoneNumber ?? ''}</p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push('/settings')} className="flex items-center gap-2">
+            <DropdownMenuItem onClick={() => router.push('/settings')} className="flex items-center gap-2 rounded-lg">
               <Settings className="h-4 w-4" /> {ts('header.settings')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} variant="destructive" className="flex items-center gap-2">
+            <DropdownMenuItem onClick={handleLogout} variant="destructive" className="flex items-center gap-2 rounded-lg">
               <LogOut className="h-4 w-4" /> {ts('header.logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>

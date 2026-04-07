@@ -189,10 +189,10 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold tracking-tight">{ts('admin.plans.title')}</h1>
-        <Button onClick={openCreateDialog}>
+        <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.plans.title')}</h1>
+        <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           {ts('admin.plans.addPlan')}
         </Button>
@@ -245,7 +245,7 @@ export default function PlansPage() {
             return (
               <Card
                 key={plan.id}
-                className={`relative flex flex-col overflow-visible border-t-4 ${tierColors[index % 3]} ${
+                className={`relative flex flex-col overflow-visible border-t-4 card-hover ${tierColors[index % 3]} ${
                   isPopular ? 'ring-2 ring-amber-400/50 shadow-lg' : ''
                 } ${!plan.isActive ? 'opacity-60' : ''}`}
               >
@@ -326,7 +326,7 @@ export default function PlansPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingPlan ? ts('admin.plans.editTitle') : ts('admin.plans.createTitle')}
@@ -457,7 +457,7 @@ export default function PlansPage() {
             >
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
+            <Button onClick={handleSubmit} disabled={submitting} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {submitting
                 ? ts('admin.saving')
                 : editingPlan

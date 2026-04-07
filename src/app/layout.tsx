@@ -5,10 +5,10 @@ import SwRegister from '@/components/sw-register';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AutoTest — Haydovchilik imtihoniga tayyorlanish',
+  title: 'AvtoLider — Haydovchilik imtihoniga tayyorlanish',
   description: "O'zbekiston UBDD haydovchilik nazariy imtihoniga tayyorlanish platformasi",
   manifest: '/manifest.json',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'AutoTest' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'AvtoLider' },
 };
 
 export const viewport: Viewport = {

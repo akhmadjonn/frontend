@@ -148,10 +148,10 @@ export default function ColorVisionPage() {
 
   if (testState === 'instructions') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-up">
         <h1 className="text-xl font-bold tracking-tight">{ts('colorVision.title')}</h1>
 
-        <Card>
+        <Card className="rounded-2xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Eye className="h-5 w-5" />
@@ -187,7 +187,7 @@ export default function ColorVisionPage() {
                 {plates.length} {ts('colorVision.plates')}
               </Badge>
             </div>
-            <Button onClick={startTest} className="gap-2 w-full sm:w-auto">
+            <Button onClick={startTest} className="gap-2 w-full sm:w-auto rounded-xl">
               <Play className="h-4 w-4" />
               {ts('colorVision.startTest')}
             </Button>
@@ -200,10 +200,10 @@ export default function ColorVisionPage() {
   if (testState === 'testing') {
     const plate = plates[currentPlate];
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-up">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold tracking-tight">{ts('colorVision.title')}</h1>
-          <Badge variant="secondary" className="text-sm">
+          <Badge variant="secondary" className="text-sm tabular-nums">
             {currentPlate + 1}/{plates.length}
           </Badge>
         </div>
@@ -242,7 +242,7 @@ export default function ColorVisionPage() {
             <Button
               onClick={handleNext}
               disabled={!currentAnswer.trim()}
-              className="gap-2 w-full"
+              className="gap-2 w-full rounded-xl"
             >
               {currentPlate < plates.length - 1 ? (
                 <>
@@ -263,11 +263,11 @@ export default function ColorVisionPage() {
   const passed = result?.passed ?? false;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <h1 className="text-xl font-bold tracking-tight">{ts('colorVision.title')}</h1>
 
       <Card className={cn(
-        'border-2',
+        'border-2 rounded-2xl animate-scale-in',
         passed
           ? 'border-green-300 dark:border-green-700'
           : 'border-amber-300 dark:border-amber-700'
@@ -295,7 +295,7 @@ export default function ColorVisionPage() {
             )}>
               {passed ? ts('colorVision.passed') : ts('colorVision.failed')}
             </h2>
-            <p className="text-2xl font-bold mt-1">
+            <p className="text-2xl font-bold mt-1 tabular-nums">
               {ts('colorVision.score')}: {result?.score ?? 0}/{result?.total ?? 0}
             </p>
           </div>
@@ -303,7 +303,7 @@ export default function ColorVisionPage() {
           <Separator />
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button variant="outline" onClick={handleRetry} className="gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={handleRetry} className="gap-2 w-full sm:w-auto rounded-xl">
               <RotateCcw className="h-4 w-4" />
               {ts('colorVision.retryTest')}
             </Button>
@@ -311,7 +311,7 @@ export default function ColorVisionPage() {
               <Button
                 onClick={handleSave}
                 disabled={saving || saved}
-                className="gap-2 w-full sm:w-auto"
+                className="gap-2 w-full sm:w-auto rounded-xl"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

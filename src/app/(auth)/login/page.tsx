@@ -12,7 +12,6 @@ import { useLocale } from '@/hooks/use-locale';
 import { useAuthStore } from '@/stores/auth-store';
 import { apiClient } from '@/lib/api-client';
 import { phoneSchema } from '@/lib/validators';
-import { Car } from 'lucide-react';
 
 const LANG_OPTIONS = [
   { key: 'uzLatin' as const, label: 'UZ Lotin' },
@@ -66,51 +65,60 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 py-12">
-      <div className="absolute top-4 right-4 flex rounded-lg border overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-auth-gradient px-4 py-12 relative">
+      {/* Language toggle — top right */}
+      <div className="absolute top-5 right-5 flex rounded-xl border border-border/60 overflow-hidden">
         {LANG_OPTIONS.map((opt) => (
-          <button key={opt.key} onClick={() => setLanguage(opt.key)} className={`px-2.5 py-1 text-xs font-medium transition-colors ${language === opt.key ? 'bg-foreground text-background' : 'hover:bg-muted text-muted-foreground'}`}>
+          <button key={opt.key} onClick={() => setLanguage(opt.key)} className={`px-3 py-1.5 text-xs font-medium transition-all ${language === opt.key ? 'bg-[oklch(0.588_0.158_241)] text-white' : 'hover:bg-muted/60 text-muted-foreground'}`}>
             {opt.label}
           </button>
         ))}
       </div>
 
-      <div className="w-full max-w-sm space-y-6">
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-foreground text-background">
-            <Car className="h-6 w-6" />
+      <div className="w-full max-w-sm space-y-8 animate-fade-up">
+        {/* Logo + branding */}
+        <div className="flex flex-col items-center gap-4">
+          <img src="/logo-full.svg" alt="AvtoLider" className="h-20 w-auto" />
+          <div className="text-center">
+            <h1 className="text-2xl font-extrabold tracking-tight">{ts('header.appName')}</h1>
+            <p className="text-sm text-muted-foreground mt-1.5">{ts('auth.subtitle')}</p>
           </div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('header.appName')}</h1>
-          <p className="text-sm text-muted-foreground text-center">{ts('auth.subtitle')}</p>
         </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">{ts('auth.phoneNumber')}</CardTitle>
-            <CardDescription>{ts('auth.smsWillBeSent')}</CardDescription>
+        {/* Login card */}
+        <Card className="shadow-xl shadow-black/[0.04] rounded-2xl border-border/40">
+          <CardHeader className="pb-3 pt-6 px-6">
+            <CardTitle className="text-base font-semibold">{ts('auth.phoneNumber')}</CardTitle>
+            <CardDescription className="text-sm">{ts('auth.smsWillBeSent')}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-6 pb-6">
             <form onSubmit={(e) => { e.preventDefault(); if (!loading && phone.length >= 12) handleSendOtp(); }} className="space-y-4">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <PhoneInput value={phone} onChange={setPhone} disabled={loading} error={phoneError} />
                 {phoneError && <p className="text-xs text-destructive">{phoneError}</p>}
               </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading || phone.length < 12}>
+              <Button type="submit" className="w-full rounded-xl h-11 bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white font-semibold" size="lg" disabled={loading || phone.length < 12}>
                 {loading ? ts('auth.sending') : ts('auth.sendOtp')}
               </Button>
             </form>
 
             <div className="relative">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/40" /></div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">{ts('auth.or')}</span>
+                <span className="bg-card px-3 text-muted-foreground">{ts('auth.or')}</span>
               </div>
             </div>
 
             <TelegramLoginButton botName={botName} onAuth={handleTelegramAuth} />
           </CardContent>
         </Card>
+
+        {/* Step indicator */}
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-2 w-8 rounded-full bg-[oklch(0.588_0.158_241)]" />
+          <div className="h-2 w-8 rounded-full bg-gray-200 dark:bg-gray-700" />
+        </div>
       </div>
     </div>
   );

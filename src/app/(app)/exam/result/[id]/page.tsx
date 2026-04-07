@@ -49,7 +49,7 @@ function QuestionReviewItem({ question, index, locale, ts }: { question: ExamRes
   const explanation = question.explanation?.[locale] ?? question.explanation?.uzLatin;
 
   return (
-    <div className={cn('rounded-lg border p-3', question.isCorrect ? 'border-green-200 bg-green-50/50 dark:bg-green-900/10' : 'border-red-200 bg-red-50/50 dark:bg-red-900/10')}>
+    <div className={cn('rounded-xl p-4 border-border/50', question.isCorrect ? 'border-green-200/60 bg-green-50/30 dark:bg-green-900/10' : 'border-red-200/60 bg-red-50/30 dark:bg-red-900/10')}>
       <div className="flex items-start gap-2">
         {question.isCorrect
           ? <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
@@ -111,7 +111,7 @@ export default function ExamResultPage() {
   const incorrectQuestions = result.questions.filter((q) => !q.isCorrect);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 py-4">
+    <div className="max-w-2xl mx-auto space-y-6 py-4 animate-fade-up">
       <Card>
         <CardContent className="pt-2">
           <ExamResultSummary
@@ -126,10 +126,10 @@ export default function ExamResultPage() {
       </Card>
 
       <div className="flex flex-wrap gap-2">
-        <Button className="flex-1" onClick={() => router.push('/exam')}>
+        <Button className="flex-1 btn-gradient-blue text-white rounded-xl h-11" onClick={() => router.push('/exam')}>
           <RefreshCw className="h-4 w-4 mr-2" />{ts('result.retry')}
         </Button>
-        <Button variant="outline" className="flex-1" onClick={() => router.push('/dashboard')}>
+        <Button variant="outline" className="flex-1 rounded-xl h-11" onClick={() => router.push('/dashboard')}>
           <Home className="h-4 w-4 mr-2" />{ts('result.home')}
         </Button>
       </div>
@@ -137,7 +137,7 @@ export default function ExamResultPage() {
       <div className="flex flex-col gap-2">
         <Button
           variant="outline"
-          className="w-full gap-2"
+          className="w-full gap-2 rounded-xl h-11"
           onClick={async () => {
             const percent = Math.round((result.correctAnswers / result.totalQuestions) * 100);
             const shareText = ts('share.shareText')
@@ -148,7 +148,7 @@ export default function ExamResultPage() {
 
             if (typeof navigator !== 'undefined' && navigator.share) {
               try {
-                await navigator.share({ title: 'AutoTest', text: shareText, url: shareUrl });
+                await navigator.share({ title: 'AvtoLider', text: shareText, url: shareUrl });
               } catch {
                 // user cancelled share
               }

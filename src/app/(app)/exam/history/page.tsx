@@ -96,7 +96,7 @@ export default function ExamHistoryPage() {
   };
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto">
+    <div className="space-y-4 max-w-2xl mx-auto animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight">{ts('history.title')}</h1>
@@ -115,7 +115,7 @@ export default function ExamHistoryPage() {
             className={cn(
               'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
               activeMode === m.key
-                ? 'bg-foreground text-background'
+                ? 'bg-[oklch(0.588_0.158_241)] text-white'
                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
             )}
           >
@@ -151,7 +151,7 @@ export default function ExamHistoryPage() {
                 <Link
                   key={item.examId}
                   href={`/exam/result/${item.examId}`}
-                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer"
+                  className="flex items-center justify-between rounded-xl border-border/50 p-4 hover:bg-muted/50 transition-colors cursor-pointer card-hover"
                 >
                   <div className="flex items-center gap-3">
                     <div className={cn(
@@ -165,7 +165,7 @@ export default function ExamHistoryPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium">{item.correctAnswers}/{item.totalQuestions} ({item.score}%)</p>
+                        <p className="text-sm font-medium tabular-nums">{item.correctAnswers}/{item.totalQuestions} ({item.score}%)</p>
                         <ModeBadge mode={item.mode} ts={ts} />
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -194,10 +194,11 @@ export default function ExamHistoryPage() {
             size="sm"
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
+            className="rounded-xl"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground tabular-nums">
             {ts('common.pageOf').replace('{page}', String(page)).replace('{total}', String(meta.totalPages))}
           </span>
           <Button
@@ -205,6 +206,7 @@ export default function ExamHistoryPage() {
             size="sm"
             disabled={page >= meta.totalPages}
             onClick={() => setPage((p) => p + 1)}
+            className="rounded-xl"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

@@ -214,7 +214,7 @@ export default function UserDetailPage() {
 
   if (loading)
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6 space-y-6 animate-fade-up">
         <Skeleton className="h-8 w-40" />
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
@@ -247,12 +247,12 @@ export default function UserDetailPage() {
 
   if (notFound)
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <Button variant="ghost" onClick={() => router.push('/admin/users')}>
+      <div className="container mx-auto p-6 space-y-6 animate-fade-up">
+        <Button variant="ghost" className="rounded-xl" onClick={() => router.push('/admin/users')}>
           <ArrowLeft className="mr-1.5 h-4 w-4" />
           {ts('common.back')}
         </Button>
-        <div className="rounded-md border py-12 text-center">
+        <div className="rounded-xl border py-12 text-center">
           <p className="text-muted-foreground">{ts('admin.userDetail.notFound')}</p>
         </div>
       </div>
@@ -268,9 +268,9 @@ export default function UserDetailPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => router.push('/admin/users')}>
+        <Button variant="ghost" className="rounded-xl" onClick={() => router.push('/admin/users')}>
           <ArrowLeft className="mr-1.5 h-4 w-4" />
           {ts('common.back')}
         </Button>
@@ -278,7 +278,7 @@ export default function UserDetailPage() {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Button variant="outline" disabled={actionLoading}>
+                <Button variant="outline" className="rounded-xl" disabled={actionLoading}>
                   <Shield className="mr-1.5 h-4 w-4" />
                   {ts('admin.userDetail.changeRole')}
                 </Button>
@@ -310,6 +310,7 @@ export default function UserDetailPage() {
 
           <Button
             variant={user.isBlocked ? 'outline' : 'destructive'}
+            className="rounded-xl"
             disabled={actionLoading}
             onClick={() => setConfirmAction('block')}
           >
@@ -329,11 +330,9 @@ export default function UserDetailPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>{ts('admin.userDetail.profile')}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="glass-card p-5">
+          <h3 className="text-lg font-semibold mb-4">{ts('admin.userDetail.profile')}</h3>
+          <div>
             <dl className="space-y-3 text-sm">
               <DetailRow label={ts('admin.users.name')} value={fullName} />
               <DetailRow label={ts('admin.users.phone')} value={user.phoneNumber || '-'} />
@@ -374,19 +373,17 @@ export default function UserDetailPage() {
                 value={format(new Date(user.createdAt), 'dd.MM.yyyy HH:mm')}
               />
             </dl>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         <div className="space-y-6">
           {/* Premium Management Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Crown className="h-5 w-5 text-yellow-500" />
-                {ts('admin.userDetail.premiumManagement')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="glass-card p-5">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Crown className="h-5 w-5 text-yellow-500" />
+              {ts('admin.userDetail.premiumManagement')}
+            </h3>
+            <div>
               {user.activeSubscription ? (
                 <div className="space-y-4">
                   <dl className="space-y-3 text-sm">
@@ -411,11 +408,11 @@ export default function UserDetailPage() {
                     />
                   </dl>
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" onClick={openGrantDialog}>
+                    <Button variant="outline" size="sm" className="rounded-xl" onClick={openGrantDialog}>
                       <Clock className="mr-1.5 h-4 w-4" />
                       {ts('admin.userDetail.extendPremium')}
                     </Button>
-                    <Button variant="destructive" size="sm" onClick={() => setConfirmAction('revoke')}>
+                    <Button variant="destructive" size="sm" className="rounded-xl" onClick={() => setConfirmAction('revoke')}>
                       <XCircle className="mr-1.5 h-4 w-4" />
                       {ts('admin.userDetail.revokePremium')}
                     </Button>
@@ -425,44 +422,37 @@ export default function UserDetailPage() {
                 <div className="space-y-4">
                   <Badge variant="secondary">{ts('admin.userDetail.noPremium')}</Badge>
                   <div>
-                    <Button size="sm" onClick={openGrantDialog}>
+                    <Button size="sm" className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openGrantDialog}>
                       <Crown className="mr-1.5 h-4 w-4" />
                       {ts('admin.userDetail.grantPremium')}
                     </Button>
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{ts('admin.userDetail.statistics')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="space-y-3 text-sm">
-                <DetailRow label={ts('admin.userDetail.totalExams')} value={String(user.totalExams)} />
-                <DetailRow label={ts('admin.userDetail.completedExams')} value={String(user.completedExams)} />
-                <DetailRow
-                  label={ts('admin.userDetail.averageScore')}
-                  value={`${Math.round(user.averageScore)}%`}
-                />
-              </dl>
-            </CardContent>
-          </Card>
+          <div className="glass-card p-5">
+            <h3 className="text-lg font-semibold mb-4">{ts('admin.userDetail.statistics')}</h3>
+            <dl className="space-y-3 text-sm">
+              <DetailRow label={ts('admin.userDetail.totalExams')} value={String(user.totalExams)} />
+              <DetailRow label={ts('admin.userDetail.completedExams')} value={String(user.completedExams)} />
+              <DetailRow
+                label={ts('admin.userDetail.averageScore')}
+                value={`${Math.round(user.averageScore)}%`}
+              />
+            </dl>
+          </div>
         </div>
       </div>
 
       {/* Subscription History */}
       {user.subscriptionHistory.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{ts('admin.userDetail.subscriptionHistory')}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="glass-card p-5">
+          <h3 className="text-lg font-semibold mb-4">{ts('admin.userDetail.subscriptionHistory')}</h3>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-muted/30">
                   <TableHead>{ts('admin.userDetail.planName')}</TableHead>
                   <TableHead>{ts('admin.userDetail.startDate')}</TableHead>
                   <TableHead>{ts('admin.userDetail.endDate')}</TableHead>
@@ -472,7 +462,7 @@ export default function UserDetailPage() {
               </TableHeader>
               <TableBody>
                 {user.subscriptionHistory.map((sub, idx) => (
-                  <TableRow key={idx}>
+                  <TableRow key={idx} className="hover:bg-white/30 transition-colors">
                     <TableCell className="font-medium">{sub.planName}</TableCell>
                     <TableCell>{format(new Date(sub.startsAt), 'dd.MM.yyyy')}</TableCell>
                     <TableCell>
@@ -486,13 +476,12 @@ export default function UserDetailPage() {
                 ))}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+        </div>
       )}
 
       {/* Grant Premium Dialog */}
       <Dialog open={grantOpen} onOpenChange={setGrantOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {user.activeSubscription
@@ -564,7 +553,7 @@ export default function UserDetailPage() {
             <Button variant="outline" onClick={() => setGrantOpen(false)}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleGrantPremium} disabled={grantLoading || !selectedPlanId}>
+            <Button onClick={handleGrantPremium} disabled={grantLoading || !selectedPlanId} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {grantLoading ? ts('admin.saving') : ts('admin.userDetail.grantConfirm')}
             </Button>
           </DialogFooter>
@@ -581,7 +570,7 @@ export default function UserDetailPage() {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.userDetail.changeRoleTitle')}</DialogTitle>
             <DialogDescription>
@@ -592,7 +581,7 @@ export default function UserDetailPage() {
             <Button variant="outline" onClick={() => { setConfirmAction(null); setPendingRole(null); }}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleRoleChange} disabled={actionLoading}>
+            <Button onClick={handleRoleChange} disabled={actionLoading} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {actionLoading ? ts('admin.saving') : ts('common.confirm')}
             </Button>
           </DialogFooter>
@@ -606,7 +595,7 @@ export default function UserDetailPage() {
           if (!open) setConfirmAction(null);
         }}
       >
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>{user.isBlocked ? ts('admin.userDetail.unblock') : ts('admin.userDetail.block')}</DialogTitle>
             <DialogDescription>
@@ -636,7 +625,7 @@ export default function UserDetailPage() {
           if (!open) setConfirmAction(null);
         }}
       >
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.userDetail.revokeConfirm')}</DialogTitle>
             <DialogDescription>{ts('admin.userDetail.revokeWarning')}</DialogDescription>

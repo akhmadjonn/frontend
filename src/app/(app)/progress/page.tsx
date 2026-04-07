@@ -12,12 +12,12 @@ import { ArrowUpDown, ChevronUp, ChevronDown, Target, CalendarCheck, RefreshCw, 
 
 const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart-switcher'), {
   ssr: false,
-  loading: () => <Card><CardContent className="p-4"><Skeleton className="h-48 w-full" /></CardContent></Card>,
+  loading: () => <Card className="card-hover"><CardContent className="p-4"><Skeleton className="h-48 w-full" /></CardContent></Card>,
 });
 
 const CategoryChart = dynamic(() => import('@/components/progress/category-chart-switcher'), {
   ssr: false,
-  loading: () => <Card><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
+  loading: () => <Card className="card-hover"><CardContent className="p-4"><Skeleton className="h-52 w-full" /></CardContent></Card>,
 });
 
 type SortKey = 'name' | 'accuracy' | 'progress' | 'attempts';
@@ -62,7 +62,7 @@ export default function ProgressPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('progress.title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">{ts('progress.subtitle')}</p>
@@ -72,54 +72,54 @@ export default function ProgressPage() {
 
       {!loading && dashboard && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-3">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30 shrink-0">
                   <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.averageScore')}</p>
-                  <p className="text-lg font-bold">{Math.round(dashboard.averageExamScore)}%</p>
+                  <p className="text-lg font-bold tabular-nums">{Math.round(dashboard.averageExamScore)}%</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-3">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30 shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900/30 shrink-0">
                   <CalendarCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.answersToday')}</p>
-                  <p className="text-lg font-bold">{dashboard.questionsAnsweredToday}</p>
+                  <p className="text-lg font-bold tabular-nums">{dashboard.questionsAnsweredToday}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-3">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900/30 shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/30 shrink-0">
                   <RefreshCw className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.needReview')}</p>
-                  <p className="text-lg font-bold">{dashboard.dueForReview}</p>
+                  <p className="text-lg font-bold tabular-nums">{dashboard.dueForReview}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="card-hover">
             <CardContent className="p-3">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30 shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/30 shrink-0">
                   <BookOpen className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{ts('progress.totalQuestions')}</p>
-                  <p className="text-lg font-bold">{dashboard.totalQuestionsPracticed.toLocaleString()}</p>
+                  <p className="text-lg font-bold tabular-nums">{dashboard.totalQuestionsPracticed.toLocaleString()}</p>
                 </div>
               </div>
             </CardContent>
@@ -134,7 +134,7 @@ export default function ProgressPage() {
 
       <StreakCalendar data={dashboard?.accuracyOverTime} loading={loading} />
 
-      <Card>
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">{ts('progress.categoryResults')}</CardTitle>
         </CardHeader>
@@ -147,7 +147,7 @@ export default function ProgressPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b">
+                  <tr className="border-b border-border/50">
                     <th className="text-left py-2 pr-2">
                       <button onClick={() => toggleSort('name')} className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground">
                         {ts('progress.category')} <SortIcon col="name" />
@@ -174,7 +174,7 @@ export default function ProgressPage() {
                   {sortedCategories.map((cat) => {
                     const progress = cat.questionsInCategory > 0 ? Math.round((cat.questionsPracticed / cat.questionsInCategory) * 100) : 0;
                     return (
-                      <tr key={cat.categoryId} className="border-b last:border-0 hover:bg-muted/50 transition-colors">
+                      <tr key={cat.categoryId} className="border-b border-border/50 last:border-0 hover:bg-muted/30 rounded-lg transition-colors">
                         <td className="py-2 pr-2">
                           <p className="font-medium truncate max-w-[200px]">{t(cat.categoryName)}</p>
                           <p className="text-[10px] text-muted-foreground sm:hidden">{progress}% {ts('progress.coverageLower')}</p>

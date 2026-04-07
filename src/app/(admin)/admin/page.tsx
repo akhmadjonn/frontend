@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { apiClient } from '@/lib/api-client';
 import type { AdminDashboardDto, RevenueReportDto } from '@/types/admin';
 import StatCard from '@/components/admin/stat-card';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, FileQuestion, GraduationCap, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
@@ -58,8 +57,8 @@ export default function AdminDashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-bold tracking-tight">{ts('admin.dashboard.title')}</h1>
+    <div className="space-y-6 animate-fade-up">
+      <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.dashboard.title')}</h1>
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -99,20 +98,20 @@ export default function AdminDashboardPage() {
 
       {/* Revenue chart + exam mode breakdown */}
       <div className="grid gap-4 lg:grid-cols-7">
-        <Card className="lg:col-span-4">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">{ts('admin.dashboard.dailyRevenue')}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="glass-card p-5 lg:col-span-4">
+          <div className="pb-2">
+            <h3 className="text-base font-semibold">{ts('admin.dashboard.dailyRevenue')}</h3>
+          </div>
+          <div>
             <RevenueChart data={revenue?.dailyBreakdown} loading={loading} />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="lg:col-span-3">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">{ts('admin.dashboard.examTypes')}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="glass-card p-5 lg:col-span-3">
+          <div className="pb-2">
+            <h3 className="text-base font-semibold">{ts('admin.dashboard.examTypes')}</h3>
+          </div>
+          <div>
             {loading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
@@ -143,7 +142,7 @@ export default function AdminDashboardPage() {
                           {item.count.toLocaleString()} ({pct}%)
                         </span>
                       </div>
-                      <div className="h-2 rounded-full bg-muted overflow-hidden">
+                      <div className="h-2.5 rounded-full bg-muted overflow-hidden">
                         <div
                           className={`h-full rounded-full ${barColor} transition-all`}
                           style={{ width: `${pct}%` }}
@@ -154,16 +153,16 @@ export default function AdminDashboardPage() {
                 })}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Recent users */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">{ts('admin.dashboard.newUsers')}</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="glass-card p-5">
+        <div className="pb-2">
+          <h3 className="text-base font-semibold">{ts('admin.dashboard.newUsers')}</h3>
+        </div>
+        <div>
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((i) => (
@@ -183,7 +182,7 @@ export default function AdminDashboardPage() {
           ) : (
             <div className="space-y-2">
               {dashboard.recentUsers.map((user) => (
-                <div key={user.id} className="flex items-center gap-3 rounded-lg p-2.5 transition-colors hover:bg-muted/50">
+                <div key={user.id} className="flex items-center gap-3 hover:bg-white/30 rounded-xl transition-colors p-2">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                     {(user.firstName ?? user.phoneNumber ?? '?')[0].toUpperCase()}
                   </div>
@@ -204,8 +203,8 @@ export default function AdminDashboardPage() {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

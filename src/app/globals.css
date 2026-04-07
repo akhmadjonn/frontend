@@ -49,7 +49,7 @@
 
 :root {
   /* Core surfaces */
-  --background: oklch(0.985 0 0);       /* #FAFAFA — slight warm gray */
+  --background: oklch(0.985 0.003 80);  /* warm off-white #FAFAF8 */
   --foreground: oklch(0.145 0 0);       /* #171717 — near-black text */
 
   /* Cards and elevated surfaces */
@@ -72,9 +72,14 @@
   --muted: oklch(0.97 0 0);             /* #F5F5F5 */
   --muted-foreground: oklch(0.50 0 0);  /* #666666 */
 
-  /* Accent (hover highlights) */
-  --accent: oklch(0.97 0 0);            /* #F5F5F5 */
+  /* Accent (hover highlights) — subtle blue tint */
+  --accent: oklch(0.96 0.01 241);
   --accent-foreground: oklch(0.145 0 0);
+
+  /* Brand accent blue */
+  --accent-blue: oklch(0.588 0.158 241);
+  --accent-blue-light: oklch(0.95 0.03 241);
+  --accent-blue-dark: oklch(0.50 0.15 241);
 
   /* Destructive */
   --destructive: oklch(0.577 0.245 27.325);
@@ -86,7 +91,7 @@
   --ring: oklch(0.145 0 0);             /* matches primary */
 
   /* Radius */
-  --radius: 0.625rem;                   /* 10px */
+  --radius: 0.75rem;                    /* 12px — softer corners */
 
   /* Chart colors — data visualization only */
   --chart-1: oklch(0.546 0.234 264);    /* #2563EB blue */
@@ -157,14 +162,107 @@
 /* Smooth interactive transitions */
 button, a, input, select, textarea,
 [role="button"], [role="tab"], [role="menuitem"] {
-  transition-property: color, background-color, border-color, box-shadow, opacity;
-  transition-duration: 150ms;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 200ms;
   transition-timing-function: ease;
 }
 
-/* Subtle text selection */
+/* Subtle text selection — blue tinted */
 ::selection {
-  background: oklch(0.90 0 0);
+  background: oklch(0.92 0.03 241);
+}
+
+/* ─── Clean & Minimal Design Utilities ─── */
+
+/* Card hover lift effect */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px oklch(0 0 0 / 0.06);
+}
+
+/* Auth page gradient background */
+.bg-auth-gradient {
+  background: linear-gradient(135deg, oklch(0.985 0.003 80) 0%, oklch(0.96 0.02 241 / 0.15) 100%);
+}
+
+/* Progress bar gradient fill */
+.progress-gradient {
+  background: linear-gradient(90deg, oklch(0.588 0.158 241), oklch(0.65 0.15 260));
+}
+
+/* Soft blue gradient for buttons */
+.btn-gradient-blue {
+  background: linear-gradient(135deg, oklch(0.588 0.158 241), oklch(0.55 0.17 255));
+}
+.btn-gradient-blue:hover {
+  background: linear-gradient(135deg, oklch(0.52 0.158 241), oklch(0.50 0.17 255));
+}
+
+/* Entrance animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 400ms ease-out forwards;
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in {
+  animation: scale-in 300ms ease-out forwards;
+}
+
+/* ─── Admin Panel — Glassmorphism Utilities ─── */
+
+/* Frosted glass card */
+.glass-card {
+  background: oklch(1 0 0 / 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid oklch(1 0 0 / 0.25);
+  box-shadow: 0 4px 24px oklch(0 0 0 / 0.04), 0 1px 2px oklch(0 0 0 / 0.02);
+  border-radius: var(--radius-2xl);
+}
+.dark .glass-card {
+  background: oklch(0.2 0 0 / 0.45);
+  border-color: oklch(1 0 0 / 0.08);
+  box-shadow: 0 4px 24px oklch(0 0 0 / 0.2);
+}
+
+/* Glass sidebar */
+.glass-sidebar {
+  background: oklch(1 0 0 / 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid oklch(1 0 0 / 0.3);
+}
+.dark .glass-sidebar {
+  background: oklch(0.15 0 0 / 0.7);
+  border-right-color: oklch(1 0 0 / 0.06);
+}
+
+/* Admin gradient background */
+.admin-bg {
+  background: linear-gradient(135deg, oklch(0.965 0.012 241) 0%, oklch(0.975 0.008 280) 40%, oklch(0.97 0.01 320) 100%);
+  min-height: 100vh;
+}
+.dark .admin-bg {
+  background: linear-gradient(135deg, oklch(0.14 0.01 241) 0%, oklch(0.13 0.005 280) 40%, oklch(0.135 0.008 320) 100%);
+}
+
+/* Stat card glow on hover */
+.stat-glow {
+  transition: transform 200ms ease, box-shadow 300ms ease;
+}
+.stat-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.08), 0 2px 8px oklch(0 0 0 / 0.04);
 }
 
 /* Minimal scrollbar */

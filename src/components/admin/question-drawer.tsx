@@ -313,8 +313,10 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
             <div className="space-y-1.5">
               <Label>{ts('admin.questionForm.categoryLabel')} *</Label>
               <Select value={categoryId} onValueChange={(v) => setCategoryId(v as string)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={ts('admin.questionForm.categoryPlaceholder')} />
+                <SelectTrigger className="w-full rounded-xl">
+                  <SelectValue placeholder={ts('admin.questionForm.categoryPlaceholder')}>
+                    {flatCategories.find(c => c.id === categoryId)?.name ?? ts('admin.questionForm.categoryPlaceholder')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {flatCategories.map((cat) => (

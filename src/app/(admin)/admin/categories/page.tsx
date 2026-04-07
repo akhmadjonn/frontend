@@ -133,7 +133,7 @@ function CategoryTreeRow({
   return (
     <>
       <div
-        className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/50 ${
+        className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors hover:bg-white/30 ${
           !category.isActive ? 'bg-muted/30 opacity-60' : 'bg-card'
         }`}
         style={{ marginLeft: depth * 24 }}
@@ -401,10 +401,10 @@ export default function CategoriesPage() {
   }, [categories]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.categories.title')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.categories.title')}</h1>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
               {ts('admin.categories.totalCount').replace('{count}', String(totalCategories))}
@@ -414,15 +414,15 @@ export default function CategoriesPage() {
         <div className="flex items-center gap-2">
           {categories.length > 0 && (
             <>
-              <Button variant="outline" size="sm" onClick={expandAll}>
+              <Button variant="outline" size="sm" className="rounded-xl" onClick={expandAll}>
                 {ts('admin.categories.expandAll')}
               </Button>
-              <Button variant="outline" size="sm" onClick={collapseAll}>
+              <Button variant="outline" size="sm" className="rounded-xl" onClick={collapseAll}>
                 {ts('admin.categories.collapseAll')}
               </Button>
             </>
           )}
-          <Button onClick={openCreateDialog}>
+          <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
             <Plus className="h-4 w-4" />
             {ts('admin.categories.addCategory')}
           </Button>
@@ -432,7 +432,7 @@ export default function CategoriesPage() {
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex items-center gap-3 rounded-lg border px-3 py-3">
+            <div key={i} className="flex items-center gap-3 rounded-xl border px-3 py-3">
               <Skeleton className="h-4 w-4" />
               <Skeleton className="h-4 w-4" />
               <Skeleton className="h-4 flex-1 max-w-[200px]" />
@@ -451,7 +451,7 @@ export default function CategoriesPage() {
             <p className="text-sm text-muted-foreground mb-4">
               {ts('admin.categories.createFirst')}
             </p>
-            <Button onClick={openCreateDialog}>
+            <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
               <Plus className="h-4 w-4" />
               {ts('admin.categories.addCategory')}
             </Button>
@@ -477,7 +477,7 @@ export default function CategoriesPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingCategory
@@ -489,9 +489,9 @@ export default function CategoriesPage() {
           <div className="space-y-4">
             <Tabs defaultValue="uzLatin">
               <TabsList className="w-full">
-                <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="uzLatin" className="space-y-3 mt-3">
@@ -655,7 +655,7 @@ export default function CategoriesPage() {
             >
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
+            <Button onClick={handleSubmit} disabled={submitting} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {submitting
                 ? ts('admin.saving')
                 : editingCategory

@@ -113,7 +113,7 @@ export default function GlossaryPage() {
     : displayTerms;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('glossary.title')}</h1>
       </div>
@@ -131,7 +131,7 @@ export default function GlossaryPage() {
             className={cn(
               'shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors border',
               activeCategory === null
-                ? 'bg-primary text-primary-foreground border-primary'
+                ? 'bg-[oklch(0.588_0.158_241)] text-white border-[oklch(0.588_0.158_241)]'
                 : 'bg-background hover:bg-muted border-border'
             )}
           >
@@ -144,7 +144,7 @@ export default function GlossaryPage() {
               className={cn(
                 'shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors border',
                 activeCategory === cat.slug
-                  ? 'bg-primary text-primary-foreground border-primary'
+                  ? 'bg-[oklch(0.588_0.158_241)] text-white border-[oklch(0.588_0.158_241)]'
                   : 'bg-background hover:bg-muted border-border'
               )}
             >
@@ -161,7 +161,7 @@ export default function GlossaryPage() {
           placeholder={ts('glossary.searchTerms')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
+          className="pl-9 rounded-xl h-11"
         />
       </div>
 
@@ -194,8 +194,8 @@ export default function GlossaryPage() {
               <Card
                 key={term.id}
                 className={cn(
-                  'cursor-pointer transition-colors hover:bg-muted/50',
-                  isExpanded && 'ring-1 ring-primary/20'
+                  'cursor-pointer transition-colors hover:bg-muted/50 card-hover rounded-xl',
+                  isExpanded && 'ring-2 ring-[oklch(0.588_0.158_241)]/20'
                 )}
                 onClick={() => setExpandedId(isExpanded ? null : term.id)}
               >

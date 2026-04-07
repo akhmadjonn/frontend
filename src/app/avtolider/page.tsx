@@ -106,15 +106,15 @@ function CarParade() {
     <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none overflow-hidden">
       {/* Gray BMW M6 — fast */}
       <div className="absolute bottom-1" style={{ animation: 'car-drive 9s linear infinite', animationDelay: '0s' }}>
-        <img src={CAR_IMAGES[0]} alt="" className="h-14 w-auto object-contain drop-shadow-lg" draggable={false} />
+        <div className="car-flip"><img src={CAR_IMAGES[0]} alt="" className="h-14 w-auto object-contain drop-shadow-lg" draggable={false} /></div>
       </div>
       {/* Silver BMW 3 Series — medium */}
       <div className="absolute bottom-1" style={{ animation: 'car-drive 13s linear infinite', animationDelay: '-5s' }}>
-        <img src={CAR_IMAGES[1]} alt="" className="h-11 w-auto object-contain drop-shadow-md" draggable={false} />
+        <div className="car-flip"><img src={CAR_IMAGES[1]} alt="" className="h-11 w-auto object-contain drop-shadow-md" draggable={false} /></div>
       </div>
       {/* White Toyota Corolla — slow */}
       <div className="absolute bottom-1" style={{ animation: 'car-drive 16s linear infinite', animationDelay: '-10s' }}>
-        <img src={CAR_IMAGES[2]} alt="" className="h-10 w-auto object-contain drop-shadow-md" draggable={false} />
+        <div className="car-flip"><img src={CAR_IMAGES[2]} alt="" className="h-10 w-auto object-contain drop-shadow-md" draggable={false} /></div>
       </div>
     </div>
   );
@@ -256,8 +256,8 @@ export default function AvtoliderLandingPage() {
       {/* ═══ Custom Styles ═══ */}
       <style jsx global>{`
         @keyframes car-drive {
-          0% { transform: translateX(-120%) scaleX(-1); }
-          100% { transform: translateX(calc(100vw + 20%)) scaleX(-1); }
+          0% { transform: translateX(-120%); }
+          100% { transform: translateX(calc(100vw + 20%)); }
         }
         @keyframes road-dash {
           0% { stroke-dashoffset: 0; }
@@ -279,6 +279,7 @@ export default function AvtoliderLandingPage() {
         .animate-road-dash { animation: road-dash 1s linear infinite; }
         .animate-float { animation: float 4s ease-in-out infinite; }
         .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+        .car-flip { transform: scaleX(-1) !important; }
         .hero-gradient {
           background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 25%, #EDE9FE 50%, #FEF3C7 75%, #ECFDF5 100%);
           background-size: 300% 300%;
@@ -297,13 +298,7 @@ export default function AvtoliderLandingPage() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5" />
-                  <path d="M2 12l10 5 10-5" />
-                </svg>
-              </div>
+              <img src="/logo-full.svg" alt="AvtoLider" className="h-12 w-auto" />
               <div>
                 <span className="text-xl font-bold tracking-tight">Avto<span className="text-blue-600">Lider</span></span>
                 <span className="hidden sm:inline text-[10px] text-gray-400 ml-1.5 font-medium">{ts('landing.readyForExam')}</span>
@@ -700,17 +695,17 @@ export default function AvtoliderLandingPage() {
         <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
           <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#FDE047" strokeWidth="3" strokeDasharray="24 16" className="animate-road-dash" />
         </svg>
-        {/* Blue Toyota — top lane */}
+        {/* Blue Toyota — top lane (faces left, needs flip) */}
         <div className="absolute top-1" style={{ animation: 'car-drive 12s linear infinite', animationDelay: '-2s' }}>
-          <img src={CAR_IMAGES[3]} alt="" className="h-10 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" draggable={false} />
+          <div className="car-flip"><img src={CAR_IMAGES[3]} alt="" className="h-10 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" draggable={false} /></div>
         </div>
         {/* Dark Audi R8 — bottom lane, fast */}
         <div className="absolute bottom-2" style={{ animation: 'car-drive 10s linear infinite', animationDelay: '-7s' }}>
-          <img src={CAR_IMAGES[4]} alt="" className="h-10 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" draggable={false} />
+          <div className="car-flip"><img src={CAR_IMAGES[4]} alt="" className="h-10 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" draggable={false} /></div>
         </div>
         {/* White Toyota — top lane, slow */}
         <div className="absolute top-2" style={{ animation: 'car-drive 18s linear infinite', animationDelay: '-14s' }}>
-          <img src={CAR_IMAGES[2]} alt="" className="h-9 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" draggable={false} />
+          <div className="car-flip"><img src={CAR_IMAGES[2]} alt="" className="h-9 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" draggable={false} /></div>
         </div>
       </div>
 

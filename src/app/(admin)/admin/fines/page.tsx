@@ -199,17 +199,17 @@ export default function FinesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.navFines')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.navFines')}</h1>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
               {ts('common.total')}: {totalCount}
             </p>
           )}
         </div>
-        <Button onClick={openCreateDialog}>
+        <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           {ts('admin.fines.addFine')}
         </Button>
@@ -271,7 +271,7 @@ export default function FinesPage() {
               </thead>
               <tbody>
                 {fines.map((fine) => (
-                  <tr key={fine.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+                  <tr key={fine.id} className="border-b last:border-b-0 hover:bg-white/30 transition-colors">
                     <td className="px-4 py-3">
                       <span className="font-mono font-medium text-sm">{fine.articleNumber}</span>
                     </td>
@@ -312,6 +312,7 @@ export default function FinesPage() {
               <Button
                 variant="outline"
                 size="sm"
+                className="rounded-xl"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
@@ -323,6 +324,7 @@ export default function FinesPage() {
               <Button
                 variant="outline"
                 size="sm"
+                className="rounded-xl"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
               >
@@ -335,7 +337,7 @@ export default function FinesPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingFine ? ts('admin.fines.editTitle') : ts('admin.fines.createTitle')}
@@ -357,9 +359,9 @@ export default function FinesPage() {
               <p className="text-sm font-medium text-muted-foreground mb-2">{ts('admin.fines.violation')}</p>
               <Tabs defaultValue="uzLatin">
                 <TabsList className="w-full">
-                  <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                  <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                  <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                  <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                  <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                  <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="uzLatin" className="mt-3">
                   <Textarea
@@ -392,9 +394,9 @@ export default function FinesPage() {
               <p className="text-sm font-medium text-muted-foreground mb-2">{ts('admin.fines.additionalNotes')}</p>
               <Tabs defaultValue="uzLatin">
                 <TabsList className="w-full">
-                  <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                  <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                  <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                  <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                  <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                  <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="uzLatin" className="mt-3">
                   <Textarea
@@ -463,7 +465,7 @@ export default function FinesPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
+            <Button onClick={handleSubmit} disabled={submitting} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {submitting
                 ? ts('admin.saving')
                 : editingFine
@@ -476,7 +478,7 @@ export default function FinesPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.fines.deleteTitle')}</DialogTitle>
           </DialogHeader>

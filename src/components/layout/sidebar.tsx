@@ -1,11 +1,12 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useLocaleStore } from '@/stores/locale-store';
 import {
-  LayoutDashboard, BookOpen, GraduationCap, TrendingUp, CreditCard, Settings, Car,
+  LayoutDashboard, BookOpen, GraduationCap, TrendingUp, CreditCard, Settings,
   Banknote, AlertTriangle, Heart, BookOpenText, Eye, Trophy, Star,
 } from 'lucide-react';
 
@@ -49,21 +50,19 @@ export default function Sidebar() {
   const language = useLocaleStore((s) => s.language);
 
   return (
-    <aside className="hidden md:flex flex-col w-60 min-h-screen border-r bg-card px-3 py-4 shrink-0">
-      <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 mb-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shrink-0">
-          <Car className="h-4 w-4" />
-        </div>
-        <span className="font-bold text-base tracking-tight">AutoTest</span>
+    <aside className="hidden md:flex flex-col w-60 min-h-screen bg-card/80 backdrop-blur-sm shadow-[1px_0_0_0_var(--border)] px-3 py-5 shrink-0">
+      <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 mb-8">
+        <Image src="/logo-full.svg" alt="AvtoLider" width={48} height={26} className="shrink-0" priority />
+        <span className="font-extrabold text-base tracking-tight">AvtoLider</span>
       </Link>
 
       <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
         {NAV_ENTRIES.map((entry, i) => {
           if (isSection(entry)) {
             const text = entry.sectionLabel[language] ?? entry.sectionLabel.uzLatin;
-            if (!text) return <div key={i} className="my-2" />;
+            if (!text) return <div key={i} className="my-3" />;
             return (
-              <p key={i} className="mt-4 mb-1.5 px-3 text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest">
+              <p key={i} className="mt-6 mb-2 px-3 text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
                 {text}
               </p>
             );
@@ -75,13 +74,13 @@ export default function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all',
                 active
-                  ? 'bg-blue-50 dark:bg-blue-950/30 text-foreground font-semibold'
-                  : 'text-muted-foreground font-medium hover:bg-muted/60 hover:text-foreground'
+                  ? 'bg-[oklch(0.95_0.03_241)] dark:bg-blue-950/30 text-foreground font-semibold border-l-[3px] border-[oklch(0.588_0.158_241)] ml-0'
+                  : 'text-muted-foreground font-medium hover:bg-muted/50 hover:text-foreground border-l-[3px] border-transparent'
               )}
             >
-              <Icon className={cn('h-4 w-4 shrink-0', color)} />
+              <Icon className={cn('h-[18px] w-[18px] shrink-0', color)} />
               {label[language] ?? label.uzLatin}
             </Link>
           );

@@ -38,7 +38,7 @@ function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <span className="text-lg">&#x1F947;</span>;
   if (rank === 2) return <span className="text-lg">&#x1F948;</span>;
   if (rank === 3) return <span className="text-lg">&#x1F949;</span>;
-  return <span className="text-sm font-semibold text-muted-foreground w-6 text-center">{rank}</span>;
+  return <span className="text-sm font-semibold text-muted-foreground w-6 text-center tabular-nums">{rank}</span>;
 }
 
 function LeaderboardRow({ entry, isCurrentUser }: { entry: LeaderboardEntryDto; isCurrentUser: boolean }) {
@@ -46,16 +46,16 @@ function LeaderboardRow({ entry, isCurrentUser }: { entry: LeaderboardEntryDto; 
 
   return (
     <div className={cn(
-      'flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors',
-      isCurrentUser && 'bg-blue-50 dark:bg-blue-950/30'
+      'flex items-center gap-3 rounded-xl px-4 py-3 transition-colors hover:bg-muted/30',
+      isCurrentUser && 'bg-blue-50 dark:bg-blue-950/30 ring-2 ring-[oklch(0.588_0.158_241)]/20 shadow-sm'
     )}>
       <RankBadge rank={entry.rank} />
       <UserAvatar firstName={entry.firstName} lastName={entry.lastName} rank={entry.rank} />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{name}</p>
-        <p className="text-xs text-muted-foreground">{entry.xpValue.toLocaleString()} XP</p>
+        <p className="text-xs text-muted-foreground tabular-nums">{entry.xpValue.toLocaleString()} XP</p>
       </div>
-      <Badge variant="secondary" className="shrink-0 text-xs">
+      <Badge variant="secondary" className="shrink-0 text-xs tabular-nums">
         Lv. {entry.level}
       </Badge>
     </div>
@@ -80,6 +80,10 @@ function LoadingSkeleton() {
   );
 }
 
+function getInitials(firstName: string | null, lastName: string | null) {
+  return [firstName?.[0], lastName?.[0]].filter(Boolean).join('').toUpperCase() || '?';
+}
+
 export default function LeaderboardPage() {
   const { ts } = useLocale();
   const { user } = useAuth();
@@ -102,9 +106,10 @@ export default function LeaderboardPage() {
   ];
 
   const currentUserInList = data?.rankings.some((e) => e.userId === user?.id);
+  const entries = data?.rankings ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('leaderboard.title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">{ts('leaderboard.topPlayers')}</p>
@@ -118,13 +123,47 @@ export default function LeaderboardPage() {
             size="sm"
             onClick={() => setPeriod(p.value)}
             className={cn(
-              period === p.value && 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground'
+              'rounded-xl',
+              period === p.value && 'bg-[oklch(0.588_0.158_241)] text-white hover:bg-[oklch(0.588_0.158_241)]/90 hover:text-white'
             )}
           >
             {p.label}
           </Button>
         ))}
       </div>
+
+      {/* Top 3 Podium */}
+      {!loading && entries.length >= 3 && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {/* 2nd place */}
+          <div className="flex flex-col items-center pt-8">
+            <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-lg font-bold">
+              {getInitials(entries[1].firstName, entries[1].lastName)}
+            </div>
+            <p className="text-sm font-semibold mt-2 truncate max-w-full">{[entries[1].firstName, entries[1].lastName].filter(Boolean).join(' ') || '---'}</p>
+            <p className="text-xs text-muted-foreground tabular-nums">{entries[1].xpValue.toLocaleString()} XP</p>
+            <div className="mt-2 text-2xl">&#x1F948;</div>
+          </div>
+          {/* 1st place */}
+          <div className="flex flex-col items-center">
+            <div className="h-14 w-14 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xl font-bold ring-2 ring-amber-300">
+              {getInitials(entries[0].firstName, entries[0].lastName)}
+            </div>
+            <p className="text-sm font-bold mt-2 truncate max-w-full">{[entries[0].firstName, entries[0].lastName].filter(Boolean).join(' ') || '---'}</p>
+            <p className="text-xs text-muted-foreground tabular-nums">{entries[0].xpValue.toLocaleString()} XP</p>
+            <div className="mt-2 text-3xl">&#x1F947;</div>
+          </div>
+          {/* 3rd place */}
+          <div className="flex flex-col items-center pt-10">
+            <div className="h-11 w-11 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-lg font-bold">
+              {getInitials(entries[2].firstName, entries[2].lastName)}
+            </div>
+            <p className="text-sm font-semibold mt-2 truncate max-w-full">{[entries[2].firstName, entries[2].lastName].filter(Boolean).join(' ') || '---'}</p>
+            <p className="text-xs text-muted-foreground tabular-nums">{entries[2].xpValue.toLocaleString()} XP</p>
+            <div className="mt-2 text-xl">&#x1F949;</div>
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardContent className="p-2 sm:p-4">

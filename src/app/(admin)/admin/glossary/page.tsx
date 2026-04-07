@@ -339,15 +339,15 @@ export default function GlossaryPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold tracking-tight">{ts('admin.navGlossary')}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.navGlossary')}</h1>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="categories">{ts('admin.glossary.categoriesTab')}</TabsTrigger>
-          <TabsTrigger value="terms">{ts('admin.glossary.termsTab')}</TabsTrigger>
+          <TabsTrigger value="categories" className="data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.glossary.categoriesTab')}</TabsTrigger>
+          <TabsTrigger value="terms" className="data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.glossary.termsTab')}</TabsTrigger>
         </TabsList>
 
         {/* ── Categories Tab ── */}
@@ -356,7 +356,7 @@ export default function GlossaryPage() {
             <p className="text-sm text-muted-foreground">
               {ts('common.total')}: {categories.length}
             </p>
-            <Button onClick={openCreateCategory}>
+            <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateCategory}>
               <Plus className="h-4 w-4" />
               {ts('admin.glossary.addCategory')}
             </Button>
@@ -412,7 +412,7 @@ export default function GlossaryPage() {
                 </thead>
                 <tbody>
                   {categories.map((cat) => (
-                    <tr key={cat.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+                    <tr key={cat.id} className="border-b last:border-b-0 hover:bg-white/30 transition-colors">
                       <td className="px-4 py-3">
                         <span className="font-mono text-xs text-muted-foreground">{cat.slug}</span>
                       </td>
@@ -467,7 +467,7 @@ export default function GlossaryPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={openCreateTerm} disabled={!selectedCategorySlug}>
+            <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateTerm} disabled={!selectedCategorySlug}>
               <Plus className="h-4 w-4" />
               {ts('admin.glossary.addTerm')}
             </Button>
@@ -523,7 +523,7 @@ export default function GlossaryPage() {
                 </thead>
                 <tbody>
                   {terms.map((term) => (
-                    <tr key={term.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+                    <tr key={term.id} className="border-b last:border-b-0 hover:bg-white/30 transition-colors">
                       <td className="px-4 py-3 font-medium">{getText(term.term)}</td>
                       <td className="px-4 py-3">
                         <span className="line-clamp-2 text-muted-foreground">
@@ -554,7 +554,7 @@ export default function GlossaryPage() {
 
       {/* ── Category Create/Edit Dialog ── */}
       <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingCategory ? ts('admin.glossary.editCategoryTitle') : ts('admin.glossary.createCategoryTitle')}
@@ -566,9 +566,9 @@ export default function GlossaryPage() {
               <p className="text-sm font-medium text-muted-foreground mb-2">{ts('admin.plans.nameSection')}</p>
               <Tabs defaultValue="uzLatin">
                 <TabsList className="w-full">
-                  <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                  <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                  <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                  <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                  <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                  <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="uzLatin" className="mt-3">
                   <Input
@@ -650,7 +650,7 @@ export default function GlossaryPage() {
             <Button variant="outline" onClick={() => setCategoryDialogOpen(false)} disabled={categorySubmitting}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleCategorySubmit} disabled={categorySubmitting}>
+            <Button onClick={handleCategorySubmit} disabled={categorySubmitting} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {categorySubmitting
                 ? ts('admin.saving')
                 : editingCategory
@@ -663,7 +663,7 @@ export default function GlossaryPage() {
 
       {/* ── Category Delete Dialog ── */}
       <Dialog open={deleteCategoryDialogOpen} onOpenChange={setDeleteCategoryDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.glossary.deleteCategoryTitle')}</DialogTitle>
           </DialogHeader>
@@ -686,7 +686,7 @@ export default function GlossaryPage() {
 
       {/* ── Term Create/Edit Dialog ── */}
       <Dialog open={termDialogOpen} onOpenChange={setTermDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingTerm ? ts('admin.glossary.editTermTitle') : ts('admin.glossary.createTermTitle')}
@@ -714,9 +714,9 @@ export default function GlossaryPage() {
               <p className="text-sm font-medium text-muted-foreground mb-2">{ts('admin.glossary.term')}</p>
               <Tabs defaultValue="uzLatin">
                 <TabsList className="w-full">
-                  <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                  <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                  <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                  <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                  <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                  <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="uzLatin" className="mt-3">
                   <Input
@@ -746,9 +746,9 @@ export default function GlossaryPage() {
               <p className="text-sm font-medium text-muted-foreground mb-2">{ts('admin.glossary.definition')}</p>
               <Tabs defaultValue="uzLatin">
                 <TabsList className="w-full">
-                  <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                  <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                  <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                  <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                  <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                  <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="uzLatin" className="mt-3">
                   <Textarea
@@ -794,7 +794,7 @@ export default function GlossaryPage() {
             <Button variant="outline" onClick={() => setTermDialogOpen(false)} disabled={termSubmitting}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleTermSubmit} disabled={termSubmitting}>
+            <Button onClick={handleTermSubmit} disabled={termSubmitting} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {termSubmitting
                 ? ts('admin.saving')
                 : editingTerm
@@ -807,7 +807,7 @@ export default function GlossaryPage() {
 
       {/* ── Term Delete Dialog ── */}
       <Dialog open={deleteTermDialogOpen} onOpenChange={setDeleteTermDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.glossary.deleteTermTitle')}</DialogTitle>
           </DialogHeader>

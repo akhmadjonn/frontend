@@ -131,16 +131,17 @@ export default function UsersPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-bold tracking-tight">{ts('admin.users.title')}</h1>
+    <div className="space-y-6 animate-fade-up">
+      <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.users.title')}</h1>
 
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
+      <div className="glass-card p-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="flex-1 min-w-[200px]">
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('common.search')}</label>
           <Input
             placeholder={ts('admin.users.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="rounded-xl h-11"
           />
         </div>
 

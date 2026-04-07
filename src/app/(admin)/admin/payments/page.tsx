@@ -144,13 +144,14 @@ function TransactionsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
+      <div className="glass-card p-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="flex-1 min-w-[180px]">
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('common.search')}</label>
           <Input
             placeholder={ts('admin.payments.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="rounded-xl h-11"
           />
         </div>
         <div className="min-w-[150px]">
@@ -316,6 +317,7 @@ function RevenueTab() {
         </div>
         <Button
           variant="outline"
+          className="rounded-xl"
           onClick={handleExport}
           disabled={exporting}
         >
@@ -363,14 +365,10 @@ function RevenueTab() {
         />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{ts('admin.payments.dailyRevenue')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <RevenueChart data={revenue?.dailyBreakdown} loading={loading} />
-        </CardContent>
-      </Card>
+      <div className="glass-card p-5">
+        <h3 className="text-lg font-semibold mb-4">{ts('admin.payments.dailyRevenue')}</h3>
+        <RevenueChart data={revenue?.dailyBreakdown} loading={loading} />
+      </div>
     </div>
   );
 }
@@ -379,13 +377,13 @@ export default function PaymentsPage() {
   const { ts } = useLocale();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-bold tracking-tight">{ts('admin.payments.title')}</h1>
+    <div className="space-y-6 animate-fade-up">
+      <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.payments.title')}</h1>
 
       <Tabs defaultValue="transactions">
         <TabsList>
-          <TabsTrigger value="transactions">{ts('admin.payments.transactionsTab')}</TabsTrigger>
-          <TabsTrigger value="revenue">{ts('admin.payments.revenueTab')}</TabsTrigger>
+          <TabsTrigger value="transactions" className="data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.payments.transactionsTab')}</TabsTrigger>
+          <TabsTrigger value="revenue" className="data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.payments.revenueTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="transactions">

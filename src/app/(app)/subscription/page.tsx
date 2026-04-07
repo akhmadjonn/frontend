@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Check, Calendar, AlertTriangle, Crown, ChevronRight } from 'lucide-react';
+import { Check, Calendar, AlertTriangle, Crown, ChevronRight, Sparkles, Shield, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface LocalizedText {
@@ -55,6 +55,8 @@ function formatPrice(tiyins: number): string {
   const sum = tiyins / 100;
   return sum.toLocaleString('uz-UZ').replace(/,/g, ' ');
 }
+
+const PLAN_ICONS = [Zap, Sparkles, Shield];
 
 export default function SubscriptionPage() {
   const { t, ts } = useLocale();
@@ -115,212 +117,251 @@ export default function SubscriptionPage() {
 
   if (loading)
     return (
-      <div className="space-y-4 max-w-2xl">
+      <div className="space-y-4 max-w-2xl animate-fade-up">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full rounded-2xl" />
+        <Skeleton className="h-48 w-full rounded-2xl" />
+        <Skeleton className="h-48 w-full rounded-2xl" />
+        <Skeleton className="h-48 w-full rounded-2xl" />
       </div>
     );
 
   const isActive = subscription?.status === 'active' || subscription?.status === 'Active';
 
+  const planAccents = [
+    { bg: 'from-blue-50 to-blue-50/30', border: 'border-blue-200', icon: 'bg-blue-100 text-blue-600', badge: 'bg-blue-100 text-blue-700' },
+    { bg: 'from-violet-50 to-purple-50/30', border: 'border-violet-300', icon: 'bg-violet-100 text-violet-600', badge: 'bg-violet-100 text-violet-700' },
+    { bg: 'from-emerald-50 to-teal-50/30', border: 'border-emerald-200', icon: 'bg-emerald-100 text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
+  ];
+
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-2xl animate-fade-up">
+      {/* Page header */}
       <div>
-        <h1 className="text-xl font-bold tracking-tight">{ts('subscription.title')}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{ts('subscription.subtitle')}</p>
+        <h1 className="text-2xl font-extrabold tracking-tight">{ts('subscription.title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1.5">{ts('subscription.subtitle')}</p>
       </div>
 
-      <Card>
-        <CardContent className="flex items-center justify-between p-4">
+      {/* Current subscription status */}
+      <Card className="rounded-2xl overflow-hidden border-border/50">
+        <CardContent className="p-0">
           {isActive ? (
-            <>
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
-                  <Crown className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{subscription?.planName ? t(subscription.planName) : ts('subscription.activePlan')}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-green-700 dark:text-green-400">
-                      <span className="h-2 w-2 rounded-full bg-green-500" />
-                      {ts('subscription.active')}
-                    </span>
-                    {subscription?.expiresAt && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {format(new Date(subscription.expiresAt), 'dd.MM.yyyy')} {ts('subscription.until')}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50/50 p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-md shadow-amber-200/50">
+                    <Crown className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-base font-bold">{subscription?.planName ? t(subscription.planName) : ts('subscription.activePlan')}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-100 rounded-full px-2.5 py-0.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        {ts('subscription.active')}
                       </span>
-                    )}
+                      {subscription?.expiresAt && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {format(new Date(subscription.expiresAt), 'dd.MM.yyyy')} {ts('subscription.until')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground hidden sm:inline">{ts('subscription.autoRenewShort')}</span>
+                  <Switch
+                    checked={subscription?.autoRenew ?? false}
+                    onCheckedChange={() => {
+                      if (subscription?.autoRenew) setCancelDialogOpen(true);
+                    }}
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground hidden sm:inline">{ts('subscription.autoRenewShort')}</span>
-                <Switch
-                  checked={subscription?.autoRenew ?? false}
-                  onCheckedChange={() => {
-                    if (subscription?.autoRenew) setCancelDialogOpen(true);
-                  }}
-                />
-              </div>
-            </>
+            </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
-                <Crown className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">{ts('subscription.noActivePlan')}</p>
-                <p className="text-xs text-muted-foreground">{ts('subscription.choosePlan')}</p>
+            <div className="p-5">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted/80">
+                  <Crown className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold">{ts('subscription.noActivePlan')}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{ts('subscription.choosePlan')}</p>
+                </div>
               </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      <div className="space-y-3">
-        {plans.map((plan) => {
+      {/* Plans */}
+      <div className="space-y-4">
+        {plans.map((plan, idx) => {
           const isPopular = plan.durationDays === 30;
           const isExpanded = expandedPlan === plan.id;
           const perDay = Math.round(plan.priceInTiyins / plan.durationDays / 100);
-          const accent = plan.durationDays <= 7
-            ? 'border-l-blue-500'
-            : plan.durationDays <= 30
-              ? 'border-l-violet-500'
-              : 'border-l-emerald-500';
+          const accent = planAccents[idx % planAccents.length];
+          const PlanIcon = PLAN_ICONS[idx % PLAN_ICONS.length];
 
           return (
             <Card
               key={plan.id}
-              className={`relative overflow-visible border-l-[3px] ${accent} ${isPopular ? 'border-foreground border-l-violet-500' : ''}`}
+              className={`relative overflow-visible rounded-2xl transition-all duration-200 ${
+                isPopular
+                  ? 'ring-2 ring-violet-300 shadow-lg shadow-violet-100/50'
+                  : 'border-border/50 hover:shadow-md'
+              }`}
             >
               {isPopular && (
-                <span className="absolute -top-2.5 left-4 bg-violet-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-md">
                   {ts('subscription.popular')}
                 </span>
               )}
               <CardContent className="p-0">
-                <div className="flex items-center gap-4 p-4 sm:p-5">
-                  <div className="shrink-0 w-28 sm:w-36">
-                    <h3 className="text-sm font-bold">{t(plan.name)}</h3>
-                    <div className="mt-1">
-                      <span className="text-2xl font-extrabold tracking-tight">{formatPrice(plan.priceInTiyins)}</span>
+                {/* Plan content */}
+                <div className={`p-5 sm:p-6 ${isPopular ? 'bg-gradient-to-br from-violet-50/50 to-white' : ''}`}>
+                  <div className="flex items-start gap-4">
+                    {/* Icon */}
+                    <div className={`hidden sm:flex h-11 w-11 items-center justify-center rounded-xl shrink-0 ${accent.icon}`}>
+                      <PlanIcon className="h-5 w-5" />
                     </div>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{ts('common.sum')} / {plan.durationDays} {ts('common.days')}</p>
-                    <p className="text-[10px] text-violet-600 dark:text-violet-400 font-medium mt-0.5">~{perDay.toLocaleString()} {ts('common.perDay')}</p>
-                  </div>
 
-                  <div className="hidden sm:flex flex-1 items-center gap-x-4 gap-y-1 flex-wrap">
-                    {plan.features.map((f, i) => (
-                      <span key={i} className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
-                        {t(f)}
-                      </span>
-                    ))}
-                  </div>
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-3 flex-wrap">
+                        <h3 className="text-base font-bold">{t(plan.name)}</h3>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${accent.badge}`}>
+                          {plan.durationDays} {ts('common.days')}
+                        </span>
+                      </div>
 
-                  <div className="hidden sm:flex items-center gap-2 shrink-0">
-                    {paymentMethods.paymeEnabled && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleSubscribe(plan.id, 'payme')}
-                        disabled={!!subscribing}
-                      >
-                        {subscribing === plan.id ? '...' : 'Payme'}
-                      </Button>
-                    )}
-                    {paymentMethods.clickEnabled && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSubscribe(plan.id, 'click')}
-                        disabled={!!subscribing}
-                      >
-                        {subscribing === plan.id ? '...' : 'Click'}
-                      </Button>
-                    )}
-                  </div>
+                      {/* Price */}
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-3xl font-extrabold tracking-tight tabular-nums">{formatPrice(plan.priceInTiyins)}</span>
+                        <span className="text-sm text-muted-foreground">{ts('common.sum')}</span>
+                      </div>
+                      <p className="text-xs text-[oklch(0.588_0.158_241)] font-medium mt-0.5">~{perDay.toLocaleString()} {ts('common.perDay')}</p>
 
-                  <button
-                    className="sm:hidden ml-auto shrink-0 flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted transition-colors"
-                    onClick={() => setExpandedPlan(isExpanded ? null : plan.id)}
-                  >
-                    <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                  </button>
-                </div>
-
-                {isExpanded && (
-                  <div className="sm:hidden border-t px-4 pb-4 pt-3 space-y-3">
-                    {plan.features.length > 0 && (
-                      <ul className="space-y-1.5">
+                      {/* Features — desktop */}
+                      <div className="hidden sm:flex flex-wrap gap-x-5 gap-y-1.5 mt-4">
                         {plan.features.map((f, i) => (
-                          <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                          <span key={i} className="flex items-center gap-2 text-sm text-foreground/80">
+                            <Check className="h-4 w-4 text-[oklch(0.588_0.158_241)] shrink-0" />
                             {t(f)}
-                          </li>
+                          </span>
                         ))}
-                      </ul>
-                    )}
-                    <div className={`grid gap-2 ${paymentMethods.paymeEnabled && paymentMethods.clickEnabled ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                      {paymentMethods.paymeEnabled && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleSubscribe(plan.id, 'payme')}
-                          disabled={!!subscribing}
-                        >
-                          {subscribing === plan.id ? '...' : 'Payme'}
-                        </Button>
-                      )}
-                      {paymentMethods.clickEnabled && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleSubscribe(plan.id, 'click')}
-                          disabled={!!subscribing}
-                        >
-                          {subscribing === plan.id ? '...' : 'Click'}
-                        </Button>
-                      )}
+                      </div>
+
+                      {/* Payment buttons — desktop */}
+                      <div className="hidden sm:flex items-center gap-2.5 mt-5">
+                        {paymentMethods.paymeEnabled && (
+                          <Button
+                            onClick={() => handleSubscribe(plan.id, 'payme')}
+                            disabled={!!subscribing}
+                            className="rounded-xl h-10 px-5 bg-[#00CCCC] hover:bg-[#00B3B3] text-white font-semibold shadow-sm"
+                          >
+                            {subscribing === plan.id ? '...' : '💳 Payme'}
+                          </Button>
+                        )}
+                        {paymentMethods.clickEnabled && (
+                          <Button
+                            onClick={() => handleSubscribe(plan.id, 'click')}
+                            disabled={!!subscribing}
+                            className="rounded-xl h-10 px-5 bg-[#0065FF] hover:bg-[#0052CC] text-white font-semibold shadow-sm"
+                          >
+                            {subscribing === plan.id ? '...' : '💳 Click'}
+                          </Button>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Mobile expand */}
+                    <button
+                      className="sm:hidden ml-auto shrink-0 flex h-9 w-9 items-center justify-center rounded-xl hover:bg-muted/60 transition-colors"
+                      onClick={() => setExpandedPlan(isExpanded ? null : plan.id)}
+                    >
+                      <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                    </button>
                   </div>
-                )}
+
+                  {/* Mobile expanded content */}
+                  {isExpanded && (
+                    <div className="sm:hidden mt-4 pt-4 border-t border-border/50 space-y-4">
+                      {plan.features.length > 0 && (
+                        <ul className="space-y-2">
+                          {plan.features.map((f, i) => (
+                            <li key={i} className="flex items-center gap-2.5 text-sm text-foreground/80">
+                              <Check className="h-4 w-4 text-[oklch(0.588_0.158_241)] shrink-0" />
+                              {t(f)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className={`grid gap-2.5 ${paymentMethods.paymeEnabled && paymentMethods.clickEnabled ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                        {paymentMethods.paymeEnabled && (
+                          <Button
+                            onClick={() => handleSubscribe(plan.id, 'payme')}
+                            disabled={!!subscribing}
+                            className="rounded-xl h-11 bg-[#00CCCC] hover:bg-[#00B3B3] text-white font-semibold"
+                          >
+                            {subscribing === plan.id ? '...' : '💳 Payme'}
+                          </Button>
+                        )}
+                        {paymentMethods.clickEnabled && (
+                          <Button
+                            onClick={() => handleSubscribe(plan.id, 'click')}
+                            disabled={!!subscribing}
+                            className="rounded-xl h-11 bg-[#0065FF] hover:bg-[#0052CC] text-white font-semibold"
+                          >
+                            {subscribing === plan.id ? '...' : '💳 Click'}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
+      {/* Cancel subscription button */}
       {isActive && subscription?.subscriptionId && (
-        <div className="pt-2">
-          <button
+        <div className="pt-2 flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setCancelDialogOpen(true)}
-            className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+            className="rounded-xl text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all"
           >
+            <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
             {ts('subscription.cancelSubscription')}
-          </button>
+          </Button>
         </div>
       )}
 
+      {/* Cancel dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+              </div>
               {ts('subscription.cancelSubscription')}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="pt-2">
               {ts('subscription.cancelConfirm')}
               {' '}{ts('subscription.cancelExplanation')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setCancelDialogOpen(false)} disabled={cancelling}>
+            <Button variant="outline" onClick={() => setCancelDialogOpen(false)} disabled={cancelling} className="rounded-xl">
               {ts('subscription.goBack')}
             </Button>
-            <Button variant="destructive" onClick={handleCancel} disabled={cancelling}>
+            <Button variant="destructive" onClick={handleCancel} disabled={cancelling} className="rounded-xl">
               {cancelling ? ts('subscription.cancelling') : ts('common.cancel')}
             </Button>
           </DialogFooter>

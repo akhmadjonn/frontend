@@ -208,17 +208,17 @@ export default function AdminColorVisionPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.colorVision.title')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.colorVision.title')}</h1>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
               {ts('common.total')}: {plates.length}
             </p>
           )}
         </div>
-        <Button onClick={openCreateDialog}>
+        <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           {ts('admin.colorVision.addPlate')}
         </Button>
@@ -282,7 +282,7 @@ export default function AdminColorVisionPage() {
             </thead>
             <tbody>
               {plates.map((plate) => (
-                <tr key={plate.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+                <tr key={plate.id} className="border-b last:border-b-0 hover:bg-white/30 transition-colors">
                   <td className="px-4 py-3 text-center font-mono font-medium">
                     {plate.plateNumber}
                   </td>
@@ -331,7 +331,7 @@ export default function AdminColorVisionPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingPlate ? ts('admin.colorVision.editTitle') : ts('admin.colorVision.createTitle')}
@@ -438,7 +438,7 @@ export default function AdminColorVisionPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting}>
+            <Button onClick={handleSubmit} disabled={submitting} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {submitting
                 ? ts('admin.saving')
                 : editingPlate
@@ -451,7 +451,7 @@ export default function AdminColorVisionPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.colorVision.deleteTitle')}</DialogTitle>
           </DialogHeader>

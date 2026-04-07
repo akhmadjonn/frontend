@@ -172,30 +172,31 @@ export default function ExamPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-2xl mx-auto animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('exam.title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">{ts('exam.subtitle')}</p>
       </div>
 
       {!checkingActive && hasActive && (
-        <Card className="border border-amber-300 dark:border-amber-700">
+        <Card className="border border-amber-300 dark:border-amber-700 rounded-xl">
           <CardContent className="pt-4 space-y-3">
             <div className="flex items-start gap-3">
+              <span className="animate-pulse h-2 w-2 rounded-full bg-amber-500 mt-2 shrink-0" />
               <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="font-medium text-sm">{ts('exam.activeExamBanner')}</p>
+                <p className="font-semibold text-sm">{ts('exam.activeExamBanner')}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {MODE_LABELS[activeExam.mode] ?? activeExam.mode} &mdash; {activeExam.answeredQuestions}/{activeExam.totalQuestions} {ts('exam.answered')}
+                  {MODE_LABELS[activeExam.mode] ?? activeExam.mode} &mdash; <span className="tabular-nums">{activeExam.answeredQuestions}/{activeExam.totalQuestions}</span> {ts('exam.answered')}
                 </p>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700" onClick={handleResume} disabled={loading !== null}>
+              <Button className="flex-1 gap-2 rounded-xl h-11 btn-gradient-blue text-white cursor-pointer" onClick={handleResume} disabled={loading !== null}>
                 <Play className="h-4 w-4" />
                 {loading ? ts('common.loading') : ts('exam.resume')}
               </Button>
-              <Button variant="outline" className="gap-2 text-destructive hover:text-destructive" onClick={handleAbandon} disabled={abandoning}>
+              <Button variant="outline" className="gap-2 text-destructive hover:text-destructive rounded-xl h-11" onClick={handleAbandon} disabled={abandoning}>
                 <Trash2 className="h-4 w-4" />
                 {abandoning ? '...' : ts('exam.abandon')}
               </Button>
@@ -206,13 +207,13 @@ export default function ExamPage() {
 
       <div className="grid gap-4">
         {/* Exam mode */}
-        <Card className="relative hover:border-blue-200 dark:hover:border-blue-800 transition-colors">
+        <Card className="card-hover relative hover:border-blue-200 dark:hover:border-blue-800 transition-colors rounded-xl">
           <div className="absolute right-3 top-3">
             <Badge variant="secondary" className="text-[11px]">{ts('exam.realExam')}</Badge>
           </div>
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/30">
                 <GraduationCap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
@@ -223,21 +224,21 @@ export default function ExamPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{EXAM_QUESTION_COUNT} {ts('common.question')}</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />{EXAM_TIME_MINUTES} {ts('common.minutes')}</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Trophy className="h-3.5 w-3.5" />{ts('exam.passingRate')} {EXAM_PASSING_SCORE}%</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" /><span className="tabular-nums">{EXAM_QUESTION_COUNT}</span> {ts('common.question')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" /><span className="tabular-nums">{EXAM_TIME_MINUTES}</span> {ts('common.minutes')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Trophy className="h-3.5 w-3.5" />{ts('exam.passingRate')} <span className="tabular-nums">{EXAM_PASSING_SCORE}%</span></span>
             </div>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 cursor-pointer" onClick={() => handleStart('exam')} disabled={loading !== null || hasActive}>
+            <Button className="w-full rounded-xl h-11 btn-gradient-blue text-white cursor-pointer" onClick={() => handleStart('exam')} disabled={loading !== null || hasActive}>
               {loading === 'exam' ? ts('common.loading') : ts('exam.start')}
             </Button>
           </CardContent>
         </Card>
 
         {/* Ticket mode */}
-        <Card className="hover:border-violet-200 dark:hover:border-violet-800 transition-colors">
+        <Card className="card-hover hover:border-violet-200 dark:hover:border-violet-800 transition-colors rounded-xl">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50 dark:bg-violet-950/30">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 dark:bg-violet-950/30">
                 <Hash className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
@@ -248,13 +249,13 @@ export default function ExamPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />20 {ts('common.question')}</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" />25 {ts('common.minutes')}</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />57 {ts('exam.tickets')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" /><span className="tabular-nums">20</span> {ts('common.question')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" /><span className="tabular-nums">25</span> {ts('common.minutes')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" /><span className="tabular-nums">57</span> {ts('exam.tickets')}</span>
             </div>
             <div className="flex gap-2">
               <Select value={String(selectedTicket)} onValueChange={(v) => setSelectedTicket(Number(v))}>
-                <SelectTrigger className="flex-1 cursor-pointer">
+                <SelectTrigger className="flex-1 cursor-pointer rounded-xl">
                   <SelectValue placeholder={ts('exam.selectTicket')} />
                 </SelectTrigger>
                 <SelectContent className="max-h-48">
@@ -263,7 +264,7 @@ export default function ExamPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button className="shrink-0 bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-700 cursor-pointer" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive}>
+              <Button className="shrink-0 rounded-xl h-11 bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-700 cursor-pointer" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive}>
                 {loading === 'ticket' ? '...' : ts('exam.startBtn')}
               </Button>
             </div>
@@ -271,10 +272,10 @@ export default function ExamPage() {
         </Card>
 
         {/* Marathon mode */}
-        <Card className="hover:border-amber-200 dark:hover:border-amber-800 transition-colors">
+        <Card className="card-hover hover:border-amber-200 dark:hover:border-amber-800 transition-colors rounded-xl">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/30">
                 <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
@@ -285,10 +286,10 @@ export default function ExamPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{ts('exam.questionsCount')}</span>
-              <span className="flex items-center gap-1 text-xs bg-muted rounded-md px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />{ts('exam.progressSaved')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{ts('exam.questionsCount')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />{ts('exam.progressSaved')}</span>
             </div>
-            <Button className="w-full bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 cursor-pointer" onClick={() => handleStart('marathon')} disabled={loading !== null || hasActive}>
+            <Button className="w-full rounded-xl h-11 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 cursor-pointer" onClick={() => handleStart('marathon')} disabled={loading !== null || hasActive}>
               {loading === 'marathon' ? ts('common.loading') : ts('exam.startMarathonBtn')}
             </Button>
           </CardContent>
@@ -296,11 +297,11 @@ export default function ExamPage() {
       </div>
 
       {/* Recent History Section */}
-      <Card>
+      <Card className="rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <History className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-sm font-medium">{ts('exam.recentHistory')}</CardTitle>
+            <CardTitle className="text-sm font-semibold">{ts('exam.recentHistory')}</CardTitle>
           </div>
           <Link href="/exam/history" className="flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer">
             {ts('exam.viewAll')}
@@ -310,11 +311,11 @@ export default function ExamPage() {
         <CardContent>
           {historyLoading ? (
             <div className="space-y-2">
-              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full rounded-lg" />)}
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-14 w-full rounded-xl" />)}
             </div>
           ) : recentHistory.length === 0 ? (
             <div className="flex flex-col items-center py-6 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted mb-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted mb-2">
                 <GraduationCap className="h-5 w-5 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">{ts('history.noHistory')}</p>
@@ -325,11 +326,11 @@ export default function ExamPage() {
                 <Link
                   key={item.examId}
                   href={`/exam/result/${item.examId}`}
-                  className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer"
+                  className="flex items-center justify-between rounded-xl border border-border/50 p-4 hover:bg-muted/30 hover:shadow-sm transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      'flex h-8 w-8 items-center justify-center rounded-lg shrink-0',
+                      'flex h-8 w-8 items-center justify-center rounded-xl shrink-0',
                       item.passed ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
                     )}>
                       {item.passed
@@ -339,7 +340,7 @@ export default function ExamPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium">{item.correctAnswers}/{item.totalQuestions} ({item.score}%)</p>
+                        <p className="text-sm font-semibold tabular-nums">{item.correctAnswers}/{item.totalQuestions} ({item.score}%)</p>
                         <span className={cn('inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium', MODE_BADGE_STYLES[item.mode] ?? MODE_BADGE_STYLES.exam)}>
                           {ts(`history.mode.${item.mode}`)}
                         </span>
@@ -349,7 +350,7 @@ export default function ExamPage() {
                         {item.timeTakenSeconds > 0 && (
                           <>
                             <span>&middot;</span>
-                            <span>{formatTime(item.timeTakenSeconds)}</span>
+                            <span className="tabular-nums">{formatTime(item.timeTakenSeconds)}</span>
                           </>
                         )}
                       </div>

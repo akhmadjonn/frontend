@@ -408,29 +408,30 @@ export default function QuestionsManagementPage() {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-fade-up">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.questions.title')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.questions.title')}</h1>
           <p className="text-sm text-muted-foreground">
             {ts('common.total')}: {totalCount} {ts('common.question')}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={downloadTemplate}>
+          <Button variant="outline" size="sm" className="rounded-xl" onClick={downloadTemplate}>
             <Download className="h-4 w-4" />
             {ts('admin.questions.downloadTemplate')}
           </Button>
           <Button
             variant="outline"
             size="sm"
+            className="rounded-xl"
             onClick={() => setShowImportDialog(true)}
           >
             <Upload className="h-4 w-4" />
             {ts('admin.questions.import')}
           </Button>
-          <Button size="sm" onClick={() => setShowCreateDrawer(true)}>
+          <Button size="sm" className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={() => setShowCreateDrawer(true)}>
             <Plus className="h-4 w-4" />
             {ts('admin.questions.addQuestion')}
           </Button>
@@ -438,7 +439,7 @@ export default function QuestionsManagementPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:flex-wrap sm:items-end">
+      <div className="glass-card p-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="flex-1 min-w-[200px]">
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('common.search')}</label>
           <div className="relative">
@@ -447,7 +448,7 @@ export default function QuestionsManagementPage() {
               placeholder={ts('admin.questions.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8"
+              className="pl-8 rounded-xl h-11"
             />
           </div>
         </div>
@@ -455,8 +456,10 @@ export default function QuestionsManagementPage() {
         <div className="min-w-[180px]">
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.questions.category')}</label>
           <Select value={categoryId} onValueChange={(v) => setCategoryId(v as string)}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('admin.questions.allCategories')} />
+            <SelectTrigger className="w-full rounded-xl">
+              <SelectValue placeholder={ts('admin.questions.allCategories')}>
+                {categoryId === 'all' ? ts('admin.questions.allCategories') : categories.find(c => c.id === categoryId)?.name ?? ts('admin.questions.allCategories')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('admin.questions.allCategories')}</SelectItem>
@@ -473,7 +476,9 @@ export default function QuestionsManagementPage() {
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.questions.difficulty')}</label>
           <Select value={difficulty} onValueChange={(v) => setDifficulty(v as string)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('common.all')} />
+              <SelectValue placeholder={ts('common.all')}>
+                {difficulty === 'all' ? ts('common.all') : difficulty === '1' ? ts('admin.questions.easy') : difficulty === '2' ? ts('admin.questions.medium') : ts('admin.questions.hard')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('common.all')}</SelectItem>
@@ -488,7 +493,9 @@ export default function QuestionsManagementPage() {
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.questions.status')}</label>
           <Select value={status} onValueChange={(v) => setStatus(v as string)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('common.all')} />
+              <SelectValue placeholder={ts('common.all')}>
+                {status === 'all' ? ts('common.all') : status === 'active' ? ts('admin.active') : ts('admin.inactive')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('common.all')}</SelectItem>
@@ -506,13 +513,14 @@ export default function QuestionsManagementPage() {
             placeholder={ts('admin.questions.ticket')}
             value={ticketNumber}
             onChange={(e) => setTicketNumber(e.target.value)}
+            className="rounded-xl"
           />
         </div>
       </div>
 
       {/* Bulk actions */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 dark:border-blue-900 dark:bg-blue-950/30">
+        <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 dark:border-blue-900 dark:bg-blue-950/30">
           <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
             {selectedIds.size} {ts('admin.questions.selectedCount')}
           </span>
@@ -521,7 +529,7 @@ export default function QuestionsManagementPage() {
               variant="outline"
               size="sm"
               onClick={() => bulkToggleStatus(true)}
-              className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950/30"
+              className="rounded-xl border-green-300 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950/30"
             >
               <Power className="h-4 w-4" />
               {ts('admin.questions.activate')}
@@ -530,7 +538,7 @@ export default function QuestionsManagementPage() {
               variant="outline"
               size="sm"
               onClick={() => bulkToggleStatus(false)}
-              className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
+              className="rounded-xl border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/30"
             >
               <PowerOff className="h-4 w-4" />
               {ts('admin.questions.deactivate')}

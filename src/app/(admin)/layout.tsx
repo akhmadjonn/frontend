@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import AuthGuard from '@/components/auth/auth-guard';
 import Header from '@/components/layout/header';
@@ -41,16 +42,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <AuthGuard requireAdmin>
-      <div className="flex min-h-screen">
-        <aside className="hidden md:flex flex-col w-60 min-h-screen border-r bg-card px-3 py-4 shrink-0">
-          <div className="flex items-center gap-2.5 px-3 py-2 mb-6">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-bold">A</div>
-            <span className="font-bold text-base tracking-tight">{ts('admin.panelTitle')}</span>
+      <div className="flex min-h-screen admin-bg">
+        {/* Glass sidebar */}
+        <aside className="hidden md:flex flex-col w-60 min-h-screen glass-sidebar px-3 py-5 shrink-0">
+          <div className="flex items-center gap-2.5 px-3 py-2 mb-8">
+            <Image src="/logo-full.svg" alt="AvtoLider" width={40} height={22} className="shrink-0" />
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-base tracking-tight">{ts('admin.panelTitle')}</span>
+              <span className="text-[9px] font-bold bg-[oklch(0.588_0.158_241)] text-white px-1.5 py-0.5 rounded-md uppercase">Admin</span>
+            </div>
           </div>
-          <nav className="flex flex-col gap-0.5 flex-1">
+          <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
             {ADMIN_NAV.map((item, i) => {
               if ('sectionKey' in item)
-                return <p key={i} className="mt-5 mb-1.5 px-3 text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest">{ts(item.sectionKey!)}</p>;
+                return <p key={i} className="mt-6 mb-2 px-3 text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-widest">{ts(item.sectionKey!)}</p>;
               const Icon = item.icon!;
               const active = pathname === item.href;
               return (
@@ -58,13 +63,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={item.href}
                   href={item.href!}
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-150',
+                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200',
                     active
-                      ? 'bg-primary/10 text-primary font-semibold'
-                      : 'text-muted-foreground font-medium hover:bg-muted hover:text-foreground'
+                      ? 'bg-[oklch(0.95_0.03_241)] text-foreground font-semibold border-l-[3px] border-[oklch(0.588_0.158_241)]'
+                      : 'text-muted-foreground font-medium hover:bg-white/40 hover:text-foreground border-l-[3px] border-transparent'
                   )}
                 >
-                  <Icon className={cn('h-4 w-4 shrink-0', active ? 'text-primary' : item.color)} />
+                  <Icon className={cn('h-[18px] w-[18px] shrink-0', item.color)} />
                   {ts(item.labelKey!)}
                 </Link>
               );
@@ -73,7 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
         <div className="flex flex-1 flex-col min-w-0">
           <Header />
-          <main className="flex-1 p-4 md:p-6">{children}</main>
+          <main className="flex-1 p-4 md:p-6 animate-fade-up">{children}</main>
         </div>
       </div>
     </AuthGuard>

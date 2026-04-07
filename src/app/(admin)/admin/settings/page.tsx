@@ -265,7 +265,7 @@ export default function SystemSettingsPage() {
 
   if (loading)
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-up">
         <div>
           <Skeleton className="h-7 w-48" />
           <Skeleton className="h-4 w-72 mt-2" />
@@ -292,16 +292,16 @@ export default function SystemSettingsPage() {
     );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.systemSettings.title')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.systemSettings.title')}</h1>
           <p className="text-sm text-muted-foreground">
             {ts('admin.systemSettings.subtitle')}
           </p>
         </div>
         {totalModified > 0 && (
-          <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+          <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
             <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
             {totalModified} {ts('admin.systemSettings.unsavedChanges')}
           </div>
@@ -312,7 +312,7 @@ export default function SystemSettingsPage() {
         {groups.map((group) => {
           const groupModCount = group.settings.filter((s) => isModified(s.key)).length;
           return (
-            <Card key={group.groupKey}>
+            <div key={group.groupKey} className="glass-card p-0">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -415,7 +415,7 @@ export default function SystemSettingsPage() {
                   })}
                 </div>
               </CardContent>
-            </Card>
+            </div>
           );
         })}
       </div>

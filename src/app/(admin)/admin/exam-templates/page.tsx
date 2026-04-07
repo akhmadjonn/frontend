@@ -212,15 +212,15 @@ export default function ExamTemplatesPage() {
     );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.examTemplates.title')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.examTemplates.title')}</h1>
           <p className="text-sm text-muted-foreground">
             {ts('admin.examTemplates.totalCount').replace('{count}', String(templates.length))}
           </p>
         </div>
-        <Button size="sm" onClick={openCreateDialog}>
+        <Button size="sm" className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           {ts('admin.examTemplates.addBtn')}
         </Button>
@@ -233,7 +233,7 @@ export default function ExamTemplatesPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
-            <Card key={template.id} className="relative">
+            <Card key={template.id} className="relative card-hover">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-base">{getTemplateName(template)}</CardTitle>
@@ -284,7 +284,7 @@ export default function ExamTemplatesPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingId ? ts('admin.examTemplates.editTitle') : ts('admin.examTemplates.createTitle')}
@@ -360,7 +360,9 @@ export default function ExamTemplatesPage() {
                         onValueChange={(val) => updatePoolRule(index, 'categoryId', val ?? '')}
                       >
                         <SelectTrigger className="flex-1">
-                          <SelectValue placeholder={ts('admin.examTemplates.selectCategory')} />
+                          <SelectValue placeholder={ts('admin.examTemplates.selectCategory')}>
+                            {categories.find(c => c.id === rule.categoryId)?.name ?? ts('admin.examTemplates.selectCategory')}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           {categories.map((cat) => (
@@ -419,7 +421,7 @@ export default function ExamTemplatesPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {saving ? ts('admin.saving') : editingId ? ts('admin.updateBtn') : ts('admin.createBtn')}
             </Button>
           </DialogFooter>

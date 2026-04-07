@@ -1,6 +1,5 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,40 +18,36 @@ interface StatCardProps {
 export default function StatCard({ title, value, icon: Icon, description, trend, loading, className, iconColor }: StatCardProps) {
   if (loading)
     return (
-      <Card className={className}>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-          <Skeleton className="h-7 w-20 mb-1" />
-          <Skeleton className="h-3 w-32" />
-        </CardContent>
-      </Card>
+      <div className={cn('glass-card stat-glow p-5', className)}>
+        <div className="flex items-center gap-3 mb-3">
+          <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+        <Skeleton className="h-8 w-20 mb-1" />
+        <Skeleton className="h-3 w-32" />
+      </div>
     );
 
   return (
-    <Card className={className}>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg shrink-0', iconColor ?? 'bg-primary/10 text-primary')}>
-            <Icon className="h-4 w-4" />
-          </div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+    <div className={cn('glass-card stat-glow p-5', className)}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl shrink-0', iconColor ?? 'bg-primary/10 text-primary')}>
+          <Icon className="h-5 w-5" />
         </div>
-        <p className="text-2xl font-bold tracking-tight">{value}</p>
-        {(description || trend) && (
-          <p className="text-xs text-muted-foreground mt-1">
-            {trend && (
-              <span className={cn('font-medium', trend.value >= 0 ? 'text-green-600' : 'text-red-600')}>
-                {trend.value >= 0 ? '+' : ''}{trend.value}%
-              </span>
-            )}
-            {trend && description ? ' ' : ''}
-            {description}
-          </p>
-        )}
-      </CardContent>
-    </Card>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+      </div>
+      <p className="text-2xl font-extrabold tracking-tight tabular-nums">{value}</p>
+      {(description || trend) && (
+        <p className="text-xs text-muted-foreground mt-1.5">
+          {trend && (
+            <span className={cn('font-semibold', trend.value >= 0 ? 'text-green-600' : 'text-red-600')}>
+              {trend.value >= 0 ? '+' : ''}{trend.value}%
+            </span>
+          )}
+          {trend && description ? ' ' : ''}
+          {description}
+        </p>
+      )}
+    </div>
   );
 }

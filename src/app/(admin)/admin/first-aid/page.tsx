@@ -272,17 +272,17 @@ export default function FirstAidPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.navFirstAid')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.navFirstAid')}</h1>
           {!loading && (
             <p className="text-sm text-muted-foreground mt-1">
               {ts('common.total')}: {procedures.length}
             </p>
           )}
         </div>
-        <Button onClick={openCreateDialog}>
+        <Button className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           {ts('admin.firstAid.addProcedure')}
         </Button>
@@ -339,7 +339,7 @@ export default function FirstAidPage() {
             </thead>
             <tbody>
               {procedures.map((proc) => (
-                <tr key={proc.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+                <tr key={proc.id} className="border-b last:border-b-0 hover:bg-white/30 transition-colors">
                   <td className="px-4 py-3">
                     <div className="font-medium">{getText(proc.name)}</div>
                     {proc.summary && (
@@ -375,7 +375,7 @@ export default function FirstAidPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingProcedure ? ts('admin.firstAid.editTitle') : ts('admin.firstAid.createTitle')}
@@ -395,9 +395,9 @@ export default function FirstAidPage() {
                 <p className="text-sm font-medium text-muted-foreground mb-2">{ts('admin.plans.nameSection')}</p>
                 <Tabs defaultValue="uzLatin">
                   <TabsList className="w-full">
-                    <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                    <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                    <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                    <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                    <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                    <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                   </TabsList>
                   <TabsContent value="uzLatin" className="mt-3">
                     <Input
@@ -427,9 +427,9 @@ export default function FirstAidPage() {
                 <p className="text-sm font-medium text-muted-foreground mb-2">{ts('admin.firstAid.summary')}</p>
                 <Tabs defaultValue="uzLatin">
                   <TabsList className="w-full">
-                    <TabsTrigger value="uzLatin" className="flex-1">{ts('admin.langUzLatin')}</TabsTrigger>
-                    <TabsTrigger value="uz" className="flex-1">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                    <TabsTrigger value="ru" className="flex-1">{ts('admin.langRussian')}</TabsTrigger>
+                    <TabsTrigger value="uzLatin" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                    <TabsTrigger value="uz" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                    <TabsTrigger value="ru" className="flex-1 data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                   </TabsList>
                   <TabsContent value="uzLatin" className="mt-3">
                     <Textarea
@@ -537,9 +537,9 @@ export default function FirstAidPage() {
 
                     <Tabs defaultValue="uzLatin">
                       <TabsList className="w-full">
-                        <TabsTrigger value="uzLatin" className="flex-1 text-xs">{ts('admin.langUzLatin')}</TabsTrigger>
-                        <TabsTrigger value="uz" className="flex-1 text-xs">{ts('admin.langUzCyrillic')}</TabsTrigger>
-                        <TabsTrigger value="ru" className="flex-1 text-xs">{ts('admin.langRussian')}</TabsTrigger>
+                        <TabsTrigger value="uzLatin" className="flex-1 text-xs data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzLatin')}</TabsTrigger>
+                        <TabsTrigger value="uz" className="flex-1 text-xs data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langUzCyrillic')}</TabsTrigger>
+                        <TabsTrigger value="ru" className="flex-1 text-xs data-[state=active]:bg-[oklch(0.588_0.158_241)] data-[state=active]:text-white">{ts('admin.langRussian')}</TabsTrigger>
                       </TabsList>
                       <TabsContent value="uzLatin" className="mt-2 space-y-2">
                         <Input
@@ -601,7 +601,7 @@ export default function FirstAidPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleSubmit} disabled={submitting || loadingDetail}>
+            <Button onClick={handleSubmit} disabled={submitting || loadingDetail} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {submitting
                 ? ts('admin.saving')
                 : editingProcedure
@@ -614,7 +614,7 @@ export default function FirstAidPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.firstAid.deleteTitle')}</DialogTitle>
           </DialogHeader>

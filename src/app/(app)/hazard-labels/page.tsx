@@ -40,7 +40,7 @@ export default function HazardLabelsPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('hazardLabels.title')}</h1>
       </div>
@@ -69,7 +69,7 @@ export default function HazardLabelsPage() {
           {labels.map((label) => (
             <Card
               key={label.id}
-              className="cursor-pointer transition-all hover:shadow-md hover:scale-[1.02]"
+              className="cursor-pointer transition-all hover:shadow-lg hover:scale-[1.015]"
               onClick={() => setSelected(label)}
             >
               <CardContent className="p-3">
@@ -77,10 +77,10 @@ export default function HazardLabelsPage() {
                   <img
                     src={label.imageUrl}
                     alt={t(label.name)}
-                    className="aspect-square w-full object-contain rounded-lg bg-muted/30 mb-2"
+                    className="aspect-square w-full object-contain rounded-xl bg-muted/30 mb-2"
                   />
                 ) : (
-                  <div className="aspect-square w-full rounded-lg bg-muted/30 flex items-center justify-center mb-2">
+                  <div className="aspect-square w-full rounded-xl bg-muted/30 flex items-center justify-center mb-2">
                     <ImageOff className="h-8 w-8 text-muted-foreground" />
                   </div>
                 )}
@@ -96,7 +96,7 @@ export default function HazardLabelsPage() {
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
         {selected && (
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md rounded-2xl">
             <DialogHeader>
               <DialogTitle>{t(selected.name)}</DialogTitle>
               <DialogDescription>

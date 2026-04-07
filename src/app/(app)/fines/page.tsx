@@ -69,7 +69,7 @@ export default function FinesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('fines.title')}</h1>
       </div>
@@ -80,7 +80,7 @@ export default function FinesPage() {
           placeholder={ts('fines.search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
+          className="pl-9 rounded-xl h-11"
         />
       </div>
 
@@ -111,8 +111,8 @@ export default function FinesPage() {
               <Card
                 key={fine.id}
                 className={cn(
-                  'cursor-pointer transition-colors hover:bg-muted/50',
-                  isExpanded && 'ring-1 ring-primary/20'
+                  'cursor-pointer transition-colors hover:bg-muted/50 rounded-xl card-hover',
+                  isExpanded && 'ring-2 ring-[oklch(0.588_0.158_241)]/20'
                 )}
                 onClick={() => toggleExpand(fine.id)}
               >
@@ -132,7 +132,7 @@ export default function FinesPage() {
                       <p className="text-sm leading-relaxed">{t(fine.violationDescription)}</p>
                       <div className="flex items-center gap-1.5 mt-2">
                         <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                        <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                        <span className="text-sm font-medium text-amber-600 dark:text-amber-400 tabular-nums">
                           {ts('fines.penalty')}: {formatPenalty(fine.penaltyAmountTiyins, fine.penaltyMaxTiyins)}
                         </span>
                       </div>
@@ -172,10 +172,11 @@ export default function FinesPage() {
             size="sm"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
+            className="rounded-xl"
           >
             {ts('common.previous')}
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground tabular-nums">
             {page} / {totalPages}
           </span>
           <Button
@@ -183,6 +184,7 @@ export default function FinesPage() {
             size="sm"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
+            className="rounded-xl"
           >
             {ts('common.next')}
           </Button>

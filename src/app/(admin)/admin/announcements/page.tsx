@@ -300,15 +300,15 @@ export default function AnnouncementsPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{ts('admin.announcements.title')}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">{ts('admin.announcements.title')}</h1>
           <p className="text-sm text-muted-foreground">
             {ts('admin.announcements.subtitle')}
           </p>
         </div>
-        <Button size="sm" onClick={openCreateDialog}>
+        <Button size="sm" className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white" onClick={openCreateDialog}>
           <Plus className="h-4 w-4" />
           {ts('admin.announcements.addBtn')}
         </Button>
@@ -326,7 +326,7 @@ export default function AnnouncementsPage() {
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl rounded-2xl">
           <DialogHeader>
             <DialogTitle>
               {editingId ? ts('admin.announcements.editTitle') : ts('admin.announcements.createTitle')}
@@ -466,7 +466,7 @@ export default function AnnouncementsPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               {ts('common.cancel')}
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white">
               {saving ? ts('admin.saving') : editingId ? ts('admin.updateBtn') : ts('admin.createBtn')}
             </Button>
           </DialogFooter>
@@ -474,7 +474,7 @@ export default function AnnouncementsPage() {
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm rounded-2xl">
           <DialogHeader>
             <DialogTitle>{ts('admin.announcements.deleteTitle')}</DialogTitle>
           </DialogHeader>

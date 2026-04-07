@@ -1,4 +1,4 @@
-export const APP_NAME = 'AutoTest';
+export const APP_NAME = 'AvtoLider';
 export const EXAM_QUESTION_COUNT = 20;
 export const EXAM_TIME_MINUTES = 25;
 export const EXAM_PASSING_SCORE = 90; // percentage (18/20 correct = UBDD standard)
