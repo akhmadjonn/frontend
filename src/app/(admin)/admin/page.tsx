@@ -10,6 +10,8 @@ import { Users, FileQuestion, GraduationCap, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { useLocale } from '@/hooks/use-locale';
+import { useLocaleStore } from '@/stores/locale-store';
+import { getDateLocale } from '@/lib/date-locale';
 
 const RevenueChart = dynamic(() => import('@/components/admin/revenue-chart'), {
   ssr: false,
@@ -20,21 +22,37 @@ const formatMoney = (tiyins: number) =>
   `${(tiyins / 100).toLocaleString('uz-UZ')} so'm`;
 
 const EXAM_MODE_COLORS: Record<string, string> = {
+  exam: 'bg-blue-500',
   Exam: 'bg-blue-500',
+  ticket: 'bg-amber-500',
   Ticket: 'bg-amber-500',
+  marathon: 'bg-green-500',
   Marathon: 'bg-green-500',
+  speedChallenge: 'bg-orange-500',
+  SpeedChallenge: 'bg-orange-500',
+  hardMode: 'bg-red-500',
+  HardMode: 'bg-red-500',
 };
 
 export default function AdminDashboardPage() {
   const { ts } = useLocale();
+  const language = useLocaleStore((s) => s.language);
+  const dateLocale = getDateLocale(language);
   const [dashboard, setDashboard] = useState<AdminDashboardDto | null>(null);
   const [revenue, setRevenue] = useState<RevenueReportDto | null>(null);
   const [loading, setLoading] = useState(true);
 
   const EXAM_MODE_LABELS: Record<string, string> = {
+    exam: ts('admin.dashboard.modeExam'),
     Exam: ts('admin.dashboard.modeExam'),
+    ticket: ts('admin.dashboard.modeTicket'),
     Ticket: ts('admin.dashboard.modeTicket'),
+    marathon: ts('admin.dashboard.modeMarathon'),
     Marathon: ts('admin.dashboard.modeMarathon'),
+    speedChallenge: ts('admin.dashboard.modeSpeed'),
+    SpeedChallenge: ts('admin.dashboard.modeSpeed'),
+    hardMode: ts('admin.dashboard.modeHard'),
+    HardMode: ts('admin.dashboard.modeHard'),
   };
 
   useEffect(() => {
@@ -191,7 +209,7 @@ export default function AdminDashboardPage() {
                       {user.firstName ?? user.phoneNumber ?? ts('admin.dashboard.unknown')}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(user.createdAt), { addSuffix: true, locale: dateLocale })}
                     </p>
                   </div>
                   {user.phoneNumber && (

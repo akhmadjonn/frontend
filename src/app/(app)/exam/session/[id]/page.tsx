@@ -35,6 +35,14 @@ export default function ExamSessionPage() {
     }
   }, [status, questions.length, router]);
 
+  // Validate exam hasn't expired on mount (handles stale sessionStorage restore)
+  useEffect(() => {
+    if (expiresAt && mode !== 'marathon' && new Date(expiresAt).getTime() < Date.now()) {
+      toast.warning(ts('exam.sessionExpired'));
+      router.replace('/exam');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const handleVisibility = () => {
       if (document.hidden) {
@@ -65,9 +73,9 @@ export default function ExamSessionPage() {
         selectedAnswerId: answerId,
       });
     } catch {
-      // Silent fail
+      toast.warning(ts('exam.answerSaveFailed'));
     }
-  }, [examId, selectAnswer]);
+  }, [examId, selectAnswer, ts]);
 
   const handleComplete = useCallback(async () => {
     if (submittedRef.current || completing) return;
@@ -190,6 +198,39 @@ export default function ExamSessionPage() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+
+        {/* Bottom finish section — appears when all answered or on last question */}
+        {answeredCount === totalQuestions ? (
+          <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 p-4 text-center space-y-3">
+            <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-400">
+              <CheckCircle className="h-5 w-5" />
+              <p className="font-semibold">{ts('exam.allAnswered')}</p>
+            </div>
+            <p className="text-sm text-muted-foreground">{ts('exam.reviewOrFinish')}</p>
+            <Button
+              onClick={handleComplete}
+              disabled={completing}
+              className="bg-green-600 hover:bg-green-700 text-white rounded-xl h-11 px-8"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              {completing ? ts('exam.completing') : ts('exam.finishExam')}
+            </Button>
+          </div>
+        ) : answeredCount > 0 && currentIndex === totalQuestions - 1 ? (
+          <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 p-4 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {ts('exam.unansweredCount').replace('{count}', String(totalQuestions - answeredCount))}
+            </p>
+            <Button
+              variant="outline"
+              onClick={handleComplete}
+              disabled={completing}
+              className="rounded-xl"
+            >
+              {completing ? ts('exam.completing') : ts('exam.finishAnyway')}
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

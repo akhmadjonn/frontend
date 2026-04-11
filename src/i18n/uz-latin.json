@@ -101,7 +101,18 @@
     "dailyActivity": "Kunlik faollik",
     "todayQuestions": "Bugun javob berilgan",
     "thisWeek": "Shu hafta",
-    "weekAvg": "Haftalik o'rtacha"
+    "weekAvg": "Haftalik o'rtacha",
+    "statsPracticeQuestions": "Mashq savollar",
+    "statsExams": "Imtihonlar",
+    "statsStreak": "Seriya",
+    "statsPassRate": "O'tish darajasi",
+    "statsDays": "kun",
+    "accuracy30days": "Aniqlik (30 kun)",
+    "avgAccuracy": "O'rtacha",
+    "bestAccuracy": "Eng yuqori",
+    "worstAccuracy": "Eng past",
+    "trend": "Trend",
+    "categoryPerformance": "Kategoriyalar bo'yicha"
   },
   "exam": {
     "start": "Imtihonni boshlash",
@@ -122,6 +133,12 @@
     "correct": "To'g'ri",
     "wrong": "Noto'g'ri",
     "result": "Natija",
+    "passingScore": "O'tish bali",
+    "allAnswered": "Barcha savollarga javob berildi!",
+    "reviewOrFinish": "Javoblarni tekshirishingiz yoki yakunlashingiz mumkin.",
+    "finishExam": "Imtihonni yakunlash",
+    "finishAnyway": "Shunga qaramay yakunlash",
+    "unansweredCount": "{count} ta savolga javob berilmagan",
     "resumeMarathon": "Maratonni davom ettirish",
     "title": "Imtihon",
     "subtitle": "Rejim tanlang va imtihonni boshlang",
@@ -148,7 +165,9 @@
     "recentHistory": "Oxirgi natijalar",
     "viewAll": "Barchasini ko'rish",
     "completing": "Yakunlanmoqda...",
-    "tabSwitchWarning": "Tab almashtirildi! Bu qayd etildi."
+    "tabSwitchWarning": "Tab almashtirildi! Bu qayd etildi.",
+    "sessionExpired": "Imtihon vaqti tugadi.",
+    "answerSaveFailed": "Javob saqlanmadi. Internet aloqasini tekshiring."
   },
   "history": {
     "title": "Imtihon tarixi",
@@ -180,6 +199,7 @@
     "wereCorrect": "tasi to'g'ri",
     "noQuestions": "Savollar topilmadi",
     "practiceMore": "Yana mashq",
+    "appearsAgain": "Yana ko'rinadi",
     "categories": "Kategoriyalar",
     "speedComplete": "Tezlik sinovi yakunlandi!",
     "questionsAnswered": "savolga javob berildi",
@@ -333,7 +353,9 @@
       "loadError": "Dashboard yuklanmadi",
       "modeExam": "Imtihon",
       "modeTicket": "Bilet",
-      "modeMarathon": "Maraton"
+      "modeMarathon": "Maraton",
+      "modeSpeed": "Tezlik sinovi",
+      "modeHard": "Qiyin rejim"
     },
     "questions": {
       "title": "Savollar boshqaruvi",

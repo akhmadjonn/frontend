@@ -14,6 +14,7 @@ import type { AdminQuestionDto, CategoryDto } from '@/types/admin';
 import { toast } from 'sonner';
 import { Plus, Trash2, Upload, X, ImageIcon, Loader2 } from 'lucide-react';
 import { useLocale } from '@/hooks/use-locale';
+import { useLocaleStore } from '@/stores/locale-store';
 
 interface AnswerOptionForm {
   id?: string;
@@ -40,16 +41,17 @@ interface QuestionDrawerProps {
   onSaved: () => void;
 }
 
-function flattenCategories(categories: CategoryDto[], depth = 0): FlatCategory[] {
+function flattenCategories(categories: CategoryDto[], locale: 'uz' | 'uzLatin' | 'ru', depth = 0): FlatCategory[] {
   const result: FlatCategory[] = [];
   for (const cat of categories) {
+    const localizedName = cat.name[locale] || cat.name.uzLatin || cat.name.uz;
     result.push({
       id: cat.id,
-      name: `${'— '.repeat(depth)}${cat.name.uzLatin || cat.name.uz}`,
+      name: depth > 0 ? `  ${'  '.repeat(depth - 1)}${localizedName}` : localizedName,
       depth,
     });
     if (cat.children?.length)
-      result.push(...flattenCategories(cat.children, depth + 1));
+      result.push(...flattenCategories(cat.children, locale, depth + 1));
   }
   return result;
 }
@@ -68,12 +70,13 @@ function createEmptyOption(): AnswerOptionForm {
 
 export function QuestionDrawer({ open, onOpenChange, question, categories, onSaved }: QuestionDrawerProps) {
   const { ts } = useLocale();
+  const locale = (useLocaleStore().language as 'uz' | 'uzLatin' | 'ru') || 'uzLatin';
   const isEdit = !!question;
-  const flatCategories = flattenCategories(categories);
+  const flatCategories = flattenCategories(categories, locale);
 
   // form state
   const [categoryId, setCategoryId] = useState('');
-  const [difficulty, setDifficulty] = useState('1');
+  const [difficulty, setDifficulty] = useState('easy');
   const [ticketNumber, setTicketNumber] = useState('1');
   const [licenseCategory, setLicenseCategory] = useState('AB');
   const [questionStatus, setQuestionStatus] = useState<'active' | 'archived'>('active');
@@ -136,7 +139,7 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
       );
     } else {
       setCategoryId('');
-      setDifficulty('1');
+      setDifficulty('easy');
       setTicketNumber('1');
       setLicenseCategory('AB');
       setQuestionStatus('active');
@@ -332,12 +335,14 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
               <Label>{ts('admin.questionForm.difficultyLabel')}</Label>
               <Select value={difficulty} onValueChange={(v) => setDifficulty(v as string)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {difficulty === 'easy' ? ts('admin.questions.easy') : difficulty === 'medium' ? ts('admin.questions.medium') : ts('admin.questions.hard')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">{ts('admin.questions.easy')}</SelectItem>
-                  <SelectItem value="2">{ts('admin.questions.medium')}</SelectItem>
-                  <SelectItem value="3">{ts('admin.questions.hard')}</SelectItem>
+                  <SelectItem value="easy">{ts('admin.questions.easy')}</SelectItem>
+                  <SelectItem value="medium">{ts('admin.questions.medium')}</SelectItem>
+                  <SelectItem value="hard">{ts('admin.questions.hard')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

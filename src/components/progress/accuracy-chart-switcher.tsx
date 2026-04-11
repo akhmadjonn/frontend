@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { useLocale } from '@/hooks/use-locale';
 
 interface AccuracyDataPoint { date: string; accuracy: number; questionCount?: number }
 interface Props { data?: AccuracyDataPoint[]; loading?: boolean; totalExams?: number }
@@ -26,18 +27,18 @@ function computeStats(data: { accuracy: number }[]) {
   return { avg, best, worst, trend, count: vals.length };
 }
 
-const STATS_CONFIG = [
-  { key: 'avg', label: "O'rtacha" },
-  { key: 'best', label: 'Eng yuqori', color: '#16A34A' },
-  { key: 'worst', label: 'Eng past', color: '#EA580C' },
-  { key: 'trend', label: 'Trend' },
-] as const;
+function SummaryView({ data, stats, labels }: { data: { date: string; accuracy: number }[]; stats: ReturnType<typeof computeStats>; labels: { avg: string; best: string; worst: string; trend: string } }) {
+  const statsConfig = [
+    { key: 'avg' as const, label: labels.avg },
+    { key: 'best' as const, label: labels.best, color: '#16A34A' },
+    { key: 'worst' as const, label: labels.worst, color: '#EA580C' },
+    { key: 'trend' as const, label: labels.trend },
+  ];
 
-function SummaryView({ data, stats }: { data: { date: string; accuracy: number }[]; stats: ReturnType<typeof computeStats> }) {
   return (
     <div className="flex items-center gap-5">
       <div className="min-w-[100px] flex flex-col gap-2.5">
-        {STATS_CONFIG.map((s) => {
+        {statsConfig.map((s) => {
           const val = stats[s.key];
           let color: string | undefined;
           if (s.key === 'best') color = '#16A34A';
@@ -77,7 +78,7 @@ function AreaView({ data, count }: { data: { date: string; accuracy: number }[];
         <CartesianGrid horizontal vertical={false} className="stroke-border" />
         <XAxis dataKey="date" tick={{ fontSize: 11 }} className="text-muted-foreground" />
         <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} className="text-muted-foreground" />
-        <Tooltip formatter={(v) => [`${v}%`, 'Aniqlik']} contentStyle={{ fontSize: 12 }} />
+        <Tooltip formatter={(v) => [`${v}%`]} contentStyle={{ fontSize: 12 }} />
         <Area type="monotone" dataKey="accuracy" stroke="#2563EB" strokeWidth={2} fill="url(#accGrad)" dot={count < 3} />
       </AreaChart>
     </ResponsiveContainer>
@@ -85,6 +86,7 @@ function AreaView({ data, count }: { data: { date: string; accuracy: number }[];
 }
 
 export default function AccuracyChartSwitcher({ data, loading, totalExams = 0 }: Props) {
+  const { ts } = useLocale();
   const [view, setView] = useState<ViewType>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -111,7 +113,7 @@ export default function AccuracyChartSwitcher({ data, loading, totalExams = 0 }:
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">Aniqlik (30 kun)</CardTitle>
+          <CardTitle className="text-base font-semibold">{ts('dashboard.accuracy30days')}</CardTitle>
           <div className="flex gap-0.5 bg-muted rounded-lg p-0.5">
             {(['summary', 'area'] as const).map((v) => (
               <button
@@ -132,10 +134,10 @@ export default function AccuracyChartSwitcher({ data, loading, totalExams = 0 }:
       </CardHeader>
       <CardContent className="pt-0">
         {chartData.length === 0 && totalExams === 0
-          ? <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">Ma&apos;lumot yo&apos;q</div>
+          ? <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">{ts('common.noData')}</div>
           : (
             <div className="min-h-[180px] transition-opacity duration-150">
-              {view === 'summary' && <SummaryView data={chartData} stats={stats} />}
+              {view === 'summary' && <SummaryView data={chartData} stats={stats} labels={{ avg: ts('dashboard.avgAccuracy'), best: ts('dashboard.bestAccuracy'), worst: ts('dashboard.worstAccuracy'), trend: ts('dashboard.trend') }} />}
               {view === 'area' && <AreaView data={chartData} count={stats.count} />}
             </div>
           )

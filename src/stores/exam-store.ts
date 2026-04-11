@@ -49,7 +49,9 @@ function saveToSession(state: Partial<ExamState>) {
       mode: state.mode,
     };
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(serializable));
-  } catch { /* quota exceeded — ignore */ }
+  } catch (e) {
+    console.warn('[exam-store] Failed to save to sessionStorage (quota exceeded?):', e);
+  }
 }
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;

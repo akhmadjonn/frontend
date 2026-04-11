@@ -11,6 +11,7 @@ class ApiClient {
   private cachedLocale: string | null = null;
   private tokenRead = false;
   private localeRead = false;
+  private refreshPromise: Promise<string | null> | null = null;
 
   private getToken(): string | null {
     if (typeof window === 'undefined') return null;
@@ -46,6 +47,18 @@ class ApiClient {
   }
 
   private async refreshAccessToken(): Promise<string | null> {
+    // Deduplicate concurrent refresh attempts — all 401 responses share one refresh call
+    if (this.refreshPromise) return this.refreshPromise;
+
+    this.refreshPromise = this.doRefresh();
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  private async doRefresh(): Promise<string | null> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) return null;
 

@@ -7,22 +7,14 @@ import PhoneInput from '@/components/auth/phone-input';
 import TelegramLoginButton from '@/components/auth/telegram-login-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLocaleStore, useLocaleHydration } from '@/stores/locale-store';
 import { useLocale } from '@/hooks/use-locale';
 import { useAuthStore } from '@/stores/auth-store';
 import { apiClient } from '@/lib/api-client';
 import { phoneSchema } from '@/lib/validators';
-
-const LANG_OPTIONS = [
-  { key: 'uzLatin' as const, label: 'UZ Lotin' },
-  { key: 'uz' as const, label: 'UZ Kirill' },
-  { key: 'ru' as const, label: 'Рус' },
-] as const;
+import LanguageSwitcher from '@/components/layout/language-switcher';
 
 export default function LoginPage() {
   const router = useRouter();
-  useLocaleHydration();
-  const { language, setLanguage } = useLocaleStore();
   const { ts } = useLocale();
   const login = useAuthStore((s) => s.login);
   const [phone, setPhone] = useState('998');
@@ -67,12 +59,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-auth-gradient px-4 py-12 relative">
       {/* Language toggle — top right */}
-      <div className="absolute top-5 right-5 flex rounded-xl border border-border/60 overflow-hidden">
-        {LANG_OPTIONS.map((opt) => (
-          <button key={opt.key} onClick={() => setLanguage(opt.key)} className={`px-3 py-1.5 text-xs font-medium transition-all ${language === opt.key ? 'bg-[oklch(0.588_0.158_241)] text-white' : 'hover:bg-muted/60 text-muted-foreground'}`}>
-            {opt.label}
-          </button>
-        ))}
+      <div className="absolute top-5 right-5">
+        <LanguageSwitcher />
       </div>
 
       <div className="w-full max-w-sm space-y-8 animate-fade-up">

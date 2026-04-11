@@ -203,6 +203,9 @@ export default function SubscriptionPage() {
           const perDay = Math.round(plan.priceInTiyins / plan.durationDays / 100);
           const accent = planAccents[idx % planAccents.length];
           const PlanIcon = PLAN_ICONS[idx % PLAN_ICONS.length];
+          // Check if this is the user's current active plan
+          const isCurrentPlan = isActive && subscription?.planName && t(subscription.planName) === t(plan.name);
+          const canPurchase = !isCurrentPlan && !subscribing;
 
           return (
             <Card
@@ -255,23 +258,28 @@ export default function SubscriptionPage() {
 
                       {/* Payment buttons — desktop */}
                       <div className="hidden sm:flex items-center gap-2.5 mt-5">
-                        {paymentMethods.paymeEnabled && (
-                          <Button
-                            onClick={() => handleSubscribe(plan.id, 'payme')}
-                            disabled={!!subscribing}
-                            className="rounded-xl h-10 px-5 bg-[#00CCCC] hover:bg-[#00B3B3] text-white font-semibold shadow-sm"
-                          >
-                            {subscribing === plan.id ? '...' : '💳 Payme'}
-                          </Button>
-                        )}
-                        {paymentMethods.clickEnabled && (
-                          <Button
-                            onClick={() => handleSubscribe(plan.id, 'click')}
-                            disabled={!!subscribing}
-                            className="rounded-xl h-10 px-5 bg-[#0065FF] hover:bg-[#0052CC] text-white font-semibold shadow-sm"
-                          >
-                            {subscribing === plan.id ? '...' : '💳 Click'}
-                          </Button>
+                        {isCurrentPlan ? (
+                          <span className="inline-flex items-center gap-2 rounded-xl h-10 px-5 bg-emerald-100 text-emerald-700 font-semibold text-sm">
+                            <Check className="h-4 w-4" />
+                            {ts('subscription.currentPlan')}
+                          </span>
+                        ) : (
+                          <>
+                            <Button
+                              onClick={() => paymentMethods.paymeEnabled && handleSubscribe(plan.id, 'payme')}
+                              disabled={!canPurchase || !paymentMethods.paymeEnabled}
+                              className="rounded-xl h-10 px-5 bg-[#00CCCC] hover:bg-[#00B3B3] text-white font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {subscribing === plan.id ? '...' : '💳 Payme'}
+                            </Button>
+                            <Button
+                              onClick={() => paymentMethods.clickEnabled && handleSubscribe(plan.id, 'click')}
+                              disabled={!canPurchase || !paymentMethods.clickEnabled}
+                              className="rounded-xl h-10 px-5 bg-[#0065FF] hover:bg-[#0052CC] text-white font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {subscribing === plan.id ? '...' : '💳 Click'}
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -298,26 +306,31 @@ export default function SubscriptionPage() {
                           ))}
                         </ul>
                       )}
-                      <div className={`grid gap-2.5 ${paymentMethods.paymeEnabled && paymentMethods.clickEnabled ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                        {paymentMethods.paymeEnabled && (
+                      {isCurrentPlan ? (
+                        <div className="flex justify-center">
+                          <span className="inline-flex items-center gap-2 rounded-xl h-11 px-6 bg-emerald-100 text-emerald-700 font-semibold text-sm">
+                            <Check className="h-4 w-4" />
+                            {ts('subscription.currentPlan')}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="grid gap-2.5 grid-cols-2">
                           <Button
-                            onClick={() => handleSubscribe(plan.id, 'payme')}
-                            disabled={!!subscribing}
-                            className="rounded-xl h-11 bg-[#00CCCC] hover:bg-[#00B3B3] text-white font-semibold"
+                            onClick={() => paymentMethods.paymeEnabled && handleSubscribe(plan.id, 'payme')}
+                            disabled={!canPurchase || !paymentMethods.paymeEnabled}
+                            className="rounded-xl h-11 bg-[#00CCCC] hover:bg-[#00B3B3] text-white font-semibold disabled:opacity-50"
                           >
                             {subscribing === plan.id ? '...' : '💳 Payme'}
                           </Button>
-                        )}
-                        {paymentMethods.clickEnabled && (
                           <Button
-                            onClick={() => handleSubscribe(plan.id, 'click')}
-                            disabled={!!subscribing}
-                            className="rounded-xl h-11 bg-[#0065FF] hover:bg-[#0052CC] text-white font-semibold"
+                            onClick={() => paymentMethods.clickEnabled && handleSubscribe(plan.id, 'click')}
+                            disabled={!canPurchase || !paymentMethods.clickEnabled}
+                            className="rounded-xl h-11 bg-[#0065FF] hover:bg-[#0052CC] text-white font-semibold disabled:opacity-50"
                           >
                             {subscribing === plan.id ? '...' : '💳 Click'}
                           </Button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

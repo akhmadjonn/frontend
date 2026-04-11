@@ -45,6 +45,8 @@ import { ArrowLeft, Shield, ShieldOff, Ban, CheckCircle, Crown, Clock, XCircle }
 import { useRouter, useParams } from 'next/navigation';
 import { formatDistanceToNow, format } from 'date-fns';
 import { useLocale } from '@/hooks/use-locale';
+import { useLocaleStore } from '@/stores/locale-store';
+import { getDateLocale } from '@/lib/date-locale';
 
 type ConfirmAction = 'role' | 'block' | 'revoke' | null;
 type DurationOption = '30' | '90' | '365' | 'forever' | 'custom';
@@ -56,6 +58,8 @@ interface PlanOption {
 
 export default function UserDetailPage() {
   const { ts } = useLocale();
+  const language = useLocaleStore((s) => s.language);
+  const dateLocale = getDateLocale(language);
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<UserDetailDto | null>(null);
@@ -364,7 +368,7 @@ export default function UserDetailPage() {
                 label={ts('admin.users.lastActive')}
                 value={
                   user.lastActiveAt
-                    ? formatDistanceToNow(new Date(user.lastActiveAt), { addSuffix: true })
+                    ? formatDistanceToNow(new Date(user.lastActiveAt), { addSuffix: true, locale: dateLocale })
                     : '-'
                 }
               />

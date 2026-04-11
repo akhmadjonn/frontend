@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useLocale } from '@/hooks/use-locale';
+import LanguageSwitcher from '@/components/layout/language-switcher';
 import {
   BookOpen,
   CheckCircle2,
@@ -143,28 +144,7 @@ function TrafficLight() {
 
 // ─── Language Toggle ────────────────────────────────────────────
 function LanguageToggle() {
-  const { language, setLanguage } = useLocale();
-  const langs = [
-    { key: 'uzLatin' as const, label: 'UZ' },
-    { key: 'uz' as const, label: 'УЗ' },
-    { key: 'ru' as const, label: 'RU' },
-  ];
-
-  return (
-    <div className="flex items-center bg-gray-100 rounded-lg p-0.5 gap-0.5">
-      {langs.map((l) => (
-        <button
-          key={l.key}
-          onClick={() => setLanguage(l.key)}
-          className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-            language === l.key ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          {l.label}
-        </button>
-      ))}
-    </div>
-  );
+  return <LanguageSwitcher variant="landing" />;
 }
 
 // ─── FAQ Accordion Item ─────────────────────────────────────────

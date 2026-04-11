@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLocale } from '@/hooks/use-locale';
+import { useLocaleStore } from '@/stores/locale-store';
 
 
 const DataTable = dynamic(() => import('@/components/admin/data-table'), {
@@ -21,31 +22,25 @@ const DataTable = dynamic(() => import('@/components/admin/data-table'), {
   loading: () => <div className="animate-pulse bg-muted rounded h-96" />,
 }) as ComponentType<DataTableProps<AuditLogDto & { _isDetail?: boolean }>>;
 
-const ACTION_BADGE_MAP: Record<string, { label: string; className: string }> = {
-  Create: {
-    label: 'Create',
-    className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  },
-  Update: {
-    label: 'Update',
-    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  },
-  Delete: {
-    label: 'Delete',
-    className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  },
-  StatusChange: {
-    label: 'Status',
-    className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  },
-  Login: {
-    label: 'Login',
-    className: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-  },
-  Export: {
-    label: 'Export',
-    className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  },
+const ACTION_STYLES: Record<string, string> = {
+  create: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  Create: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  update: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  Update: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  delete: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  Delete: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  statusChange: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  StatusChange: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  login: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+  Login: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+  export: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+  Export: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+};
+
+const ACTION_LABELS: Record<string, Record<string, string>> = {
+  ru: { create: 'Создание', update: 'Обновление', delete: 'Удаление', statusChange: 'Статус', login: 'Вход', export: 'Экспорт', Create: 'Создание', Update: 'Обновление', Delete: 'Удаление', StatusChange: 'Статус', Login: 'Вход', Export: 'Экспорт' },
+  uzLatin: { create: 'Yaratish', update: 'Yangilash', delete: "O'chirish", statusChange: 'Status', login: 'Kirish', export: 'Eksport', Create: 'Yaratish', Update: 'Yangilash', Delete: "O'chirish", StatusChange: 'Status', Login: 'Kirish', Export: 'Eksport' },
+  uz: { create: 'Яратиш', update: 'Янгилаш', delete: 'Ўчириш', statusChange: 'Статус', login: 'Кириш', export: 'Экспорт', Create: 'Яратиш', Update: 'Янгилаш', Delete: 'Ўчириш', StatusChange: 'Статус', Login: 'Кириш', Export: 'Экспорт' },
 };
 
 const ACTION_OPTIONS = ['Create', 'Update', 'Delete', 'StatusChange', 'Login', 'Export'];
@@ -53,6 +48,8 @@ const PAGE_SIZE = 20;
 
 export default function AuditLogPage() {
   const { ts } = useLocale();
+  const language = useLocaleStore((s) => s.language);
+  const actionLabels = ACTION_LABELS[language] ?? ACTION_LABELS.uzLatin;
   const [data, setData] = useState<PaginatedList<AuditLogDto> | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -125,14 +122,15 @@ export default function AuditLogPage() {
   };
 
   const renderActionBadge = (action: string) => {
-    const config = ACTION_BADGE_MAP[action];
-    if (config)
+    const className = ACTION_STYLES[action];
+    const label = actionLabels[action] ?? action;
+    if (className)
       return (
-        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}>
-          {config.label}
+        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${className}`}>
+          {label}
         </span>
       );
-    return <Badge variant="outline">{action}</Badge>;
+    return <Badge variant="outline">{label}</Badge>;
   };
 
   const hasChanges = (log: AuditLogDto) =>
@@ -277,7 +275,7 @@ export default function AuditLogPage() {
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.auditLog.actionType')}</label>
           <Select value={actionFilter} onValueChange={(val) => setActionFilter(val ?? 'all')}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('common.all')}>{actionFilter === 'all' ? ts('common.all') : actionFilter}</SelectValue>
+              <SelectValue placeholder={ts('common.all')}>{actionFilter === 'all' ? ts('common.all') : (actionLabels[actionFilter] ?? actionFilter)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('common.all')}</SelectItem>

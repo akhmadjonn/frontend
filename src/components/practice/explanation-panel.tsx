@@ -22,7 +22,7 @@ const LEITNER_COLORS = [
 ];
 
 export default function ExplanationPanel({ isCorrect, explanation, newLeitnerBox, nextReviewDate }: ExplanationPanelProps) {
-  const { t } = useLocale();
+  const { t, ts } = useLocale();
   const boxIndex = Math.max(0, Math.min(newLeitnerBox - 1, 4));
 
   const isPastDate = nextReviewDate ? new Date(nextReviewDate) <= new Date() : false;
@@ -36,7 +36,7 @@ export default function ExplanationPanel({ isCorrect, explanation, newLeitnerBox
             : <XCircle className="h-5 w-5 text-red-600" />
           }
           <span className={`font-semibold ${isCorrect ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-            {isCorrect ? "To'g'ri!" : "Noto'g'ri"}
+            {isCorrect ? ts('exam.correct') : ts('exam.wrong')}
           </span>
         </div>
 
@@ -53,7 +53,7 @@ export default function ExplanationPanel({ isCorrect, explanation, newLeitnerBox
           {nextReviewDate && isPastDate ? (
             <div className="inline-flex items-center gap-1.5 text-xs text-orange-600 dark:text-orange-400">
               <RefreshCw className="h-3 w-3" />
-              Yana ko'rinadi
+              {ts('practice.appearsAgain')}
             </div>
           ) : nextReviewDate ? (
             <>
@@ -62,7 +62,7 @@ export default function ExplanationPanel({ isCorrect, explanation, newLeitnerBox
                 {format(new Date(nextReviewDate), 'dd.MM.yyyy')}
               </div>
               <div className="text-[10px] text-muted-foreground">
-                ({LEITNER_INTERVALS[boxIndex]} kun keyin)
+                ({LEITNER_INTERVALS[boxIndex]} {ts('dashboard.statsDays')})
               </div>
             </>
           ) : null}

@@ -17,6 +17,7 @@ import { DollarSign, CheckCircle, XCircle, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import dynamic from 'next/dynamic';
 import { useLocale } from '@/hooks/use-locale';
+import { useLocaleStore } from '@/stores/locale-store';
 
 const RevenueChart = dynamic(() => import('@/components/admin/revenue-chart'), {
   ssr: false,
@@ -29,16 +30,31 @@ const formatMoney = (tiyins: number) =>
   `${(tiyins / 100).toLocaleString('uz-UZ')} so'm`;
 
 const STATUS_STYLES: Record<string, { dotColor: string; textColor: string }> = {
+  completed: { dotColor: 'bg-green-500', textColor: 'text-green-700 dark:text-green-400' },
   Completed: { dotColor: 'bg-green-500', textColor: 'text-green-700 dark:text-green-400' },
+  pending: { dotColor: 'bg-yellow-500', textColor: 'text-yellow-700 dark:text-yellow-400' },
   Pending: { dotColor: 'bg-yellow-500', textColor: 'text-yellow-700 dark:text-yellow-400' },
+  failed: { dotColor: 'bg-red-500', textColor: 'text-red-700 dark:text-red-400' },
   Failed: { dotColor: 'bg-red-500', textColor: 'text-red-700 dark:text-red-400' },
+  refunded: { dotColor: 'bg-blue-500', textColor: 'text-blue-700 dark:text-blue-400' },
   Refunded: { dotColor: 'bg-blue-500', textColor: 'text-blue-700 dark:text-blue-400' },
 };
 
 const PROVIDER_STYLES: Record<string, string> = {
+  payme: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
   Payme: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  click: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   Click: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  manual: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+  Manual: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
 };
+
+const PROVIDER_LABELS: Record<string, string> = {
+  payme: 'Payme', Payme: 'Payme',
+  click: 'Click', Click: 'Click',
+  manual: 'Premium', Manual: 'Premium',
+};
+
 
 function StatusBadge({ status, label }: { status: string; label: string }) {
   const styles = STATUS_STYLES[status] ?? { dotColor: 'bg-gray-400', textColor: 'text-muted-foreground' };
@@ -52,7 +68,7 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
 
 function ProviderBadge({ provider }: { provider: string }) {
   const className = PROVIDER_STYLES[provider] ?? '';
-  return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${className}`}>{provider}</span>;
+  return <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${className}`}>{PROVIDER_LABELS[provider] ?? provider}</span>;
 }
 
 function TransactionsTab() {
@@ -68,9 +84,13 @@ function TransactionsTab() {
   const [dateTo, setDateTo] = useState('');
 
   const STATUS_LABELS: Record<string, string> = {
+    completed: ts('admin.payments.statusCompleted'),
     Completed: ts('admin.payments.statusCompleted'),
+    pending: ts('admin.payments.statusPending'),
     Pending: ts('admin.payments.statusPending'),
+    failed: ts('admin.payments.statusFailed'),
     Failed: ts('admin.payments.statusFailed'),
+    refunded: ts('admin.payments.statusRefunded'),
     Refunded: ts('admin.payments.statusRefunded'),
   };
 
@@ -158,7 +178,9 @@ function TransactionsTab() {
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.payments.provider')}</label>
           <Select value={providerFilter} onValueChange={(v) => setProviderFilter(v ?? 'all')}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('admin.payments.provider')} />
+              <SelectValue>
+                {providerFilter === 'all' ? ts('admin.payments.allProviders') : providerFilter}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('admin.payments.allProviders')}</SelectItem>
@@ -171,7 +193,9 @@ function TransactionsTab() {
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.payments.status')}</label>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('admin.payments.status')} />
+              <SelectValue>
+                {statusFilter === 'all' ? ts('admin.payments.allStatuses') : STATUS_LABELS[statusFilter] ?? statusFilter}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('admin.payments.allStatuses')}</SelectItem>

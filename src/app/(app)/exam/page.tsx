@@ -16,6 +16,8 @@ import { EXAM_QUESTION_COUNT, EXAM_PASSING_SCORE, EXAM_TIME_MINUTES } from '@/li
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useLocaleStore } from '@/stores/locale-store';
+import { getDateLocale } from '@/lib/date-locale';
 
 type ExamMode = 'exam' | 'ticket' | 'marathon';
 
@@ -81,14 +83,20 @@ const MODE_BADGE_STYLES: Record<string, string> = {
   speedChallenge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
 };
 
-const TICKET_NUMBERS = Array.from({ length: 57 }, (_, i) => i + 1);
+interface TicketSummary {
+  ticketNumber: number;
+  questionCount: number;
+}
 
 export default function ExamPage() {
   const router = useRouter();
   const startExam = useExamStore((s) => s.startExam);
   const { ts } = useLocale();
+  const language = useLocaleStore((s) => s.language);
+  const dateLocale = getDateLocale(language);
   const [loading, setLoading] = useState<ExamMode | null>(null);
-  const [selectedTicket, setSelectedTicket] = useState<number>(1);
+  const [selectedTicket, setSelectedTicket] = useState<number>(0);
+  const [tickets, setTickets] = useState<TicketSummary[]>([]);
   const [activeExam, setActiveExam] = useState<ActiveExamDto | null>(null);
   const [checkingActive, setCheckingActive] = useState(true);
   const [abandoning, setAbandoning] = useState(false);
@@ -107,6 +115,16 @@ export default function ExamPage() {
       .then((data) => setRecentHistory(data.items ?? []))
       .catch(() => {})
       .finally(() => setHistoryLoading(false));
+
+    // Fetch available tickets dynamically from backend
+    apiClient.get<TicketSummary[]>('/questions/tickets')
+      .then((data) => {
+        const sorted = (data ?? []).sort((a, b) => a.ticketNumber - b.ticketNumber);
+        setTickets(sorted);
+        if (sorted.length > 0 && !selectedTicket)
+          setSelectedTicket(sorted[0].ticketNumber);
+      })
+      .catch(() => {});
   }, []);
 
   const handleResume = async () => {
@@ -251,20 +269,24 @@ export default function ExamPage() {
             <div className="flex flex-wrap gap-2">
               <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" /><span className="tabular-nums">20</span> {ts('common.question')}</span>
               <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" /><span className="tabular-nums">25</span> {ts('common.minutes')}</span>
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" /><span className="tabular-nums">57</span> {ts('exam.tickets')}</span>
+              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" /><span className="tabular-nums">{tickets.length}</span> {ts('exam.tickets')}</span>
             </div>
             <div className="flex gap-2">
-              <Select value={String(selectedTicket)} onValueChange={(v) => setSelectedTicket(Number(v))}>
+              <Select value={selectedTicket ? String(selectedTicket) : ''} onValueChange={(v) => setSelectedTicket(Number(v))}>
                 <SelectTrigger className="flex-1 cursor-pointer rounded-xl">
-                  <SelectValue placeholder={ts('exam.selectTicket')} />
+                  <SelectValue placeholder={ts('exam.selectTicket')}>
+                    {selectedTicket ? `${ts('exam.ticketPrefix')}${selectedTicket}` : ts('exam.selectTicket')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="max-h-48">
-                  {TICKET_NUMBERS.map((n) => (
-                    <SelectItem key={n} value={String(n)}>{ts('exam.ticketPrefix')}{n}</SelectItem>
+                  {tickets.map((t) => (
+                    <SelectItem key={t.ticketNumber} value={String(t.ticketNumber)}>
+                      {ts('exam.ticketPrefix')}{t.ticketNumber} ({t.questionCount} {ts('common.question')})
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Button className="shrink-0 rounded-xl h-11 bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-700 cursor-pointer" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive}>
+              <Button className="shrink-0 rounded-xl h-11 bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-700 cursor-pointer" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive || !selectedTicket}>
                 {loading === 'ticket' ? '...' : ts('exam.startBtn')}
               </Button>
             </div>
@@ -346,7 +368,7 @@ export default function ExamPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}</span>
+                        <span>{formatDistanceToNow(new Date(item.completedAt), { addSuffix: true, locale: dateLocale })}</span>
                         {item.timeTakenSeconds > 0 && (
                           <>
                             <span>&middot;</span>

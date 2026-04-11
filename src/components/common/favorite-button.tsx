@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface FavoriteButtonProps {
   questionId: string;
+  initialFavorited?: boolean;
   className?: string;
 }
 
@@ -14,14 +15,14 @@ interface FavoriteToggleDto {
   isFavorited: boolean;
 }
 
-export default function FavoriteButton({ questionId, className }: FavoriteButtonProps) {
-  const [favorited, setFavorited] = useState(false);
+export default function FavoriteButton({ questionId, initialFavorited, className }: FavoriteButtonProps) {
+  const [favorited, setFavorited] = useState(initialFavorited ?? false);
   const [loading, setLoading] = useState(false);
 
-  // Reset when question changes
+  // Sync when question changes or initialFavorited prop updates
   useEffect(() => {
-    setFavorited(false);
-  }, [questionId]);
+    setFavorited(initialFavorited ?? false);
+  }, [questionId, initialFavorited]);
 
   const toggle = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();

@@ -2,6 +2,7 @@
 
 import { memo, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/hooks/use-locale';
 
 interface QuestionNavigatorProps {
   totalQuestions: number;
@@ -12,6 +13,7 @@ interface QuestionNavigatorProps {
 }
 
 export default memo(function QuestionNavigator({ totalQuestions, currentIndex, answeredIds, questionIds, onNavigate }: QuestionNavigatorProps) {
+  const { ts } = useLocale();
   const buttons = useMemo(
     () => Array.from({ length: totalQuestions }, (_, i) => i),
     [totalQuestions]
@@ -26,7 +28,7 @@ export default memo(function QuestionNavigator({ totalQuestions, currentIndex, a
           <button
             key={i}
             onClick={() => onNavigate(i)}
-            aria-label={`Savol ${i + 1}`}
+            aria-label={`${ts('exam.question')} ${i + 1}`}
             aria-current={current ? 'true' : undefined}
             className={cn(
               'flex h-7 w-7 items-center justify-center rounded-md text-xs font-medium transition-colors',

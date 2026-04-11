@@ -1,5 +1,9 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { CheckCircle2, XCircle } from 'lucide-react';
+import { useLocale } from '@/hooks/use-locale';
+
 interface ExamResultSummaryProps {
   score: number;
   correctAnswers: number;
@@ -10,6 +14,7 @@ interface ExamResultSummaryProps {
 }
 
 export default function ExamResultSummary({ score, correctAnswers, totalQuestions, passingScore, passed, timeTakenSeconds }: ExamResultSummaryProps) {
+  const { ts } = useLocale();
   const pct = Math.round((correctAnswers / totalQuestions) * 100);
   const minutes = timeTakenSeconds ? Math.floor(timeTakenSeconds / 60) : 0;
   const seconds = timeTakenSeconds ? timeTakenSeconds % 60 : 0;
@@ -37,22 +42,22 @@ export default function ExamResultSummary({ score, correctAnswers, totalQuestion
       {/* Pass/fail badge */}
       <div className={cn('flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold', passed ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400')}>
         {passed ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-        {passed ? "O'tdingiz!" : "O'ta olmadingiz"}
+        {passed ? ts('exam.passed') : ts('exam.failed')}
       </div>
 
       {/* Stats row */}
       <div className="flex gap-6 text-sm">
         <div className="text-center">
           <p className="text-lg font-bold">{pct}%</p>
-          <p className="text-muted-foreground">Aniqlik</p>
+          <p className="text-muted-foreground">{ts('common.accuracy')}</p>
         </div>
         <div className="text-center">
           <p className="text-lg font-bold">{minutes}:{String(seconds).padStart(2, '0')}</p>
-          <p className="text-muted-foreground">Vaqt</p>
+          <p className="text-muted-foreground">{ts('exam.timeLeft')}</p>
         </div>
         <div className="text-center">
           <p className="text-lg font-bold">{passingScore}%</p>
-          <p className="text-muted-foreground">O'tish bali</p>
+          <p className="text-muted-foreground">{ts('exam.passingScore')}</p>
         </div>
       </div>
     </div>

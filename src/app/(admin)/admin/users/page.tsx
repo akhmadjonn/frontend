@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation';
 import { formatDistanceToNow, format } from 'date-fns';
 import { Crown } from 'lucide-react';
 import { useLocale } from '@/hooks/use-locale';
+import { useLocaleStore } from '@/stores/locale-store';
+import { getDateLocale } from '@/lib/date-locale';
 
 
 const DataTable = dynamic(() => import('@/components/admin/data-table'), {
@@ -23,6 +25,8 @@ const DataTable = dynamic(() => import('@/components/admin/data-table'), {
 
 export default function UsersPage() {
   const { ts } = useLocale();
+  const language = useLocaleStore((s) => s.language);
+  const dateLocale = getDateLocale(language);
   const router = useRouter();
   const [data, setData] = useState<PaginatedList<UserListItemDto> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,7 +124,7 @@ export default function UsersPage() {
       header: ts('admin.users.lastActive'),
       render: (user) =>
         user.lastActiveAt
-          ? formatDistanceToNow(new Date(user.lastActiveAt), { addSuffix: true })
+          ? formatDistanceToNow(new Date(user.lastActiveAt), { addSuffix: true, locale: dateLocale })
           : '-',
     },
     {
@@ -149,7 +153,9 @@ export default function UsersPage() {
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.users.role')}</label>
           <Select value={roleFilter} onValueChange={(val) => setRoleFilter(val as string)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('admin.users.role')} />
+              <SelectValue>
+                {roleFilter === 'all' ? ts('admin.users.allRoles') : roleFilter === 'user' ? ts('admin.users.user') : ts('admin.users.admin')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('admin.users.allRoles')}</SelectItem>
@@ -163,7 +169,9 @@ export default function UsersPage() {
           <label className="mb-1 block text-xs font-medium text-muted-foreground">{ts('admin.users.status')}</label>
           <Select value={blockedFilter} onValueChange={(val) => setBlockedFilter(val as string)}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={ts('admin.users.status')} />
+              <SelectValue>
+                {blockedFilter === 'all' ? ts('admin.users.allStatuses') : blockedFilter === 'yes' ? ts('admin.users.blocked') : ts('admin.active')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{ts('admin.users.allStatuses')}</SelectItem>

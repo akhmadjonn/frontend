@@ -11,6 +11,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CheckCircle2, XCircle, ChevronRight, ChevronLeft, History } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useLocaleStore } from '@/stores/locale-store';
+import { getDateLocale } from '@/lib/date-locale';
 
 type HistoryMode = 'all' | 'exam' | 'ticket' | 'marathon' | 'speedChallenge';
 
@@ -51,6 +53,8 @@ function ModeBadge({ mode, ts }: { mode: string; ts: (key: string) => string }) 
 
 export default function ExamHistoryPage() {
   const { ts } = useLocale();
+  const language = useLocaleStore((s) => s.language);
+  const dateLocale = getDateLocale(language);
   const [items, setItems] = useState<ExamHistoryItem[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -169,7 +173,7 @@ export default function ExamHistoryPage() {
                         <ModeBadge mode={item.mode} ts={ts} />
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}</span>
+                        <span>{formatDistanceToNow(new Date(item.completedAt), { addSuffix: true, locale: dateLocale })}</span>
                         {item.timeTakenSeconds > 0 && (
                           <>
                             <span>&middot;</span>
