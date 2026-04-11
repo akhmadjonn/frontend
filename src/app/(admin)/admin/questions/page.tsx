@@ -64,10 +64,13 @@ function flattenCategories(categories: CategoryDto[], language: keyof LocalizedT
   return result;
 }
 
-const DIFFICULTY_CLASSES: Record<number, string> = {
+const DIFFICULTY_CLASSES: Record<string, string> = {
   1: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   2: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
   3: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  easy: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  hard: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
 };
 
 const PAGE_SIZE = 20;
@@ -77,10 +80,13 @@ export default function QuestionsManagementPage() {
   const { ts } = useLocale();
   const lang = language as keyof LocalizedText;
 
-  const DIFFICULTY_MAP: Record<number, { label: string; className: string }> = {
+  const DIFFICULTY_MAP: Record<string, { label: string; className: string }> = {
     1: { label: ts('admin.questions.easy'), className: DIFFICULTY_CLASSES[1] },
     2: { label: ts('admin.questions.medium'), className: DIFFICULTY_CLASSES[2] },
     3: { label: ts('admin.questions.hard'), className: DIFFICULTY_CLASSES[3] },
+    easy: { label: ts('admin.questions.easy'), className: DIFFICULTY_CLASSES.easy },
+    medium: { label: ts('admin.questions.medium'), className: DIFFICULTY_CLASSES.medium },
+    hard: { label: ts('admin.questions.hard'), className: DIFFICULTY_CLASSES.hard },
   };
 
   // data

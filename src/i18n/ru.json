@@ -101,7 +101,18 @@
     "dailyActivity": "Ежедневная активность",
     "todayQuestions": "Отвечено сегодня",
     "thisWeek": "За неделю",
-    "weekAvg": "Среднее за неделю"
+    "weekAvg": "Среднее за неделю",
+    "statsPracticeQuestions": "Вопросы практики",
+    "statsExams": "Экзамены",
+    "statsStreak": "Серия",
+    "statsPassRate": "Процент сдачи",
+    "statsDays": "дн.",
+    "accuracy30days": "Точность (30 дн.)",
+    "avgAccuracy": "Среднее",
+    "bestAccuracy": "Лучшее",
+    "worstAccuracy": "Худшее",
+    "trend": "Тренд",
+    "categoryPerformance": "По категориям"
   },
   "exam": {
     "start": "Начать экзамен",
@@ -122,6 +133,12 @@
     "correct": "Правильно",
     "wrong": "Неправильно",
     "result": "Результат",
+    "passingScore": "Проходной балл",
+    "allAnswered": "Все вопросы отвечены!",
+    "reviewOrFinish": "Вы можете проверить ответы или завершить экзамен.",
+    "finishExam": "Завершить экзамен",
+    "finishAnyway": "Завершить без ответа",
+    "unansweredCount": "{count} вопросов без ответа",
     "resumeMarathon": "Продолжить марафон",
     "title": "Экзамен",
     "subtitle": "Выберите режим и начните экзамен",
@@ -148,7 +165,9 @@
     "recentHistory": "Последние результаты",
     "viewAll": "Смотреть все",
     "completing": "Завершение...",
-    "tabSwitchWarning": "Вкладка переключена! Это зафиксировано."
+    "tabSwitchWarning": "Вкладка переключена! Это зафиксировано.",
+    "sessionExpired": "Время экзамена истекло.",
+    "answerSaveFailed": "Ответ не сохранён. Проверьте подключение к интернету."
   },
   "history": {
     "title": "История экзаменов",
@@ -180,6 +199,7 @@
     "wereCorrect": "правильных",
     "noQuestions": "Вопросы не найдены",
     "practiceMore": "Ещё практика",
+    "appearsAgain": "Появится снова",
     "categories": "Категории",
     "speedComplete": "Скоростной тест завершён!",
     "questionsAnswered": "вопросов отвечено",
@@ -333,7 +353,9 @@
       "loadError": "Не удалось загрузить панель",
       "modeExam": "Экзамен",
       "modeTicket": "Билет",
-      "modeMarathon": "Марафон"
+      "modeMarathon": "Марафон",
+      "modeSpeed": "Скоростной тест",
+      "modeHard": "Сложный режим"
     },
     "questions": {
       "title": "Управление вопросами",

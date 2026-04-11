@@ -2,27 +2,18 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
-import { useLocaleStore, useLocaleHydration } from '@/stores/locale-store';
 import { useLocale } from '@/hooks/use-locale';
 import { apiClient } from '@/lib/api-client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LogOut, Settings } from 'lucide-react';
-
-const LANG_OPTIONS = [
-  { key: 'uzLatin' as const, label: 'UZ' },
-  { key: 'uz' as const, label: 'КИ' },
-  { key: 'ru' as const, label: 'РУ' },
-] as const;
+import LanguageSwitcher from './language-switcher';
 
 export default function Header() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  useLocaleHydration();
-  const language = useLocaleStore((s) => s.language);
-  const setLanguage = useLocaleStore((s) => s.setLanguage);
   const { ts } = useLocale();
 
   const handleLogout = async () => {
@@ -44,17 +35,7 @@ export default function Header() {
       <div className="flex-1" />
 
       <div className="flex items-center gap-2.5">
-        <div className="flex rounded-xl border border-border/60 overflow-hidden">
-          {LANG_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => setLanguage(opt.key)}
-              className={`px-3 py-1.5 text-xs font-medium transition-all ${language === opt.key ? 'bg-[oklch(0.588_0.158_241)] text-white' : 'hover:bg-muted/60 text-muted-foreground'}`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        <LanguageSwitcher />
 
         <DropdownMenu>
           <DropdownMenuTrigger render={

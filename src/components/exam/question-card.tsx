@@ -2,6 +2,7 @@
 
 import { memo } from 'react';
 import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 import AnswerOption from './answer-option';
 import FavoriteButton from '@/components/common/favorite-button';
 
@@ -33,6 +34,7 @@ interface QuestionCardProps {
 export default memo(function QuestionCard({ question, questionNumber, totalQuestions, selectedAnswerId, onSelectAnswer, disabled, revealCorrectId }: QuestionCardProps) {
   const language = useLocaleStore((s) => s.language);
   const locale = language as 'uz' | 'uzLatin' | 'ru';
+  const { ts } = useLocale();
   const questionText = question.text[locale] ?? question.text.uzLatin;
   const hasQuestionImage = !!question.imageUrl;
 
@@ -44,7 +46,7 @@ export default memo(function QuestionCard({ question, questionNumber, totalQuest
       {/* Question header */}
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground">
-          {questionNumber}/{totalQuestions} — savol
+          {questionNumber}/{totalQuestions} — {ts('exam.question')}
         </span>
         <FavoriteButton questionId={question.questionId} />
       </div>

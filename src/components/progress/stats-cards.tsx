@@ -4,6 +4,7 @@ import { memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookOpen, GraduationCap, Flame, Trophy } from 'lucide-react';
+import { useLocale } from '@/hooks/use-locale';
 
 interface StatsCardsProps {
   data?: {
@@ -15,46 +16,47 @@ interface StatsCardsProps {
   loading?: boolean;
 }
 
-const CARDS = [
-  {
-    key: 'totalQuestionsPracticed' as const,
-    label: "Mashq savollar",
-    icon: BookOpen,
-    iconBg: 'bg-blue-100 dark:bg-blue-900/30',
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    format: (v: number) => v.toLocaleString(),
-  },
-  {
-    key: 'totalExamsTaken' as const,
-    label: 'Imtihonlar',
-    icon: GraduationCap,
-    iconBg: 'bg-violet-100 dark:bg-violet-900/30',
-    iconColor: 'text-violet-600 dark:text-violet-400',
-    format: (v: number) => v.toString(),
-  },
-  {
-    key: 'currentStreak' as const,
-    label: 'Seriya',
-    icon: Flame,
-    iconBg: 'bg-orange-100 dark:bg-orange-900/30',
-    iconColor: 'text-orange-600 dark:text-orange-400',
-    format: (v: number) => `${v} kun`,
-  },
-  {
-    key: 'examPassRate' as const,
-    label: "O'tish darajasi",
-    icon: Trophy,
-    iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
-    iconColor: 'text-emerald-600 dark:text-emerald-400',
-    format: (v: number) => `${Math.round(v)}%`,
-  },
-];
-
 function StatsCards({ data, loading }: StatsCardsProps) {
+  const { ts } = useLocale();
+
+  const cards = [
+    {
+      key: 'totalQuestionsPracticed' as const,
+      label: ts('dashboard.statsPracticeQuestions'),
+      icon: BookOpen,
+      iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      format: (v: number) => v.toLocaleString(),
+    },
+    {
+      key: 'totalExamsTaken' as const,
+      label: ts('dashboard.statsExams'),
+      icon: GraduationCap,
+      iconBg: 'bg-violet-100 dark:bg-violet-900/30',
+      iconColor: 'text-violet-600 dark:text-violet-400',
+      format: (v: number) => v.toString(),
+    },
+    {
+      key: 'currentStreak' as const,
+      label: ts('dashboard.statsStreak'),
+      icon: Flame,
+      iconBg: 'bg-orange-100 dark:bg-orange-900/30',
+      iconColor: 'text-orange-600 dark:text-orange-400',
+      format: (v: number) => `${v} ${ts('dashboard.statsDays')}`,
+    },
+    {
+      key: 'examPassRate' as const,
+      label: ts('dashboard.statsPassRate'),
+      icon: Trophy,
+      iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      format: (v: number) => `${Math.round(v)}%`,
+    },
+  ];
   if (loading)
     return (
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {CARDS.map((_, i) => (
+        {cards.map((_, i) => (
           <Card key={i}>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -72,7 +74,7 @@ function StatsCards({ data, loading }: StatsCardsProps) {
 
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      {CARDS.map(({ key, label, icon: Icon, iconBg, iconColor, format }) => (
+      {cards.map(({ key, label, icon: Icon, iconBg, iconColor, format }) => (
         <Card key={key}>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">

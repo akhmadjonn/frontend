@@ -101,7 +101,18 @@
     "dailyActivity": "Кунлик фаоллик",
     "todayQuestions": "Бугун жавоб берилган",
     "thisWeek": "Шу ҳафта",
-    "weekAvg": "Ҳафталик ўртача"
+    "weekAvg": "Ҳафталик ўртача",
+    "statsPracticeQuestions": "Машқ саволлар",
+    "statsExams": "Имтиҳонлар",
+    "statsStreak": "Серия",
+    "statsPassRate": "Ўтиш даражаси",
+    "statsDays": "кун",
+    "accuracy30days": "Аниқлик (30 кун)",
+    "avgAccuracy": "Ўртача",
+    "bestAccuracy": "Энг юқори",
+    "worstAccuracy": "Энг паст",
+    "trend": "Тренд",
+    "categoryPerformance": "Категориялар бўйича"
   },
   "exam": {
     "start": "Имтиҳонни бошлаш",
@@ -122,6 +133,12 @@
     "correct": "Тўғри",
     "wrong": "Нотўғри",
     "result": "Натижа",
+    "passingScore": "Ўтиш бали",
+    "allAnswered": "Барча саволларга жавоб берилди!",
+    "reviewOrFinish": "Жавобларни текширишингиз ёки якунлашингиз мумкин.",
+    "finishExam": "Имтиҳонни якунлаш",
+    "finishAnyway": "Шунга қарамай якунлаш",
+    "unansweredCount": "{count} та саволга жавоб берилмаган",
     "resumeMarathon": "Марафонни давом эттириш",
     "title": "Имтиҳон",
     "subtitle": "Режим танланг ва имтиҳонни бошланг",
@@ -148,7 +165,9 @@
     "recentHistory": "Охирги натижалар",
     "viewAll": "Барчасини кўриш",
     "completing": "Якунланмоқда...",
-    "tabSwitchWarning": "Таб алмаштирилди! Бу қайд этилди."
+    "tabSwitchWarning": "Таб алмаштирилди! Бу қайд этилди.",
+    "sessionExpired": "Имтиҳон вақти тугади.",
+    "answerSaveFailed": "Жавоб сақланмади. Интернет алоқасини текширинг."
   },
   "history": {
     "title": "Имтиҳон тарихи",
@@ -180,6 +199,7 @@
     "wereCorrect": "таси тўғри",
     "noQuestions": "Саволлар топилмади",
     "practiceMore": "Яна машқ",
+    "appearsAgain": "Яна кўринади",
     "categories": "Категориялар",
     "speedComplete": "Тезлик синови якунланди!",
     "questionsAnswered": "саволга жавоб берилди",
@@ -333,7 +353,9 @@
       "loadError": "Бош саҳифа юкланмади",
       "modeExam": "Имтиҳон",
       "modeTicket": "Билет",
-      "modeMarathon": "Марафон"
+      "modeMarathon": "Марафон",
+      "modeSpeed": "Тезлик синови",
+      "modeHard": "Қийин режим"
     },
     "questions": {
       "title": "Саволлар бошқаруви",

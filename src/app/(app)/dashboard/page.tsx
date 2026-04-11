@@ -13,6 +13,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { GraduationCap, BookOpen, RefreshCw, Flame, CheckCircle2, XCircle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { useLocaleStore } from '@/stores/locale-store';
+import { getDateLocale } from '@/lib/date-locale';
 
 const AccuracyChart = dynamic(() => import('@/components/progress/accuracy-chart-switcher'), {
   ssr: false,
@@ -33,6 +35,8 @@ export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const { dashboard, categories, loading, fetch } = useDashboardStore();
   const { ts } = useLocale();
+  const language = useLocaleStore((s) => s.language);
+  const dateLocale = getDateLocale(language);
 
   useEffect(() => { fetch(); }, [fetch]);
 
@@ -128,7 +132,7 @@ export default function DashboardPage() {
                           );
                         })()}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{formatDistanceToNow(new Date(exam.completedAt), { addSuffix: true })}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{formatDistanceToNow(new Date(exam.completedAt), { addSuffix: true, locale: dateLocale })}</p>
                     </div>
                   </div>
                   <span className={`text-xs font-semibold ${

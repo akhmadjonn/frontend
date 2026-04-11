@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocaleStore } from '@/stores/locale-store';
+import { useLocale } from '@/hooks/use-locale';
 import { cn } from '@/lib/utils';
 
 interface CategoryPerformance { categoryName: { uz: string; uzLatin: string; ru: string }; accuracy: number }
@@ -90,6 +91,8 @@ export default function CategoryChartSwitcher({ data, loading }: Props) {
     return 'rings';
   });
 
+  const { ts } = useLocale();
+
   function switchView(v: ViewType) {
     setView(v);
     localStorage.setItem(STORAGE_KEY, v);
@@ -107,7 +110,7 @@ export default function CategoryChartSwitcher({ data, loading }: Props) {
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">Kategoriyalar bo&apos;yicha</CardTitle>
+          <CardTitle className="text-base font-semibold">{ts('dashboard.categoryPerformance')}</CardTitle>
           <div className="flex gap-0.5 bg-muted rounded-lg p-0.5">
             {(['rings', 'heat'] as const).map((v) => (
               <button
