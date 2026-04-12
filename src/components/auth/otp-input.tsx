@@ -85,6 +85,7 @@ export default function OtpInput({ value, onChange, onComplete, disabled, error 
           onPaste={handlePaste}
           onFocus={(e) => e.target.select()}
           disabled={disabled}
+          autoComplete={i === 0 ? 'one-time-code' : 'off'}
           aria-label={`OTP digit ${i + 1}`}
           className={cn(
             'h-12 w-10 rounded-lg border text-center text-lg font-semibold transition-colors',
