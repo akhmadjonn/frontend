@@ -49,7 +49,7 @@ export default function MobileNav() {
           <div className="absolute bottom-16 left-0 right-0 bg-background border-t rounded-t-2xl p-4 animate-in slide-in-from-bottom-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">{ts('nav.more')}</p>
-              <button onClick={() => setShowMore(false)} className="p-1 rounded-full hover:bg-muted">
+              <button onClick={() => setShowMore(false)} aria-label="Close menu" className="p-1 rounded-full hover:bg-muted">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -78,7 +78,7 @@ export default function MobileNav() {
         </div>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 flex h-16 border-t bg-background md:hidden">
+      <nav aria-label="Mobile navigation" className="fixed bottom-0 left-0 right-0 z-40 flex h-16 border-t bg-background md:hidden">
         {TABS.map(({ href, icon: Icon, labelKey, activeColor }) => {
           const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
           return (
@@ -96,6 +96,8 @@ export default function MobileNav() {
           );
         })}
         <button
+          aria-label="More navigation options"
+          aria-expanded={showMore}
           onClick={() => setShowMore(!showMore)}
           className={cn(
             'flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors',

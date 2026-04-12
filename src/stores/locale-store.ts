@@ -15,11 +15,11 @@ export const useLocaleStore = create<LocaleState>((set) => ({
   _hydrated: false,
   setLanguage: (language) => {
     if (!['uz', 'uzLatin', 'ru'].includes(language)) return;
-    localStorage.setItem('locale', language);
+    localStorage.setItem('avtolider:locale', language);
     set({ language });
   },
   _hydrate: () => {
-    const saved = localStorage.getItem('locale') as Locale | null;
+    const saved = localStorage.getItem('avtolider:locale') as Locale | null;
     const language = saved && ['uz', 'uzLatin', 'ru'].includes(saved) ? saved : 'uzLatin';
     set({ language, _hydrated: true });
   },

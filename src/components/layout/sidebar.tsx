@@ -59,7 +59,7 @@ export default function Sidebar() {
         <span className="font-extrabold text-base tracking-tight">AvtoLider</span>
       </Link>
 
-      <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
+      <nav aria-label="Main navigation" className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
         {NAV_ENTRIES.map((entry, i) => {
           if (isSection(entry)) {
             const text = entry.sectionLabel[language] ?? entry.sectionLabel.uzLatin;

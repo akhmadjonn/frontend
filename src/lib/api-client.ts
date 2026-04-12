@@ -1,4 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5228/api/v1';
+const TOKEN_KEY = 'avtolider:accessToken';
+const REFRESH_KEY = 'avtolider:refreshToken';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -16,7 +18,7 @@ class ApiClient {
   private getToken(): string | null {
     if (typeof window === 'undefined') return null;
     if (!this.tokenRead) {
-      this.cachedToken = localStorage.getItem('accessToken');
+      this.cachedToken = localStorage.getItem(TOKEN_KEY);
       this.tokenRead = true;
     }
     return this.cachedToken;
@@ -24,13 +26,13 @@ class ApiClient {
 
   private getRefreshToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('refreshToken');
+    return localStorage.getItem(REFRESH_KEY);
   }
 
   private getLocale(): string {
     if (typeof window === 'undefined') return 'uzLatin';
     if (!this.localeRead) {
-      this.cachedLocale = localStorage.getItem('locale') || 'uzLatin';
+      this.cachedLocale = localStorage.getItem('avtolider:locale') || 'uzLatin';
       this.localeRead = true;
     }
     return this.cachedLocale ?? 'uzLatin';
@@ -73,8 +75,8 @@ class ApiClient {
 
       const data: ApiResponse<{ accessToken: string; refreshToken: string }> = await response.json();
       if (data.success && data.data) {
-        localStorage.setItem('accessToken', data.data.accessToken);
-        localStorage.setItem('refreshToken', data.data.refreshToken);
+        localStorage.setItem(TOKEN_KEY, data.data.accessToken);
+        localStorage.setItem(REFRESH_KEY, data.data.refreshToken);
         this.updateToken(data.data.accessToken);
         return data.data.accessToken;
       }
@@ -106,8 +108,8 @@ class ApiClient {
         (headers as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
         response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
       } else {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_KEY);
         this.updateToken(null);
         window.location.href = '/login';
         throw new Error('Session expired');

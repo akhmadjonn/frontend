@@ -108,12 +108,12 @@ export default function ExamPage() {
   useEffect(() => {
     apiClient.get<ActiveExamDto | null>('/exams/active')
       .then((data) => setActiveExam(data))
-      .catch(() => {})
+      .catch((err) => { console.warn('[exam] Failed to check active exam:', err); })
       .finally(() => setCheckingActive(false));
 
     apiClient.get<{ items: ExamHistoryItem[]; meta: PaginationMeta }>('/exams/history?page=1&pageSize=5')
       .then((data) => setRecentHistory(data.items ?? []))
-      .catch(() => {})
+      .catch((err) => { console.warn('[exam] Failed to load history:', err); })
       .finally(() => setHistoryLoading(false));
 
     // Fetch available tickets dynamically from backend
@@ -124,7 +124,7 @@ export default function ExamPage() {
         if (sorted.length > 0 && !selectedTicket)
           setSelectedTicket(sorted[0].ticketNumber);
       })
-      .catch(() => {});
+      .catch((err) => { toast.error(ts('common.error')); console.warn('[exam] Failed to load tickets:', err); });
   }, []);
 
   const handleResume = async () => {
