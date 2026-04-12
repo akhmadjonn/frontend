@@ -2,16 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { apiClient } from '@/lib/api-client';
 import { useLocale } from '@/hooks/use-locale';
 import CategorySelector from '@/components/practice/category-selector';
 import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/hooks/use-auth';
-import { toast } from 'sonner';
-import { RefreshCw, Zap, BookOpen, ArrowRight, Brain, Timer, Lock, Crown } from 'lucide-react';
+import { Video, PlayCircle, CheckCircle2 } from 'lucide-react';
 
 interface CategoryPerformance {
   categoryId: string;
@@ -23,25 +21,32 @@ interface CategoryPerformance {
   questionsPracticed: number;
 }
 
-export default function PracticePage() {
+interface VideoCategoryDto {
+  id: string;
+  name: { uz: string; uzLatin: string; ru: string };
+  description: { uz: string; uzLatin: string; ru: string } | null;
+  lessonCount: number;
+  completedCount: number;
+}
+
+export default function LessonsPage() {
   const router = useRouter();
-  const { ts } = useLocale();
-  const { user } = useAuth();
+  const { t, ts } = useLocale();
   const [categories, setCategories] = useState<CategoryPerformance[]>([]);
-  const [dueCount, setDueCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [videoCategories, setVideoCategories] = useState<VideoCategoryDto[]>([]);
+  const [loadingVideo, setLoadingVideo] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      apiClient.get<CategoryPerformance[]>('/progress/categories'),
-      apiClient.get<{ dueCount: number }>('/practice/due-count'),
-    ])
-      .then(([cats, due]) => {
-        setCategories(cats);
-        setDueCount(typeof due === 'number' ? due : (due as any)?.dueCount ?? 0);
-      })
+    apiClient.get<CategoryPerformance[]>('/progress/categories')
+      .then((cats) => setCategories(cats))
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    apiClient.get<VideoCategoryDto[]>('/video-lessons/categories')
+      .then((cats) => setVideoCategories(cats))
+      .catch(() => {})
+      .finally(() => setLoadingVideo(false));
   }, []);
 
   const handleCategorySelect = (categoryId: string) => {
@@ -51,163 +56,75 @@ export default function PracticePage() {
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-xl font-bold tracking-tight">{ts('practice.title')}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{ts('practice.subtitle')}</p>
+        <h1 className="text-xl font-bold tracking-tight">{ts('lessons.title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{ts('lessons.subtitle')}</p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <button onClick={() => router.push('/practice/session?review=true')} className="text-left w-full cursor-pointer">
-          <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl">
-            <CardContent className="flex items-center gap-3 p-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-950/30">
-                <RefreshCw className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold">{ts('practice.review')}</p>
-                {loading
-                  ? <Skeleton className="h-4 w-16 mt-0.5" />
-                  : <p className="text-xs text-muted-foreground">{dueCount} {ts('practice.reviewWaiting')}</p>
-                }
-              </div>
-              {!loading && dueCount > 0 && (
-                <Badge variant="secondary" className="shrink-0 tabular-nums">{dueCount}</Badge>
-              )}
-            </CardContent>
-          </Card>
-        </button>
-
-        <button onClick={() => router.push('/practice/session')} className="text-left w-full cursor-pointer">
-          <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl">
-            <CardContent className="flex items-center gap-3 p-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/30">
-                <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold">{ts('practice.mixedPractice')}</p>
-                <p className="text-xs text-muted-foreground">{ts('practice.allCategories')}</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </CardContent>
-          </Card>
-        </button>
-
-        <Link href="/exam" className="w-full cursor-pointer">
-          <Card className="card-hover hover:border-foreground/20 transition-colors h-full rounded-xl">
-            <CardContent className="flex items-center gap-3 p-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
-                <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold">{ts('practice.marathon')}</p>
-                <p className="text-xs text-muted-foreground">{ts('practice.marathonDesc')}</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      <div>
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ts('practiceMode.additionalModes')}</h2>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <button
-            onClick={() => {
-              if (!user?.hasActiveSubscription) {
-                toast.error(ts('practiceMode.premiumRequired'));
-                return;
-              }
-              router.push('/practice/session?mode=review');
-            }}
-            className="text-left w-full cursor-pointer"
-          >
-            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl">
-              <CardContent className="flex items-center gap-3 p-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/30 relative">
-                  <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  {!user?.hasActiveSubscription && (
-                    <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">{ts('practiceMode.review')}</p>
-                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{ts('practiceMode.reviewDesc')}</p>
-                </div>
+      {/* Video Lessons Categories */}
+      {loadingVideo ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="rounded-xl">
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-2 w-full" />
               </CardContent>
             </Card>
-          </button>
-
-          <button
-            onClick={() => {
-              if (!user?.hasActiveSubscription) {
-                toast.error(ts('practiceMode.premiumRequired'));
-                return;
-              }
-              router.push('/practice/session?mode=hard');
-            }}
-            className="text-left w-full cursor-pointer"
-          >
-            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl">
-              <CardContent className="flex items-center gap-3 p-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 relative">
-                  <Zap className="h-5 w-5 text-red-600 dark:text-red-400" />
-                  {!user?.hasActiveSubscription && (
-                    <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">{ts('practiceMode.hardMode')}</p>
-                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{ts('practiceMode.hardModeDesc')}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </button>
-
-          <button
-            onClick={() => {
-              if (!user?.hasActiveSubscription) {
-                toast.error(ts('practiceMode.premiumRequired'));
-                return;
-              }
-              router.push('/practice/session?mode=speed');
-            }}
-            className="text-left w-full cursor-pointer"
-          >
-            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl">
-              <CardContent className="flex items-center gap-3 p-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/30 relative">
-                  <Timer className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                  {!user?.hasActiveSubscription && (
-                    <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">{ts('practiceMode.speedChallenge')}</p>
-                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{ts('practiceMode.speedChallengeDesc')}</p>
-                </div>
-                <Badge variant="outline" className="shrink-0 text-[10px]">{ts('practiceMode.timePerQuestion')}</Badge>
-              </CardContent>
-            </Card>
-          </button>
+          ))}
         </div>
-      </div>
+      ) : videoCategories.length === 0 ? (
+        <Card className="rounded-xl border-dashed border-2 border-muted-foreground/20">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/30 mb-4">
+              <Video className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <p className="text-sm font-semibold mb-1">{ts('videoLessons.noLessons')}</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {videoCategories.map((cat) => {
+            const progress = cat.lessonCount > 0 ? Math.round((cat.completedCount / cat.lessonCount) * 100) : 0;
+            const isComplete = cat.lessonCount > 0 && cat.completedCount === cat.lessonCount;
+            return (
+              <Card
+                key={cat.id}
+                className="rounded-xl cursor-pointer hover:shadow-md transition-shadow border hover:border-[oklch(0.588_0.158_241)]/40"
+                onClick={() => router.push(`/practice/lessons?category=${cat.id}`)}
+              >
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/30 shrink-0">
+                        {isComplete ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        ) : (
+                          <PlayCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-sm leading-tight">{t(cat.name)}</h3>
+                    </div>
+                    <Badge variant="secondary" className="text-xs shrink-0">
+                      {cat.lessonCount} {ts('videoLessons.lessonCount')}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Progress value={progress} className="h-1.5" />
+                    <p className="text-xs text-muted-foreground">
+                      {cat.completedCount}/{cat.lessonCount} {ts('videoLessons.watchedCount')}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
+      {/* Categories Section -- kept from original practice page */}
       <div>
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ts('practice.categories')}</h2>
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ts('lessons.categoriesTitle')}</h2>
         <CategorySelector onSelect={handleCategorySelect} performance={categories} />
       </div>
     </div>

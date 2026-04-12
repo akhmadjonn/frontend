@@ -41,7 +41,7 @@ export default function ExamSessionPage() {
       toast.warning(ts('exam.sessionExpired'));
       router.replace('/exam');
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [expiresAt, mode, router, ts]);
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -173,6 +173,7 @@ export default function ExamSessionPage() {
           <Button
             variant="outline"
             size="sm"
+            aria-label={ts('common.previous')}
             onClick={() => goToQuestion(currentIndex - 1)}
             disabled={currentIndex === 0}
           >
@@ -191,6 +192,7 @@ export default function ExamSessionPage() {
           <Button
             variant="outline"
             size="sm"
+            aria-label={ts('common.next')}
             onClick={() => goToQuestion(currentIndex + 1)}
             disabled={currentIndex === totalQuestions - 1}
           >

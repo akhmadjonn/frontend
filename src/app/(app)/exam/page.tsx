@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { GraduationCap, Hash, Trophy, Clock, Timer, AlertTriangle, Play, Trash2, ChevronRight, CheckCircle2, XCircle, History } from 'lucide-react';
+import { GraduationCap, Hash, Trophy, Clock, Timer, AlertTriangle, Play, Trash2, ChevronRight, CheckCircle2, XCircle, History, RefreshCw, Zap, ArrowRight, Brain, Lock, Crown } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 import { EXAM_QUESTION_COUNT, EXAM_PASSING_SCORE, EXAM_TIME_MINUTES } from '@/lib/constants';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -92,9 +93,12 @@ export default function ExamPage() {
   const router = useRouter();
   const startExam = useExamStore((s) => s.startExam);
   const { ts } = useLocale();
+  const { user } = useAuth();
   const language = useLocaleStore((s) => s.language);
   const dateLocale = getDateLocale(language);
   const [loading, setLoading] = useState<ExamMode | null>(null);
+  const [dueCount, setDueCount] = useState(0);
+  const [practiceLoading, setPracticeLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<number>(0);
   const [tickets, setTickets] = useState<TicketSummary[]>([]);
   const [activeExam, setActiveExam] = useState<ActiveExamDto | null>(null);
@@ -108,12 +112,12 @@ export default function ExamPage() {
   useEffect(() => {
     apiClient.get<ActiveExamDto | null>('/exams/active')
       .then((data) => setActiveExam(data))
-      .catch(() => {})
+      .catch((err) => { console.warn('[exam] Failed to check active exam:', err); })
       .finally(() => setCheckingActive(false));
 
     apiClient.get<{ items: ExamHistoryItem[]; meta: PaginationMeta }>('/exams/history?page=1&pageSize=5')
       .then((data) => setRecentHistory(data.items ?? []))
-      .catch(() => {})
+      .catch((err) => { console.warn('[exam] Failed to load history:', err); })
       .finally(() => setHistoryLoading(false));
 
     // Fetch available tickets dynamically from backend
@@ -124,7 +128,12 @@ export default function ExamPage() {
         if (sorted.length > 0 && !selectedTicket)
           setSelectedTicket(sorted[0].ticketNumber);
       })
-      .catch(() => {});
+      .catch((err) => { toast.error(ts('common.error')); console.warn('[exam] Failed to load tickets:', err); });
+
+    apiClient.get<{ dueCount: number }>('/practice/due-count')
+      .then((data) => setDueCount(typeof data === 'number' ? data : (data as any)?.dueCount ?? 0))
+      .catch((err) => { console.warn('[exam] Failed to load due count:', err); })
+      .finally(() => setPracticeLoading(false));
   }, []);
 
   const handleResume = async () => {
@@ -190,7 +199,7 @@ export default function ExamPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto animate-fade-up">
+    <div className="space-y-6 max-w-4xl mx-auto animate-fade-up">
       <div>
         <h1 className="text-xl font-bold tracking-tight">{ts('exam.title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">{ts('exam.subtitle')}</p>
@@ -223,57 +232,47 @@ export default function ExamPage() {
         </Card>
       )}
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         {/* Exam mode */}
-        <Card className="card-hover relative hover:border-blue-200 dark:hover:border-blue-800 transition-colors rounded-xl">
+        <Card className="card-hover relative hover:border-blue-200 dark:hover:border-blue-800 transition-colors rounded-xl flex flex-col">
           <div className="absolute right-3 top-3">
             <Badge variant="secondary" className="text-[11px]">{ts('exam.realExam')}</Badge>
           </div>
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/30">
-                <GraduationCap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold">{ts('exam.examMode')}</CardTitle>
-                <p className="text-xs text-muted-foreground">{ts('exam.examDesc')}</p>
-              </div>
+          <CardContent className="pt-6 pb-4 flex flex-col items-center text-center flex-1">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/30 mb-3">
+              <GraduationCap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" /><span className="tabular-nums">{EXAM_QUESTION_COUNT}</span> {ts('common.question')}</span>
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" /><span className="tabular-nums">{EXAM_TIME_MINUTES}</span> {ts('common.minutes')}</span>
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Trophy className="h-3.5 w-3.5" />{ts('exam.passingRate')} <span className="tabular-nums">{EXAM_PASSING_SCORE}%</span></span>
+            <CardTitle className="text-base font-semibold mb-1">{ts('exam.examMode')}</CardTitle>
+            <p className="text-xs text-muted-foreground mb-4">{ts('exam.examDesc')}</p>
+            <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Hash className="h-3 w-3" /><span className="tabular-nums">{EXAM_QUESTION_COUNT}</span></span>
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Timer className="h-3 w-3" /><span className="tabular-nums">{EXAM_TIME_MINUTES}</span> {ts('common.minutes')}</span>
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Trophy className="h-3 w-3" /><span className="tabular-nums">{EXAM_PASSING_SCORE}%</span></span>
             </div>
-            <Button className="w-full rounded-xl h-11 btn-gradient-blue text-white cursor-pointer" onClick={() => handleStart('exam')} disabled={loading !== null || hasActive}>
-              {loading === 'exam' ? ts('common.loading') : ts('exam.start')}
-            </Button>
+            <div className="mt-auto w-full">
+              <Button className="w-full rounded-xl h-10 btn-gradient-blue text-white cursor-pointer" onClick={() => handleStart('exam')} disabled={loading !== null || hasActive}>
+                {loading === 'exam' ? ts('common.loading') : ts('exam.start')}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
         {/* Ticket mode */}
-        <Card className="card-hover hover:border-violet-200 dark:hover:border-violet-800 transition-colors rounded-xl">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 dark:bg-violet-950/30">
-                <Hash className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold">{ts('exam.ticketMode')}</CardTitle>
-                <p className="text-xs text-muted-foreground">{ts('exam.ticketDesc')}</p>
-              </div>
+        <Card className="card-hover hover:border-violet-200 dark:hover:border-violet-800 transition-colors rounded-xl flex flex-col">
+          <CardContent className="pt-6 pb-4 flex flex-col items-center text-center flex-1">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 dark:bg-violet-950/30 mb-3">
+              <Hash className="h-6 w-6 text-violet-600 dark:text-violet-400" />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" /><span className="tabular-nums">20</span> {ts('common.question')}</span>
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Timer className="h-3.5 w-3.5" /><span className="tabular-nums">25</span> {ts('common.minutes')}</span>
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" /><span className="tabular-nums">{tickets.length}</span> {ts('exam.tickets')}</span>
+            <CardTitle className="text-base font-semibold mb-1">{ts('exam.ticketMode')}</CardTitle>
+            <p className="text-xs text-muted-foreground mb-4">{ts('exam.ticketDesc')}</p>
+            <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Hash className="h-3 w-3" /><span className="tabular-nums">20</span></span>
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Timer className="h-3 w-3" /><span className="tabular-nums">25</span> {ts('common.minutes')}</span>
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Clock className="h-3 w-3" /><span className="tabular-nums">{tickets.length}</span> {ts('exam.tickets')}</span>
             </div>
-            <div className="flex gap-2">
+            <div className="mt-auto w-full space-y-2">
               <Select value={selectedTicket ? String(selectedTicket) : ''} onValueChange={(v) => setSelectedTicket(Number(v))}>
-                <SelectTrigger className="flex-1 cursor-pointer rounded-xl">
+                <SelectTrigger className="w-full cursor-pointer rounded-xl text-sm">
                   <SelectValue placeholder={ts('exam.selectTicket')}>
                     {selectedTicket ? `${ts('exam.ticketPrefix')}${selectedTicket}` : ts('exam.selectTicket')}
                   </SelectValue>
@@ -286,36 +285,173 @@ export default function ExamPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button className="shrink-0 rounded-xl h-11 bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-700 cursor-pointer" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive || !selectedTicket}>
-                {loading === 'ticket' ? '...' : ts('exam.startBtn')}
+              <Button className="w-full rounded-xl h-10 bg-violet-600 hover:bg-violet-700 dark:bg-violet-600 dark:hover:bg-violet-700 cursor-pointer" onClick={() => handleStart('ticket')} disabled={loading !== null || hasActive || !selectedTicket}>
+                {loading === 'ticket' ? ts('common.loading') : ts('exam.startBtn')}
               </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Marathon mode */}
-        <Card className="card-hover hover:border-amber-200 dark:hover:border-amber-800 transition-colors rounded-xl">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/30">
-                <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold">{ts('exam.marathonTitle')}</CardTitle>
-                <p className="text-xs text-muted-foreground">{ts('exam.marathonAllQuestions')}</p>
-              </div>
+        <Card className="card-hover hover:border-amber-200 dark:hover:border-amber-800 transition-colors rounded-xl flex flex-col">
+          <CardContent className="pt-6 pb-4 flex flex-col items-center text-center flex-1">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/30 mb-3">
+              <Trophy className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Hash className="h-3.5 w-3.5" />{ts('exam.questionsCount')}</span>
-              <span className="flex items-center gap-1 text-xs rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1 text-muted-foreground"><Clock className="h-3.5 w-3.5" />{ts('exam.progressSaved')}</span>
+            <CardTitle className="text-base font-semibold mb-1">{ts('exam.marathonTitle')}</CardTitle>
+            <p className="text-xs text-muted-foreground mb-4">{ts('exam.marathonAllQuestions')}</p>
+            <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Hash className="h-3 w-3" />{ts('exam.questionsCount')}</span>
+              <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Clock className="h-3 w-3" />{ts('exam.progressSaved')}</span>
             </div>
-            <Button className="w-full rounded-xl h-11 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 cursor-pointer" onClick={() => handleStart('marathon')} disabled={loading !== null || hasActive}>
-              {loading === 'marathon' ? ts('common.loading') : ts('exam.startMarathonBtn')}
-            </Button>
+            <div className="mt-auto w-full">
+              <Button className="w-full rounded-xl h-10 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 cursor-pointer" onClick={() => handleStart('marathon')} disabled={loading !== null || hasActive}>
+                {loading === 'marathon' ? ts('common.loading') : ts('exam.startMarathonBtn')}
+              </Button>
+            </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Practice Modes Section */}
+      <div>
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ts('exam.practiceModesTitle')}</h2>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <button onClick={() => router.push('/practice/session?review=true')} className="text-left w-full cursor-pointer">
+            <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl h-full">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-950/30">
+                  <RefreshCw className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{ts('practice.review')}</p>
+                  {practiceLoading
+                    ? <Skeleton className="h-4 w-16 mt-0.5" />
+                    : <p className="text-xs text-muted-foreground">{dueCount} {ts('practice.reviewWaiting')}</p>
+                  }
+                </div>
+                {!practiceLoading && dueCount > 0 && (
+                  <Badge variant="secondary" className="shrink-0 tabular-nums">{dueCount}</Badge>
+                )}
+              </CardContent>
+            </Card>
+          </button>
+
+          <button onClick={() => router.push('/practice/session')} className="text-left w-full cursor-pointer">
+            <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl h-full">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/30">
+                  <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{ts('practice.mixedPractice')}</p>
+                  <p className="text-xs text-muted-foreground">{ts('practice.allCategories')}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </CardContent>
+            </Card>
+          </button>
+
+          <button onClick={() => handleStart('marathon')} className="text-left w-full cursor-pointer">
+            <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl h-full">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
+                  <Trophy className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{ts('practice.marathon')}</p>
+                  <p className="text-xs text-muted-foreground">{ts('practice.marathonDesc')}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </CardContent>
+            </Card>
+          </button>
+        </div>
+      </div>
+
+      {/* Additional Premium Modes */}
+      <div>
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">{ts('practiceMode.additionalModes')}</h2>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <button
+            onClick={() => {
+              if (!user?.hasActiveSubscription) { toast.error(ts('practiceMode.premiumRequired')); return; }
+              router.push('/practice/session?mode=review');
+            }}
+            className="text-left w-full cursor-pointer"
+          >
+            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl h-full">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/30 relative">
+                  <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  {!user?.hasActiveSubscription && <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">{ts('practiceMode.review')}</p>
+                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{ts('practiceMode.reviewDesc')}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </button>
+
+          <button
+            onClick={() => {
+              if (!user?.hasActiveSubscription) { toast.error(ts('practiceMode.premiumRequired')); return; }
+              router.push('/practice/session?mode=hard');
+            }}
+            className="text-left w-full cursor-pointer"
+          >
+            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl h-full">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30 relative">
+                  <Zap className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  {!user?.hasActiveSubscription && <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">{ts('practiceMode.hardMode')}</p>
+                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{ts('practiceMode.hardModeDesc')}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </button>
+
+          <button
+            onClick={() => {
+              if (!user?.hasActiveSubscription) { toast.error(ts('practiceMode.premiumRequired')); return; }
+              router.push('/practice/session?mode=speed');
+            }}
+            className="text-left w-full cursor-pointer"
+          >
+            <Card className="card-hover hover:border-foreground/20 transition-colors relative overflow-hidden rounded-xl h-full">
+              <CardContent className="flex items-center gap-3 p-5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/30 relative">
+                  <Timer className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  {!user?.hasActiveSubscription && <Lock className="h-3 w-3 text-muted-foreground absolute -bottom-0.5 -right-0.5" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold">{ts('practiceMode.speedChallenge')}</p>
+                    <Badge variant="secondary" className="text-[10px] bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                      <Crown className="h-3 w-3 mr-0.5" />{ts('practiceMode.premiumBadge')}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{ts('practiceMode.speedChallengeDesc')}</p>
+                </div>
+                <Badge variant="outline" className="shrink-0 text-[10px]">{ts('practiceMode.timePerQuestion')}</Badge>
+              </CardContent>
+            </Card>
+          </button>
+        </div>
       </div>
 
       {/* Recent History Section */}

@@ -4,7 +4,7 @@ import { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
-import { CalendarDays, TrendingUp } from 'lucide-react';
+import { CalendarDays, TrendingUp, Flame, Zap } from 'lucide-react';
 import { useLocale } from '@/hooks/use-locale';
 
 interface DailyActivityProps {
@@ -15,6 +15,15 @@ interface DailyActivityProps {
 
 const DAY_LABELS_UZ = ['Yak', 'Du', 'Se', 'Cho', 'Pay', 'Ju', 'Sha'];
 const DAY_LABELS_RU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+function getBarColor(count: number, isToday: boolean, max: number) {
+  if (count === 0) return '#e5e7eb'; // gray-200
+  if (isToday) return '#3b82f6'; // blue-500
+  const ratio = max > 0 ? count / max : 0;
+  if (ratio >= 0.7) return '#22c55e'; // green-500
+  if (ratio >= 0.4) return '#06b6d4'; // cyan-500
+  return '#8b5cf6'; // violet-500
+}
 
 function DailyActivity({ accuracyData, questionsToday, loading }: DailyActivityProps) {
   const { ts, language } = useLocale();
@@ -42,6 +51,8 @@ function DailyActivity({ accuracyData, questionsToday, loading }: DailyActivityP
 
   const weekTotal = weekData.reduce((sum, d) => sum + d.count, 0);
   const weekAvg = Math.round(weekTotal / 7);
+  const maxCount = Math.max(...weekData.map(d => d.count), 1);
+  const activeDays = weekData.filter(d => d.count > 0).length;
 
   if (loading)
     return (
@@ -58,57 +69,96 @@ function DailyActivity({ accuracyData, questionsToday, loading }: DailyActivityP
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium flex items-center gap-1.5">
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
+            <CalendarDays className="h-4 w-4 text-blue-500" />
             {ts('dashboard.dailyActivity') || "Kunlik faollik"}
           </CardTitle>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <TrendingUp className="h-3.5 w-3.5" />
-              {ts('dashboard.weekAvg') || "Haftalik o'rtacha"}: <strong className="text-foreground ml-0.5">{weekAvg}</strong>
-            </span>
+          <div className="flex items-center gap-1 text-xs">
+            <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+            <span className="text-muted-foreground">{ts('dashboard.weekAvg') || "Haftalik o'rtacha"}:</span>
+            <strong className="text-foreground">{weekAvg}</strong>
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-end gap-4 mb-4">
-          <div>
-            <p className="text-3xl font-bold tracking-tight">{questionsToday ?? 0}</p>
-            <p className="text-xs text-muted-foreground">{ts('dashboard.todayQuestions') || "Bugun javob berilgan"}</p>
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="flex items-center gap-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 p-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/40">
+              <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-lg font-bold tracking-tight text-blue-700 dark:text-blue-300">{questionsToday ?? 0}</p>
+              <p className="text-[10px] text-blue-600/70 dark:text-blue-400/70">{ts('dashboard.todayQuestions') || "Bugun"}</p>
+            </div>
           </div>
-          <div className="text-right ml-auto">
-            <p className="text-lg font-semibold">{weekTotal}</p>
-            <p className="text-xs text-muted-foreground">{ts('dashboard.thisWeek') || "Shu hafta"}</p>
+          <div className="flex items-center gap-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 p-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
+              <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-lg font-bold tracking-tight text-emerald-700 dark:text-emerald-300">{weekTotal}</p>
+              <p className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70">{ts('dashboard.thisWeek') || "Shu hafta"}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 p-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40">
+              <Flame className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="text-lg font-bold tracking-tight text-amber-700 dark:text-amber-300">{activeDays}/7</p>
+              <p className="text-[10px] text-amber-600/70 dark:text-amber-400/70">{ts('dashboard.activeDays') || "Faol kunlar"}</p>
+            </div>
           </div>
         </div>
 
+        {/* Chart */}
         <div className="h-36">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weekData} barSize={28}>
+            <BarChart data={weekData} barSize={32}>
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                tick={(props: any) => {
+                  const { x, y, payload } = props;
+                  const entry = weekData.find(d => d.name === payload.value);
+                  return (
+                    <text
+                      x={x}
+                      y={y + 12}
+                      textAnchor="middle"
+                      fontSize={11}
+                      fontWeight={entry?.isToday ? 700 : 400}
+                      fill={entry?.isToday ? '#3b82f6' : 'var(--muted-foreground)'}
+                    >
+                      {payload.value}
+                    </text>
+                  );
+                }}
               />
               <YAxis hide />
               <Tooltip
-                cursor={{ fill: 'var(--muted)', opacity: 0.3 }}
+                cursor={{ fill: 'var(--muted)', opacity: 0.2, radius: 6 }}
                 contentStyle={{
                   background: 'var(--popover)',
                   border: '1px solid var(--border)',
-                  borderRadius: 8,
+                  borderRadius: 10,
                   fontSize: 12,
-                  padding: '6px 10px',
+                  padding: '8px 12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                 }}
                 formatter={(value) => [`${value} ${ts('common.question')}`, '']}
-                labelFormatter={(label) => label}
+                labelFormatter={(label) => {
+                  const entry = weekData.find(d => d.name === label);
+                  return entry?.isToday ? `📍 ${label} (${ts('dashboard.today') || "Bugun"})` : label;
+                }}
               />
-              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+              <Bar dataKey="count" radius={[8, 8, 4, 4]} animationDuration={800}>
                 {weekData.map((entry, index) => (
                   <Cell
                     key={index}
-                    fill={entry.isToday ? 'var(--primary)' : entry.count > 0 ? 'var(--primary)' : 'var(--muted)'}
-                    opacity={entry.isToday ? 1 : entry.count > 0 ? 0.5 : 0.3}
+                    fill={getBarColor(entry.count, entry.isToday, maxCount)}
+                    opacity={entry.count === 0 ? 0.4 : 1}
                   />
                 ))}
               </Bar>

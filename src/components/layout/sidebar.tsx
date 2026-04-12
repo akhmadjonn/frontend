@@ -26,7 +26,7 @@ type NavEntry = NavItem | NavSection;
 
 const NAV_ENTRIES: NavEntry[] = [
   { href: '/dashboard', icon: LayoutDashboard, label: { uzLatin: 'Bosh sahifa', uz: 'Бош саҳифа', ru: 'Главная' }, color: 'text-blue-600 dark:text-blue-400' },
-  { href: '/practice', icon: BookOpen, label: { uzLatin: 'Mashq', uz: 'Машқ', ru: 'Практика' }, color: 'text-emerald-600 dark:text-emerald-400' },
+  { href: '/practice', icon: BookOpen, label: { uzLatin: 'Nazariy darsliklar', uz: 'Назарий дарсликлар', ru: 'Теория' }, color: 'text-emerald-600 dark:text-emerald-400' },
   { href: '/exam', icon: GraduationCap, label: { uzLatin: 'Imtihon', uz: 'Имтиҳон', ru: 'Экзамен' }, color: 'text-violet-600 dark:text-violet-400' },
   { href: '/progress', icon: TrendingUp, label: { uzLatin: 'Progress', uz: 'Прогресс', ru: 'Прогресс' }, color: 'text-orange-600 dark:text-orange-400' },
   { href: '/leaderboard', icon: Trophy, label: { uzLatin: 'Reyting', uz: 'Рейтинг', ru: 'Рейтинг' }, color: 'text-yellow-600 dark:text-yellow-400' },
@@ -59,7 +59,7 @@ export default function Sidebar() {
         <span className="font-extrabold text-base tracking-tight">AvtoLider</span>
       </Link>
 
-      <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
+      <nav aria-label="Main navigation" className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
         {NAV_ENTRIES.map((entry, i) => {
           if (isSection(entry)) {
             const text = entry.sectionLabel[language] ?? entry.sectionLabel.uzLatin;
