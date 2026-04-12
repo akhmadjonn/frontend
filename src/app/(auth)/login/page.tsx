@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import PhoneInput from '@/components/auth/phone-input';
-import TelegramLoginButton from '@/components/auth/telegram-login-button';
+// TODO: Telegram login will be used in future — uncomment when bot is configured
+// import TelegramLoginButton from '@/components/auth/telegram-login-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLocale } from '@/hooks/use-locale';
@@ -21,7 +22,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [phoneError, setPhoneError] = useState('');
 
-  const botName = process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME ?? 'avtolider_test_bot';
+  // TODO: Telegram login will be used in future — uncomment when bot is configured
+  // const botName = process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME ?? 'avtolider_test_bot';
 
   const handleSendOtp = async () => {
     const result = phoneSchema.safeParse(phone);
@@ -39,22 +41,23 @@ export default function LoginPage() {
     }
   };
 
-  const handleTelegramAuth = async (user: { id: number; first_name: string; last_name?: string; username?: string; photo_url?: string; auth_date: number; hash: string }) => {
-    try {
-      const tokens = await apiClient.post<{ accessToken: string; refreshToken: string; isNewUser: boolean }>('/auth/telegram', {
-        id: user.id, firstName: user.first_name, lastName: user.last_name ?? null, username: user.username ?? null, photoUrl: user.photo_url ?? null, authDate: user.auth_date, hash: user.hash,
-      });
-      localStorage.setItem('accessToken', tokens.accessToken);
-      localStorage.setItem('refreshToken', tokens.refreshToken);
-      apiClient.updateToken(tokens.accessToken);
-      const profile = await apiClient.get<{ id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; hasActiveSubscription: boolean; preferredLanguage: 'uz' | 'uzLatin' | 'ru' }>('/auth/me');
-      login(tokens.accessToken, tokens.refreshToken, profile);
-      sessionStorage.removeItem('otp_phone');
-      router.replace('/dashboard');
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : ts('common.error'));
-    }
-  };
+  // TODO: Telegram login will be used in future — uncomment when bot is configured
+  // const handleTelegramAuth = async (user: { id: number; first_name: string; last_name?: string; username?: string; photo_url?: string; auth_date: number; hash: string }) => {
+  //   try {
+  //     const tokens = await apiClient.post<{ accessToken: string; refreshToken: string; isNewUser: boolean }>('/auth/telegram', {
+  //       id: user.id, firstName: user.first_name, lastName: user.last_name ?? null, username: user.username ?? null, photoUrl: user.photo_url ?? null, authDate: user.auth_date, hash: user.hash,
+  //     });
+  //     localStorage.setItem('avtolider:accessToken', tokens.accessToken);
+  //     localStorage.setItem('avtolider:refreshToken', tokens.refreshToken);
+  //     apiClient.updateToken(tokens.accessToken);
+  //     const profile = await apiClient.get<{ id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; hasActiveSubscription: boolean; preferredLanguage: 'uz' | 'uzLatin' | 'ru' }>('/auth/me');
+  //     login(tokens.accessToken, tokens.refreshToken, profile);
+  //     sessionStorage.removeItem('otp_phone');
+  //     router.replace('/dashboard');
+  //   } catch (err: unknown) {
+  //     toast.error(err instanceof Error ? err.message : ts('common.error'));
+  //   }
+  // };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-auth-gradient px-4 py-12 relative">
@@ -91,14 +94,15 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="relative">
+            {/* TODO: Telegram login will be used in future — uncomment when bot is configured */}
+            {/* <div className="relative">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/40" /></div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-3 text-muted-foreground">{ts('auth.or')}</span>
               </div>
             </div>
 
-            <TelegramLoginButton botName={botName} onAuth={handleTelegramAuth} />
+            <TelegramLoginButton botName={botName} onAuth={handleTelegramAuth} /> */}
           </CardContent>
         </Card>
 

@@ -767,6 +767,7 @@
     "navRoadSigns": "Yo'l belgilari",
     "navRoadMarkings": "Yo'l chiziqlari",
     "navVideoLessons": "Video darslar",
+    "navLessons": "Darsliklar",
     "navReference": "Ma'lumotnoma",
     "fines": {
       "addFine": "Jarima qo'shish",
@@ -976,7 +977,7 @@
       "inactive": "Nofaol"
     },
     "videoLessons": {
-      "title": "Video darslar",
+      "title": "Darsliklar boshqaruvi",
       "categoriesTab": "Kategoriyalar",
       "lessonsTab": "Darslar",
       "addCategory": "Kategoriya qo'shish",
@@ -1026,7 +1027,12 @@
       "removeAttachment": "Faylni o'chirish",
       "active": "Faol",
       "inactive": "Nofaol",
-      "category": "Kategoriya"
+      "category": "Kategoriya",
+      "presentation": "Prezentatsiya (PDF)",
+      "uploadPdf": "PDF yuklash",
+      "linkedCategory": "Bog'langan kategoriya",
+      "linkedCategoryDesc": "Darsdan keyin mashq qilish uchun kategoriya",
+      "noLinkedCategory": "Bog'lanmagan"
     }
   },
   "videoLessons": {
@@ -1040,6 +1046,7 @@
     "prevLesson": "Oldingi dars",
     "downloadFile": "Yuklab olish",
     "downloadVideo": "Videoni yuklab olish",
+    "downloadPdf": "PDF yuklab olish",
     "premiumRequired": "Bu dars faqat Premium obunachilari uchun",
     "completed": "Ko'rildi",
     "lessonCount": "ta dars",
@@ -1047,7 +1054,11 @@
     "free": "Bepul",
     "premium": "Premium",
     "duration": "Davomiyligi",
-    "subscribe": "Obuna bo'lish"
+    "subscribe": "Obuna bo'lish",
+    "lessonCompleted": "Darsni yakunladingiz!",
+    "startPractice": "Mashq qilish",
+    "practiceQuestions": "ta savol",
+    "pdfPage": "sahifa"
   },
   "fines": {
     "title": "Yo'l harakati qoidalari buzilishi uchun jarimalar",

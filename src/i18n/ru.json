@@ -767,6 +767,7 @@
     "navRoadSigns": "Дорожные знаки",
     "navRoadMarkings": "Дорожная разметка",
     "navVideoLessons": "Видеоуроки",
+    "navLessons": "Учебные материалы",
     "navReference": "Справочник",
     "fines": {
       "addFine": "Добавить штраф",
@@ -976,7 +977,7 @@
       "inactive": "Неактивен"
     },
     "videoLessons": {
-      "title": "Видеоуроки",
+      "title": "Управление уроками",
       "categoriesTab": "Категории",
       "lessonsTab": "Уроки",
       "addCategory": "Добавить категорию",
@@ -1026,7 +1027,12 @@
       "removeAttachment": "Удалить файл",
       "active": "Активен",
       "inactive": "Неактивен",
-      "category": "Категория"
+      "category": "Категория",
+      "presentation": "Презентация (PDF)",
+      "uploadPdf": "Загрузить PDF",
+      "linkedCategory": "Связанная категория",
+      "linkedCategoryDesc": "Категория для практики после урока",
+      "noLinkedCategory": "Не связана"
     }
   },
   "videoLessons": {
@@ -1040,6 +1046,7 @@
     "prevLesson": "Предыдущий урок",
     "downloadFile": "Скачать",
     "downloadVideo": "Скачать видео",
+    "downloadPdf": "Скачать PDF",
     "premiumRequired": "Этот урок доступен только для Premium подписчиков",
     "completed": "Просмотрено",
     "lessonCount": "уроков",
@@ -1047,7 +1054,11 @@
     "free": "Бесплатно",
     "premium": "Премиум",
     "duration": "Продолжительность",
-    "subscribe": "Подписаться"
+    "subscribe": "Подписаться",
+    "lessonCompleted": "Урок завершён!",
+    "startPractice": "Практика",
+    "practiceQuestions": "вопросов",
+    "pdfPage": "страница"
   },
   "fines": {
     "title": "Штрафы за нарушение ПДД",

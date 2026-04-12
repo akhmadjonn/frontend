@@ -29,7 +29,7 @@ const ADMIN_NAV = [
   { labelKey: 'admin.navColorVision', href: '/admin/color-vision', icon: Eye, color: 'text-violet-500' },
   { labelKey: 'admin.navRoadSigns', href: '/admin/road-signs', icon: SignpostBig, color: 'text-sky-500' },
   { labelKey: 'admin.navRoadMarkings', href: '/admin/road-markings', icon: Ruler, color: 'text-teal-500' },
-  { labelKey: 'admin.navVideoLessons', href: '/admin/video-lessons', icon: PlayCircle, color: 'text-indigo-500' },
+  { labelKey: 'admin.navLessons', href: '/admin/video-lessons', icon: PlayCircle, color: 'text-indigo-500' },
   { sectionKey: 'admin.navBusiness' },
   { labelKey: 'admin.navPlans', href: '/admin/plans', icon: Crown, color: 'text-amber-500' },
   { labelKey: 'admin.navPayments', href: '/admin/payments', icon: Wallet, color: 'text-emerald-500' },

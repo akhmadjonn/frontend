@@ -11,8 +11,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   ArrowLeft, ChevronLeft, ChevronRight,
-  PlayCircle, Lock, Download, FileText, Clock,
+  PlayCircle, Lock, Download, FileText, Clock, CheckCircle2, BookOpen,
 } from 'lucide-react';
+import { PdfViewer } from '@/components/lessons/pdf-viewer';
 
 interface LessonAttachmentDto {
   id: string;
@@ -27,7 +28,7 @@ interface VideoLessonDetailDto {
   categoryName: { uz: string; uzLatin: string; ru: string } | null;
   title: { uz: string; uzLatin: string; ru: string };
   description: { uz: string; uzLatin: string; ru: string } | null;
-  sourceType: string; // 'upload' | 'youTube' | 'externalLink'
+  sourceType: string; // 'upload' | 'youTube' | 'externalLink' | 'presentation'
   videoUrl: string | null;
   thumbnailUrl: string | null;
   durationSeconds: number;
@@ -38,6 +39,7 @@ interface VideoLessonDetailDto {
   attachments: LessonAttachmentDto[];
   previousLessonId: string | null;
   nextLessonId: string | null;
+  linkedCategoryId: string | null;
 }
 
 function formatDuration(seconds: number): string {
@@ -76,6 +78,8 @@ export default function VideoPlayerPage() {
   const [lesson, setLesson] = useState<VideoLessonDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const [pdfCompleted, setPdfCompleted] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -212,40 +216,81 @@ export default function VideoPlayerPage() {
         </Card>
       ) : (
         <>
-          {/* Video Player */}
-          <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-            {lesson.sourceType === 'youTube' && youtubeId ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&rel=0`}
-                title={t(lesson.title)}
-                className="h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : lesson.videoUrl ? (
-              <video
-                ref={videoRef}
-                src={lesson.videoUrl}
-                controls
-                className="h-full w-full"
-                poster={lesson.thumbnailUrl ?? undefined}
-                onPlay={startProgressTracking}
-                onPause={stopProgressTracking}
-                onEnded={() => {
-                  stopProgressTracking();
-                  // Send final progress
-                  if (videoRef.current) {
-                    const watchedSeconds = Math.floor(videoRef.current.currentTime);
-                    apiClient.post(`/video-lessons/${lessonId}/progress`, { watchedSeconds }).catch(() => {});
-                  }
+          {/* Player */}
+          {lesson.sourceType === 'presentation' && lesson.videoUrl ? (
+            <>
+              <PdfViewer
+                url={lesson.videoUrl}
+                onPageChange={(currentPage, totalPages) => {
+                  apiClient.post(`/video-lessons/${lessonId}/progress`, { watchedSeconds: currentPage }).catch(() => {});
                 }}
+                onComplete={() => setPdfCompleted(true)}
+                className="w-full min-h-[400px]"
               />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <PlayCircle className="h-16 w-16 text-white/50" />
-              </div>
-            )}
-          </div>
+
+              {pdfCompleted && (
+                <Card className="rounded-xl border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20">
+                  <CardContent className="flex flex-col items-center py-6 text-center gap-3">
+                    <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+                    <p className="text-lg font-semibold text-green-700 dark:text-green-300">
+                      {ts('videoLessons.lessonCompleted')}
+                    </p>
+                    {lesson.linkedCategoryId ? (
+                      <Button
+                        className="rounded-xl bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white mt-1"
+                        onClick={() => router.push(`/practice/session?categoryId=${lesson.linkedCategoryId}`)}
+                      >
+                        <BookOpen className="h-4 w-4 mr-1" />
+                        {ts('videoLessons.startPractice')}
+                      </Button>
+                    ) : lesson.nextLessonId ? (
+                      <Button
+                        variant="outline"
+                        className="rounded-xl mt-1"
+                        onClick={() => router.push(`/practice/lessons/${lesson.nextLessonId}`)}
+                      >
+                        {ts('videoLessons.nextLesson')}
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          ) : (
+            <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
+              {lesson.sourceType === 'youTube' && youtubeId ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&rel=0`}
+                  title={t(lesson.title)}
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : lesson.videoUrl ? (
+                <video
+                  ref={videoRef}
+                  src={lesson.videoUrl}
+                  controls
+                  className="h-full w-full"
+                  poster={lesson.thumbnailUrl ?? undefined}
+                  onPlay={startProgressTracking}
+                  onPause={stopProgressTracking}
+                  onEnded={() => {
+                    stopProgressTracking();
+                    if (videoRef.current) {
+                      const watchedSeconds = Math.floor(videoRef.current.currentTime);
+                      apiClient.post(`/video-lessons/${lessonId}/progress`, { watchedSeconds }).catch(() => {});
+                    }
+                  }}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <PlayCircle className="h-16 w-16 text-white/50" />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Lesson Info */}
           <div className="space-y-3">
@@ -306,7 +351,7 @@ export default function VideoPlayerPage() {
               className="flex items-center justify-center gap-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30 px-4 py-3 text-sm font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
             >
               <Download className="h-4 w-4" />
-              {ts('videoLessons.downloadVideo')}
+              {lesson.sourceType === 'presentation' ? ts('videoLessons.downloadPdf') : ts('videoLessons.downloadVideo')}
             </a>
           )}
 

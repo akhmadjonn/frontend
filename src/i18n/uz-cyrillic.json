@@ -767,6 +767,7 @@
     "navRoadSigns": "Йўл белгилари",
     "navRoadMarkings": "Йўл чизиқлари",
     "navVideoLessons": "Видео дарслар",
+    "navLessons": "Дарсликлар",
     "navReference": "Маълумотнома",
     "fines": {
       "addFine": "Жарима қўшиш",
@@ -976,7 +977,7 @@
       "inactive": "Нофаол"
     },
     "videoLessons": {
-      "title": "Видео дарслар",
+      "title": "Дарсликлар бошқаруви",
       "categoriesTab": "Категориялар",
       "lessonsTab": "Дарслар",
       "addCategory": "Категория қўшиш",
@@ -1026,7 +1027,12 @@
       "removeAttachment": "Файлни ўчириш",
       "active": "Фаол",
       "inactive": "Нофаол",
-      "category": "Категория"
+      "category": "Категория",
+      "presentation": "Презентация (PDF)",
+      "uploadPdf": "PDF юклаш",
+      "linkedCategory": "Боғланган категория",
+      "linkedCategoryDesc": "Дарсдан кейин машқ қилиш учун категория",
+      "noLinkedCategory": "Боғланмаган"
     }
   },
   "videoLessons": {
@@ -1040,6 +1046,7 @@
     "prevLesson": "Олдинги дарс",
     "downloadFile": "Юклаб олиш",
     "downloadVideo": "Видеони юклаб олиш",
+    "downloadPdf": "PDF юклаб олиш",
     "premiumRequired": "Бу дарс фақат Премиум обуначилари учун",
     "completed": "Кўрилди",
     "lessonCount": "та дарс",
@@ -1047,7 +1054,11 @@
     "free": "Бепул",
     "premium": "Премиум",
     "duration": "Давомийлиги",
-    "subscribe": "Обуна бўлиш"
+    "subscribe": "Обуна бўлиш",
+    "lessonCompleted": "Дарсни якунладингиз!",
+    "startPractice": "Машқ қилиш",
+    "practiceQuestions": "та савол",
+    "pdfPage": "саҳифа"
   },
   "fines": {
     "title": "Йўл ҳаракати қоидалари бузилиши учун жарималар",

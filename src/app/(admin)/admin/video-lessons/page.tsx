@@ -46,7 +46,7 @@ interface VideoLessonAdminDto {
   videoCategoryId: string;
   title: LocalizedText;
   description: LocalizedText | null;
-  sourceType: string; // 'upload' | 'youTube' | 'externalLink'
+  sourceType: string; // 'upload' | 'youTube' | 'externalLink' | 'presentation'
   videoUrl: string | null;
   thumbnailUrl: string | null;
   durationSeconds: number;
@@ -54,6 +54,7 @@ interface VideoLessonAdminDto {
   isFree: boolean;
   isDownloadable: boolean;
   isActive: boolean;
+  linkedCategoryId: string | null;
 }
 
 interface LessonAttachmentDto {
@@ -90,6 +91,7 @@ const SOURCE_TYPES = [
   { value: 'upload' as const, labelKey: 'admin.videoLessons.upload' },
   { value: 'youTube' as const, labelKey: 'admin.videoLessons.youtube' },
   { value: 'externalLink' as const, labelKey: 'admin.videoLessons.externalLink' },
+  { value: 'presentation' as const, labelKey: 'admin.videoLessons.presentation' },
 ];
 
 // ── Category Form ──
@@ -145,6 +147,7 @@ interface LessonFormData {
   isFree: boolean;
   isDownloadable: boolean;
   isActive: boolean;
+  linkedCategoryId: string;
 }
 
 const emptyLessonForm: LessonFormData = {
@@ -163,6 +166,7 @@ const emptyLessonForm: LessonFormData = {
   isFree: false,
   isDownloadable: false,
   isActive: true,
+  linkedCategoryId: '',
 };
 
 function formFromLesson(lesson: VideoLessonAdminDto): LessonFormData {
@@ -182,6 +186,7 @@ function formFromLesson(lesson: VideoLessonAdminDto): LessonFormData {
     isFree: lesson.isFree,
     isDownloadable: lesson.isDownloadable,
     isActive: lesson.isActive,
+    linkedCategoryId: lesson.linkedCategoryId ?? '',
   };
 }
 
@@ -224,8 +229,18 @@ export default function VideoLessonsPage() {
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const videoFileRef = useRef<HTMLInputElement>(null);
+  const pdfFileRef = useRef<HTMLInputElement>(null);
   const thumbnailFileRef = useRef<HTMLInputElement>(null);
   const attachmentFileRef = useRef<HTMLInputElement>(null);
+
+  // Question categories for linked category dropdown
+  const [questionCategories, setQuestionCategories] = useState<{ id: string; name: LocalizedText }[]>([]);
+
+  useEffect(() => {
+    apiClient.get<{ id: string; name: LocalizedText }[]>('/categories')
+      .then((data) => setQuestionCategories(data))
+      .catch(() => {});
+  }, []);
 
   const getText = (text: LocalizedText | null | undefined) => {
     if (!text) return '--';
@@ -393,7 +408,8 @@ export default function VideoLessonsPage() {
         descriptionUzLatin: lessonForm.descriptionUzLatin || null,
         descriptionRu: lessonForm.descriptionRu || null,
         sourceType: lessonForm.sourceType,
-        videoUrl: lessonForm.sourceType !== 'upload' ? lessonForm.videoUrl : 'pending-upload',
+        videoUrl: lessonForm.sourceType !== 'upload' && lessonForm.sourceType !== 'presentation' ? lessonForm.videoUrl : 'pending-upload',
+        linkedCategoryId: lessonForm.linkedCategoryId || null,
         thumbnailUrl: lessonForm.thumbnailUrl || null,
         durationSeconds: parseDuration(lessonForm.duration),
         sortOrder: Number(lessonForm.sortOrder) || 0,
@@ -414,8 +430,8 @@ export default function VideoLessonsPage() {
         toast.success(ts('admin.videoLessons.lessonCreated'));
       }
 
-      // Upload video file if selected (sourceType = Upload)
-      if (selectedVideo && lessonForm.sourceType === 'upload') {
+      // Upload video/PDF file if selected (sourceType = Upload or Presentation)
+      if (selectedVideo && (lessonForm.sourceType === 'upload' || lessonForm.sourceType === 'presentation')) {
         setUploadingVideo(true);
         try {
           const formData = new FormData();
@@ -1095,6 +1111,63 @@ export default function VideoLessonsPage() {
                 />
               </div>
             )}
+
+            {lessonForm.sourceType === 'presentation' && (
+              <div>
+                <Label className="mb-2 block">{ts('admin.videoLessons.uploadPdf')}</Label>
+                <input
+                  ref={pdfFileRef}
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={onVideoSelected}
+                />
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => pdfFileRef.current?.click()}
+                    disabled={uploadingVideo}
+                  >
+                    <Upload className="h-4 w-4 mr-1" />
+                    {ts('admin.videoLessons.uploadPdf')}
+                  </Button>
+                  {selectedVideo && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{selectedVideo.name}</span>
+                      <span className="text-xs">({formatFileSize(selectedVideo.size)})</span>
+                      <Button variant="ghost" size="icon-sm" onClick={() => setSelectedVideo(null)}>
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Linked Category */}
+            <div>
+              <Label className="mb-1 block">{ts('admin.videoLessons.linkedCategory')}</Label>
+              <p className="text-xs text-muted-foreground mb-2">{ts('admin.videoLessons.linkedCategoryDesc')}</p>
+              <Select value={lessonForm.linkedCategoryId || '__none__'} onValueChange={(v) => updateLessonField('linkedCategoryId', !v || v === '__none__' ? '' : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={ts('admin.videoLessons.noLinkedCategory')}>
+                    {lessonForm.linkedCategoryId
+                      ? getText(questionCategories.find(c => c.id === lessonForm.linkedCategoryId)?.name) || ts('admin.videoLessons.linkedCategory')
+                      : ts('admin.videoLessons.noLinkedCategory')}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">{ts('admin.videoLessons.noLinkedCategory')}</SelectItem>
+                  {questionCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {getText(cat.name)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Thumbnail */}
             <div>

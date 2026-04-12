@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, PlayCircle, CheckCircle2, Lock, Clock } from 'lucide-react';
+import { ArrowLeft, PlayCircle, CheckCircle2, Lock, Clock, FileText } from 'lucide-react';
 
 interface VideoLessonDto {
   id: string;
@@ -21,6 +21,8 @@ interface VideoLessonDto {
   isCompleted: boolean;
   watchedSeconds: number;
   sortOrder: number;
+  sourceType?: string;
+  linkedCategoryId?: string | null;
 }
 
 function formatDuration(seconds: number): string {
@@ -111,7 +113,11 @@ export default function LessonListPage() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
-                        <PlayCircle className="h-8 w-8 text-muted-foreground" />
+                        {lesson.sourceType === 'presentation' ? (
+                          <FileText className="h-8 w-8 text-muted-foreground" />
+                        ) : (
+                          <PlayCircle className="h-8 w-8 text-muted-foreground" />
+                        )}
                       </div>
                     )}
                     {isPremiumLocked && (
@@ -143,6 +149,11 @@ export default function LessonListPage() {
                           {ts('videoLessons.premium')}
                         </Badge>
                       )}
+                      {lesson.sourceType === 'presentation' ? (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-blue-600 border-blue-200">PDF</Badge>
+                      ) : lesson.sourceType === 'youTube' ? (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-red-600 border-red-200">YouTube</Badge>
+                      ) : null}
                     </div>
                     {/* Progress bar for partially watched */}
                     {!lesson.isCompleted && lesson.watchedSeconds > 0 && (
