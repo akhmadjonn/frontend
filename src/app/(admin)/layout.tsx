@@ -12,6 +12,7 @@ import {
   Crown, Wallet, UsersRound, Bell,
   History, SlidersHorizontal,
   Banknote, AlertTriangle, Heart, BookOpenText, Eye,
+  SignpostBig, Ruler,
 } from 'lucide-react';
 
 const ADMIN_NAV = [
@@ -26,6 +27,8 @@ const ADMIN_NAV = [
   { labelKey: 'admin.navFirstAid', href: '/admin/first-aid', icon: Heart, color: 'text-rose-500' },
   { labelKey: 'admin.navGlossary', href: '/admin/glossary', icon: BookOpenText, color: 'text-cyan-500' },
   { labelKey: 'admin.navColorVision', href: '/admin/color-vision', icon: Eye, color: 'text-violet-500' },
+  { labelKey: 'admin.navRoadSigns', href: '/admin/road-signs', icon: SignpostBig, color: 'text-sky-500' },
+  { labelKey: 'admin.navRoadMarkings', href: '/admin/road-markings', icon: Ruler, color: 'text-teal-500' },
   { sectionKey: 'admin.navBusiness' },
   { labelKey: 'admin.navPlans', href: '/admin/plans', icon: Crown, color: 'text-amber-500' },
   { labelKey: 'admin.navPayments', href: '/admin/payments', icon: Wallet, color: 'text-emerald-500' },

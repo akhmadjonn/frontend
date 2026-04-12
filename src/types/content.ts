@@ -95,6 +95,47 @@ export interface AdminColorVisionPlateDto {
   sortOrder: number
 }
 
+// ── Road Signs ──
+export interface RoadSignCategoryDto {
+  id: string;
+  slug: string;
+  code: string;
+  name: LocalizedText;
+  description: LocalizedText;
+  iconUrl: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  signCount: number;
+}
+
+export interface RoadSignDto {
+  id: string;
+  signCode: string;
+  name: LocalizedText;
+  description: LocalizedText | null;
+  imageUrl: string | null;
+  thumbnailUrl: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  categoryId: string;
+  categoryCode: string | null;
+}
+
+// ── Road Markings ──
+export type RoadMarkingType = 1 | 2; // 1=Horizontal, 2=Vertical
+
+export interface RoadMarkingDto {
+  id: string;
+  markingCode: string;
+  markingType: RoadMarkingType;
+  name: LocalizedText;
+  description: LocalizedText | null;
+  imageUrl: string | null;
+  thumbnailUrl: string | null;
+  sortOrder: number;
+  isActive: boolean;
+}
+
 // ── Paginated ──
 export interface PaginatedList<T> {
   items: T[]
