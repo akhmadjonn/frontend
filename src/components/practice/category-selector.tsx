@@ -97,7 +97,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
                             <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${completionPct}%` }} />
                           </div>
                           <Tooltip>
-                            <TooltipTrigger className="cursor-help shrink-0" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                            <TooltipTrigger render={<span className="cursor-help shrink-0" onClick={(e) => e.stopPropagation()} />}>
                               <Info className="h-3 w-3 text-muted-foreground/50" />
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-[220px]">
@@ -110,7 +110,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
                         </div>
                         <div className="flex items-center gap-2.5 mt-1">
                           <Tooltip>
-                            <TooltipTrigger className={cn('text-[11px] font-semibold tabular-nums flex items-center gap-0.5 cursor-help', colors.text)} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                            <TooltipTrigger render={<span className={cn('text-[11px] font-semibold tabular-nums inline-flex items-center gap-0.5 cursor-help', colors.text)} onClick={(e) => e.stopPropagation()} />}>
                               <Target className="h-3 w-3" />
                               {accuracy}%
                             </TooltipTrigger>
@@ -119,7 +119,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
                             </TooltipContent>
                           </Tooltip>
                           <Tooltip>
-                            <TooltipTrigger className="text-[10px] text-muted-foreground cursor-help" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+                            <TooltipTrigger render={<span className="text-[10px] text-muted-foreground cursor-help" onClick={(e) => e.stopPropagation()} />}>
                               {perf.correctAttempts}/{perf.totalAttempts} {ts('common.correct')}
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-[220px]">
