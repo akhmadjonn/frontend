@@ -26,7 +26,7 @@ type NavEntry = NavItem | NavSection;
 
 const NAV_ENTRIES: NavEntry[] = [
   { href: '/dashboard', icon: LayoutDashboard, label: { uzLatin: 'Bosh sahifa', uz: 'Бош саҳифа', ru: 'Главная' }, color: 'text-blue-600 dark:text-blue-400' },
-  { href: '/practice', icon: BookOpen, label: { uzLatin: 'Mashq', uz: 'Машқ', ru: 'Практика' }, color: 'text-emerald-600 dark:text-emerald-400' },
+  { href: '/practice', icon: BookOpen, label: { uzLatin: 'Nazariy darsliklar', uz: 'Назарий дарсликлар', ru: 'Теория' }, color: 'text-emerald-600 dark:text-emerald-400' },
   { href: '/exam', icon: GraduationCap, label: { uzLatin: 'Imtihon', uz: 'Имтиҳон', ru: 'Экзамен' }, color: 'text-violet-600 dark:text-violet-400' },
   { href: '/progress', icon: TrendingUp, label: { uzLatin: 'Progress', uz: 'Прогресс', ru: 'Прогресс' }, color: 'text-orange-600 dark:text-orange-400' },
   { href: '/leaderboard', icon: Trophy, label: { uzLatin: 'Reyting', uz: 'Рейтинг', ru: 'Рейтинг' }, color: 'text-yellow-600 dark:text-yellow-400' },

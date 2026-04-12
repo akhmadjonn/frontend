@@ -63,6 +63,7 @@
     "dashboard": "Bosh sahifa",
     "dashboardShort": "Bosh",
     "practice": "Mashq",
+    "lessons": "Darsliklar",
     "exam": "Imtihon",
     "progress": "Progress",
     "subscription": "Obuna",
@@ -104,6 +105,8 @@
     "todayQuestions": "Bugun javob berilgan",
     "thisWeek": "Shu hafta",
     "weekAvg": "Haftalik o'rtacha",
+    "activeDays": "Faol kunlar",
+    "today": "Bugun",
     "statsPracticeQuestions": "Mashq savollar",
     "statsExams": "Imtihonlar",
     "statsStreak": "Seriya",
@@ -116,7 +119,20 @@
     "trend": "Trend",
     "categoryPerformance": "Kategoriyalar bo'yicha"
   },
+  "lessons": {
+    "title": "Nazariy darsliklar",
+    "subtitle": "Video darslar va mavzular",
+    "comingSoon": "Tez kunda video darslar qo'shiladi",
+    "comingSoonDesc": "Har bir mavzu bo'yicha video tushuntirishlar va nazariy materiallar tayyorlanmoqda",
+    "categoriesTitle": "Kategoriyalar bo'yicha mashq"
+  },
+  "categoryStats": {
+    "coverageTooltip": "Qamrov — bu kategoriyada nechta savolni kamida bir marta javob bergansiz. Progressbar to'liq bo'lsa, barcha savollarni ko'rib chiqqansiz.",
+    "accuracyTooltip": "Aniqlik — barcha urinishlaringiz ichida to'g'ri javoblar foizi. Qanchalik yuqori bo'lsa, shuncha yaxshi tayyorlangansiz.",
+    "correctTooltip": "To'g'ri javoblar — jami urinishlar ichidan nechta to'g'ri javob bergansiz. Masalan: 3/34 = 34 ta urinishdan 3 tasi to'g'ri."
+  },
   "exam": {
+    "practiceModesTitle": "Mashq rejimlari",
     "start": "Imtihonni boshlash",
     "startExam": "Imtihon",
     "startTicket": "Bilet",

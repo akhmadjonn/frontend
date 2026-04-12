@@ -13,7 +13,7 @@ import {
 
 const TABS = [
   { href: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboardShort', activeColor: 'text-blue-600 dark:text-blue-400' },
-  { href: '/practice', icon: BookOpen, labelKey: 'nav.practice', activeColor: 'text-emerald-600 dark:text-emerald-400' },
+  { href: '/practice', icon: BookOpen, labelKey: 'nav.lessons', activeColor: 'text-emerald-600 dark:text-emerald-400' },
   { href: '/exam', icon: GraduationCap, labelKey: 'nav.exam', activeColor: 'text-violet-600 dark:text-violet-400' },
   { href: '/progress', icon: TrendingUp, labelKey: 'nav.progress', activeColor: 'text-orange-600 dark:text-orange-400' },
 ];
