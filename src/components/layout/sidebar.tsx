@@ -8,6 +8,7 @@ import { useLocaleStore } from '@/stores/locale-store';
 import {
   LayoutDashboard, BookOpen, GraduationCap, TrendingUp, CreditCard, Settings,
   Banknote, AlertTriangle, Heart, BookOpenText, Eye, Trophy, Star,
+  SignpostBig, Ruler,
 } from 'lucide-react';
 
 interface NavItem {
@@ -31,6 +32,8 @@ const NAV_ENTRIES: NavEntry[] = [
   { href: '/leaderboard', icon: Trophy, label: { uzLatin: 'Reyting', uz: 'Рейтинг', ru: 'Рейтинг' }, color: 'text-yellow-600 dark:text-yellow-400' },
   { href: '/favorites', icon: Star, label: { uzLatin: 'Sevimlilar', uz: 'Севимлилар', ru: 'Избранное' }, color: 'text-pink-600 dark:text-pink-400' },
   { sectionLabel: { uzLatin: "Ma'lumotnoma", uz: 'Маълумотнома', ru: 'Справочник' } },
+  { href: '/road-signs', icon: SignpostBig, label: { uzLatin: "Yo'l belgilari", uz: 'Йўл белгилари', ru: 'Дорожные знаки' }, color: 'text-blue-600 dark:text-blue-400' },
+  { href: '/road-markings', icon: Ruler, label: { uzLatin: "Yo'l chiziqlari", uz: 'Йўл чизиқлари', ru: 'Дорожная разметка' }, color: 'text-teal-600 dark:text-teal-400' },
   { href: '/fines', icon: Banknote, label: { uzLatin: 'Jarimalar', uz: 'Жарималар', ru: 'Штрафы' }, color: 'text-red-600 dark:text-red-400' },
   { href: '/hazard-labels', icon: AlertTriangle, label: { uzLatin: 'Xavfli yuklar', uz: 'Хавфли юклар', ru: 'Опасные грузы' }, color: 'text-orange-600 dark:text-orange-400' },
   { href: '/first-aid', icon: Heart, label: { uzLatin: 'Birinchi yordam', uz: 'Биринчи ёрдам', ru: 'Первая помощь' }, color: 'text-rose-600 dark:text-rose-400' },

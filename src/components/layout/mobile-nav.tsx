@@ -8,6 +8,7 @@ import { useLocale } from '@/hooks/use-locale';
 import {
   LayoutDashboard, BookOpen, GraduationCap, TrendingUp, MoreHorizontal,
   Banknote, AlertTriangle, Heart, BookOpenText, Eye, Trophy, Star, Settings, CreditCard, X,
+  SignpostBig, Ruler,
 } from 'lucide-react';
 
 const TABS = [
@@ -20,6 +21,8 @@ const TABS = [
 const MORE_ITEMS = [
   { href: '/leaderboard', icon: Trophy, labelKey: 'nav.leaderboard', color: 'text-yellow-600' },
   { href: '/favorites', icon: Star, labelKey: 'nav.favorites', color: 'text-pink-600' },
+  { href: '/road-signs', icon: SignpostBig, labelKey: 'nav.roadSigns', color: 'text-blue-600' },
+  { href: '/road-markings', icon: Ruler, labelKey: 'nav.roadMarkings', color: 'text-teal-600' },
   { href: '/fines', icon: Banknote, labelKey: 'nav.fines', color: 'text-red-600' },
   { href: '/hazard-labels', icon: AlertTriangle, labelKey: 'nav.hazardLabels', color: 'text-orange-600' },
   { href: '/first-aid', icon: Heart, labelKey: 'nav.firstAid', color: 'text-rose-600' },
