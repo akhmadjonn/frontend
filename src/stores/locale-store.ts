@@ -10,17 +10,23 @@ interface LocaleState {
   _hydrate: () => void;
 }
 
+// Keep the backend's X-Api-Lang header (uz/ru/en) in sync with the UI locale.
+// Both uzLatin and uz map to the backend's Uzbek messages.
+const toApiLang = (locale: Locale): 'uz' | 'ru' => (locale === 'ru' ? 'ru' : 'uz');
+
 export const useLocaleStore = create<LocaleState>((set) => ({
   language: 'uzLatin',
   _hydrated: false,
   setLanguage: (language) => {
     if (!['uz', 'uzLatin', 'ru'].includes(language)) return;
     localStorage.setItem('avtolider:locale', language);
+    localStorage.setItem('app-lang', toApiLang(language));
     set({ language });
   },
   _hydrate: () => {
     const saved = localStorage.getItem('avtolider:locale') as Locale | null;
     const language = saved && ['uz', 'uzLatin', 'ru'].includes(saved) ? saved : 'uzLatin';
+    if (!localStorage.getItem('app-lang')) localStorage.setItem('app-lang', toApiLang(language));
     set({ language, _hydrated: true });
   },
 }));

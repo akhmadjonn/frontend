@@ -1,12 +1,38 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5228/api/v1';
 const TOKEN_KEY = 'avtolider:accessToken';
 const REFRESH_KEY = 'avtolider:refreshToken';
+const APP_LANG_KEY = 'app-lang';
 
+// Legacy wrapper (still used by most endpoints today).
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: { code: string; message: string };
 }
+
+// New localized wrapper (BaseResponse<T> on the backend). ErrorCode === 0 means success.
+export interface BaseResponse<T = void> {
+  errorCode: number;
+  errorMessage: string | null;
+  httpStatusCode: number;
+  result: T | null;
+}
+
+export const isBaseResponse = <T>(raw: unknown): raw is BaseResponse<T> =>
+  typeof raw === 'object' && raw !== null && 'errorCode' in raw && 'httpStatusCode' in raw;
+
+export const isSuccess = <T>(r: BaseResponse<T>): r is BaseResponse<T> & { result: T } =>
+  r.errorCode === 0 && r.result !== null;
+
+// Map the existing 3-option locale store to the 3 backend-supported API languages.
+// Backend supports: uz (Uzbek, default), ru (Russian), en (English).
+// The app currently exposes uzLatin/uz/ru — both uzLatin and uz map to Uzbek messages.
+const toApiLang = (locale: string): string => {
+  const l = (locale || 'uz').toLowerCase();
+  if (l === 'ru') return 'ru';
+  if (l === 'en') return 'en';
+  return 'uz';
+};
 
 class ApiClient {
   private cachedToken: string | null = null;
@@ -38,6 +64,14 @@ class ApiClient {
     return this.cachedLocale ?? 'uzLatin';
   }
 
+  private getApiLang(): string {
+    if (typeof window === 'undefined') return 'uz';
+    // Prefer explicit app-lang override; otherwise derive from the existing locale store.
+    const override = localStorage.getItem(APP_LANG_KEY);
+    if (override) return override;
+    return toApiLang(this.getLocale());
+  }
+
   updateToken(token: string | null) {
     this.cachedToken = token;
     this.tokenRead = true;
@@ -46,6 +80,11 @@ class ApiClient {
   updateLocale(locale: string) {
     this.cachedLocale = locale;
     this.localeRead = true;
+  }
+
+  setApiLang(lang: 'uz' | 'ru' | 'en') {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(APP_LANG_KEY, lang);
   }
 
   private async refreshAccessToken(): Promise<string | null> {
@@ -99,6 +138,8 @@ class ApiClient {
       (headers as Record<string, string>)['Content-Type'] = 'application/json';
 
     (headers as Record<string, string>)['Accept-Language'] = this.getLocale();
+    // X-Api-Lang drives the backend's localized error catalog (uz/ru/en).
+    (headers as Record<string, string>)['X-Api-Lang'] = this.getApiLang();
 
     let response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
 
@@ -120,8 +161,17 @@ class ApiClient {
     if (!contentType.includes('application/json'))
       throw new Error(`Unexpected response: ${response.status} ${response.statusText}`);
 
-    const data: ApiResponse<T> = await response.json();
+    const raw = await response.json();
 
+    // New BaseResponse<T> shape (backend source of truth for localized errors).
+    if (isBaseResponse<T>(raw)) {
+      if (raw.errorCode !== 0)
+        throw new Error(raw.errorMessage || 'Unknown error');
+      return (raw.result ?? null) as T;
+    }
+
+    // Legacy ApiResponse<T> shape.
+    const data = raw as ApiResponse<T>;
     if (!data.success)
       throw new Error(data.error?.message || 'Unknown error');
 
