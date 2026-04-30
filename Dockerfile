@@ -10,6 +10,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Same-origin: browser hits /api/v1, Next.js server-side proxy forwards to the api container.
+# This makes the bundle host-agnostic — works on any IP/domain without rebuild.
+ENV NEXT_PUBLIC_API_URL=/api/v1
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 

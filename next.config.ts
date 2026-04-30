@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
+// In Docker, the Next.js server-side proxy forwards browser requests for
+// /api/v1/* to the API container. Locally, falls through to localhost:8080.
+const API_UPSTREAM = process.env.API_UPSTREAM || 'http://localhost:8080';
+
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  rewrites: async () => [
+    { source: '/api/v1/:path*', destination: `${API_UPSTREAM}/api/v1/:path*` },
+  ],
   headers: async () => [
     {
       source: '/(.*)',
