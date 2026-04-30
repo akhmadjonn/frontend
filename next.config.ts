@@ -1,14 +1,18 @@
 import type { NextConfig } from "next";
 
-// In Docker, the Next.js server-side proxy forwards browser requests for
-// /api/v1/* to the API container. Locally, falls through to localhost:8080.
-const API_UPSTREAM = process.env.API_UPSTREAM || 'http://localhost:8080';
-
+// Next.js server-side proxy: the browser hits same-origin /api/v1/*, the
+// Next.js standalone server forwards to the api container.
+//
+// We read the upstream INSIDE rewrites() so it's resolved at server boot,
+// not at build time. With output:'standalone', top-level process.env reads
+// are frozen during `next build` — using them for rewrite destinations
+// would bake `localhost:8080` into the image and break in Docker.
 const nextConfig: NextConfig = {
   output: 'standalone',
-  rewrites: async () => [
-    { source: '/api/v1/:path*', destination: `${API_UPSTREAM}/api/v1/:path*` },
-  ],
+  rewrites: async () => {
+    const upstream = process.env.API_UPSTREAM || 'http://api:8080';
+    return [{ source: '/api/v1/:path*', destination: `${upstream}/api/v1/:path*` }];
+  },
   headers: async () => [
     {
       source: '/(.*)',
