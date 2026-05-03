@@ -1,23 +1,16 @@
 import { create } from 'zustand';
+import { apiClient } from '@/lib/api-client';
 
 const TOKEN_KEY = 'avtolider:accessToken';
 const REFRESH_KEY = 'avtolider:refreshToken';
 
-// Migrate from old keys to namespaced keys (one-time, backward compatible)
-function migrateTokenKeys() {
-  if (typeof window === 'undefined') return;
-  for (const [oldKey, newKey] of [['accessToken', TOKEN_KEY], ['refreshToken', REFRESH_KEY]] as const) {
-    const old = localStorage.getItem(oldKey);
-    if (old && !localStorage.getItem(newKey)) {
-      localStorage.setItem(newKey, old);
-      localStorage.removeItem(oldKey);
-    } else if (old && localStorage.getItem(newKey)) {
-      localStorage.removeItem(oldKey);
-    }
-  }
+// Sweep any legacy un-prefixed keys left over from earlier builds.
+// Important: never restore them — that previously caused logout to be undone
+// when callers wrote to the old keys after auth-store cleared the new ones.
+if (typeof window !== 'undefined') {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
 }
-
-if (typeof window !== 'undefined') migrateTokenKeys();
 
 interface User {
   id: string;
@@ -49,12 +42,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (accessToken, refreshToken, user) => {
     localStorage.setItem(TOKEN_KEY, accessToken);
     localStorage.setItem(REFRESH_KEY, refreshToken);
+    apiClient.updateToken(accessToken);
     set({ accessToken, refreshToken, user, isAuthenticated: true });
   },
 
   logout: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_KEY);
+    apiClient.updateToken(null);
     set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false });
   },
 
@@ -63,6 +58,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   refresh: (accessToken, refreshToken) => {
     localStorage.setItem(TOKEN_KEY, accessToken);
     localStorage.setItem(REFRESH_KEY, refreshToken);
+    apiClient.updateToken(accessToken);
     set({ accessToken, refreshToken });
   },
 }));

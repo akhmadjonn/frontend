@@ -42,8 +42,6 @@ export default function VerifyPage() {
     setError('');
     try {
       const tokens = await apiClient.post<{ accessToken: string; refreshToken: string; isNewUser: boolean }>('/auth/otp/verify', { phoneNumber: phone, code });
-      localStorage.setItem('accessToken', tokens.accessToken);
-      localStorage.setItem('refreshToken', tokens.refreshToken);
       apiClient.updateToken(tokens.accessToken);
       const user = await apiClient.get<{ id: string; phoneNumber: string | null; firstName: string | null; lastName: string | null; role: 'user' | 'admin'; hasActiveSubscription: boolean; preferredLanguage: 'uz' | 'uzLatin' | 'ru' }>('/auth/me');
       login(tokens.accessToken, tokens.refreshToken, user);

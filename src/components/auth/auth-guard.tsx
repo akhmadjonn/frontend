@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuthStore } from '@/stores/auth-store';
+import { apiClient } from '@/lib/api-client';
+
+const TOKEN_KEY = 'avtolider:accessToken';
 
 const PUBLIC_PATHS = [
   '/fines',
@@ -24,31 +27,60 @@ interface AuthGuardProps {
 export default function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
-
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
+  const logout = useAuthStore((s) => s.logout);
+  const [verified, setVerified] = useState(false);
   const isPublic = isPublicPath(pathname);
-  const userLoading = isAuthenticated && !user;
 
   useEffect(() => {
-    if (!mounted || userLoading) return;
-    if (isPublic) return;
-    if (!isAuthenticated) {
-      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
-      return;
-    }
-    if (requireAdmin && user?.role !== 'admin') {
-      router.replace('/dashboard');
-    }
-  }, [mounted, isAuthenticated, user, userLoading, requireAdmin, router, pathname, isPublic]);
+    if (isPublic) { setVerified(true); return; }
 
-  if (!mounted) return null;
+    let cancelled = false;
+
+    const verify = async () => {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) {
+        if (cancelled) return;
+        logout();
+        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+        return;
+      }
+      apiClient.updateToken(token);
+      try {
+        const me = await apiClient.get('/auth/me');
+        if (cancelled) return;
+        setUser(me as any);
+        setVerified(true);
+      } catch {
+        if (cancelled) return;
+        logout();
+        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      }
+    };
+
+    setVerified(false);
+    void verify();
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        setVerified(false);
+        void verify();
+      }
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, [pathname, isPublic, router, setUser, logout]);
+
   if (isPublic) return <>{children}</>;
-  if (userLoading) return null;
-  if (!isAuthenticated) return null;
-  if (requireAdmin && user?.role !== 'admin') return null;
+  if (!verified) return null;
+  if (requireAdmin && user?.role !== 'admin') {
+    router.replace('/dashboard');
+    return null;
+  }
 
   return <>{children}</>;
 }
