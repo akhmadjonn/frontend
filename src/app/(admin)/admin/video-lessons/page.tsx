@@ -313,13 +313,12 @@ export default function VideoLessonsPage() {
 
     setCategorySubmitting(true);
     try {
+      const hasDescription = categoryForm.descriptionUz || categoryForm.descriptionUzLatin || categoryForm.descriptionRu;
       const payload = {
-        nameUz: categoryForm.nameUz,
-        nameUzLatin: categoryForm.nameUzLatin,
-        nameRu: categoryForm.nameRu,
-        descriptionUz: categoryForm.descriptionUz || null,
-        descriptionUzLatin: categoryForm.descriptionUzLatin || null,
-        descriptionRu: categoryForm.descriptionRu || null,
+        name: { uz: categoryForm.nameUz, uzLatin: categoryForm.nameUzLatin, ru: categoryForm.nameRu },
+        description: hasDescription
+          ? { uz: categoryForm.descriptionUz, uzLatin: categoryForm.descriptionUzLatin, ru: categoryForm.descriptionRu }
+          : null,
         sortOrder: Number(categoryForm.sortOrder) || 0,
         ...(editingCategory ? { isActive: categoryForm.isActive } : {}),
       };
@@ -399,14 +398,13 @@ export default function VideoLessonsPage() {
 
     setLessonSubmitting(true);
     try {
+      const hasLessonDescription = lessonForm.descriptionUz || lessonForm.descriptionUzLatin || lessonForm.descriptionRu;
       const payload = {
         videoCategoryId: lessonForm.videoCategoryId,
-        titleUz: lessonForm.titleUz,
-        titleUzLatin: lessonForm.titleUzLatin,
-        titleRu: lessonForm.titleRu,
-        descriptionUz: lessonForm.descriptionUz || null,
-        descriptionUzLatin: lessonForm.descriptionUzLatin || null,
-        descriptionRu: lessonForm.descriptionRu || null,
+        title: { uz: lessonForm.titleUz, uzLatin: lessonForm.titleUzLatin, ru: lessonForm.titleRu },
+        description: hasLessonDescription
+          ? { uz: lessonForm.descriptionUz, uzLatin: lessonForm.descriptionUzLatin, ru: lessonForm.descriptionRu }
+          : null,
         sourceType: lessonForm.sourceType,
         videoUrl: lessonForm.sourceType !== 'upload' && lessonForm.sourceType !== 'presentation' ? lessonForm.videoUrl : 'pending-upload',
         linkedCategoryId: lessonForm.linkedCategoryId || null,

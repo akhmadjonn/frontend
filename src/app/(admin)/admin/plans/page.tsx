@@ -144,12 +144,8 @@ export default function PlansPage() {
     setSubmitting(true);
     try {
       const payload = {
-        nameUz: form.nameUz,
-        nameUzLatin: form.nameUzLatin,
-        nameRu: form.nameRu,
-        descriptionUz: form.descriptionUz,
-        descriptionUzLatin: form.descriptionUzLatin,
-        descriptionRu: form.descriptionRu,
+        name: { uz: form.nameUz, uzLatin: form.nameUzLatin, ru: form.nameRu },
+        description: { uz: form.descriptionUz, uzLatin: form.descriptionUzLatin, ru: form.descriptionRu },
         priceInTiyins: Math.round(priceNumber * 100),
         durationDays: durationNumber,
         features: JSON.stringify(form.features.split(',').map((f) => f.trim()).filter(Boolean)),

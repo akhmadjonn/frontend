@@ -83,6 +83,7 @@ export default function HazardLabelsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLabel, setEditingLabel] = useState<HazardLabelDto | null>(null);
   const [form, setForm] = useState<HazardLabelFormData>(emptyForm);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
 
@@ -111,6 +112,7 @@ export default function HazardLabelsPage() {
   const openCreateDialog = () => {
     setEditingLabel(null);
     setForm(emptyForm);
+    setImageFile(null);
     setAutoSlug(true);
     setDialogOpen(true);
   };
@@ -118,6 +120,7 @@ export default function HazardLabelsPage() {
   const openEditDialog = (label: HazardLabelDto) => {
     setEditingLabel(label);
     setForm(formFromLabel(label));
+    setImageFile(null);
     setAutoSlug(false);
     setDialogOpen(true);
   };
@@ -158,15 +161,30 @@ export default function HazardLabelsPage() {
         description: { uz: form.descriptionUz, uzLatin: form.descriptionUzLatin, ru: form.descriptionRu },
         hazardClass: form.hazardClass,
         sortOrder: Number(form.sortOrder) || 0,
-        imageUrl: form.imageUrl || null,
+        // If an upload is staged, the upload endpoint will overwrite ImageUrl
+        // immediately after this PUT/POST — sending the URL field too would
+        // be redundant and could race. Send null when uploading.
+        imageUrl: imageFile ? null : (form.imageUrl || null),
       };
 
+      let labelId: string;
       if (editingLabel) {
         await apiClient.put(`/admin/hazard-labels/${editingLabel.id}`, payload);
+        labelId = editingLabel.id;
         toast.success(ts('admin.hazardLabels.updated'));
       } else {
-        await apiClient.post('/admin/hazard-labels', payload);
+        const created = await apiClient.post<HazardLabelDto>('/admin/hazard-labels', payload);
+        labelId = created.id;
         toast.success(ts('admin.hazardLabels.created'));
+      }
+
+      // Upload the local file to /image — backend processes (resize → WebP),
+      // stores in MinIO with a deterministic key, updates ImageUrl, invalidates cache.
+      if (imageFile) {
+        const fd = new FormData();
+        fd.append('image', imageFile, imageFile.name);
+        await apiClient.post(`/admin/hazard-labels/${labelId}/image`, fd);
+        toast.success(ts('admin.hazardLabels.imageUploaded') ?? 'Image uploaded');
       }
 
       setDialogOpen(false);
@@ -441,14 +459,41 @@ export default function HazardLabelsPage() {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="imageUrl">{ts('admin.hazardLabels.imageUrl')}</Label>
-              <Input
-                id="imageUrl"
-                value={form.imageUrl}
-                onChange={(e) => updateField('imageUrl', e.target.value)}
-                placeholder="https://..."
-              />
+            <div className="space-y-3">
+              <Label>{ts('admin.hazardLabels.imageUrl')}</Label>
+
+              {/* Option 1 — upload from local disk */}
+              <div className="space-y-1">
+                <Label htmlFor="imageFile" className="text-xs font-normal text-muted-foreground">
+                  {ts('admin.uploadFromDevice') ?? 'Upload from device'}
+                </Label>
+                <Input
+                  id="imageFile"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                />
+                {imageFile && (
+                  <p className="text-xs text-muted-foreground">
+                    {imageFile.name} ({Math.round(imageFile.size / 1024)} KB)
+                  </p>
+                )}
+              </div>
+
+              {/* Option 2 — paste a URL or MinIO key. Disabled while a file is staged
+                  to avoid the user thinking both will apply. */}
+              <div className="space-y-1">
+                <Label htmlFor="imageUrl" className="text-xs font-normal text-muted-foreground">
+                  {ts('admin.orPasteUrl') ?? 'Or paste a URL / object key'}
+                </Label>
+                <Input
+                  id="imageUrl"
+                  value={form.imageUrl}
+                  onChange={(e) => updateField('imageUrl', e.target.value)}
+                  placeholder="https://..."
+                  disabled={!!imageFile}
+                />
+              </div>
             </div>
           </div>
 

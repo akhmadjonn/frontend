@@ -324,12 +324,8 @@ export default function CategoriesPage() {
     setSubmitting(true);
     try {
       const payload = {
-        nameUz: form.nameUz,
-        nameUzLatin: form.nameUzLatin,
-        nameRu: form.nameRu,
-        descriptionUz: form.descriptionUz,
-        descriptionUzLatin: form.descriptionUzLatin,
-        descriptionRu: form.descriptionRu,
+        name: { uz: form.nameUz, uzLatin: form.nameUzLatin, ru: form.nameRu },
+        description: { uz: form.descriptionUz, uzLatin: form.descriptionUzLatin, ru: form.descriptionRu },
         slug: form.slug,
         iconUrl: form.iconUrl || null,
         parentId: form.parentId || null,
@@ -338,7 +334,7 @@ export default function CategoriesPage() {
       };
 
       if (editingCategory) {
-        await apiClient.put(`/admin/categories/${editingCategory.id}`, { id: editingCategory.id, ...payload });
+        await apiClient.put(`/admin/categories/${editingCategory.id}`, payload);
         toast.success(ts('admin.categories.updated'));
       } else {
         await apiClient.post('/admin/categories', payload);
@@ -358,13 +354,8 @@ export default function CategoriesPage() {
     setTogglingId(cat.id);
     try {
       await apiClient.put(`/admin/categories/${cat.id}`, {
-        id: cat.id,
-        nameUz: cat.name.uz,
-        nameUzLatin: cat.name.uzLatin,
-        nameRu: cat.name.ru,
-        descriptionUz: cat.description.uz,
-        descriptionUzLatin: cat.description.uzLatin,
-        descriptionRu: cat.description.ru,
+        name: cat.name,
+        description: cat.description,
         slug: cat.slug,
         iconUrl: cat.iconUrl,
         parentId: cat.parentId,

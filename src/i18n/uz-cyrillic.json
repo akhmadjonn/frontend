@@ -349,6 +349,8 @@
     "saveBtn": "Сақлаш",
     "createBtn": "Яратиш",
     "updateBtn": "Янгилаш",
+    "uploadFromDevice": "Қурилмадан юклаш",
+    "orPasteUrl": "Ёки URL манзилини киритинг",
     "activeState": "Фаол ҳолат",
     "langUzLatin": "UZ Lotин",
     "langUzCyrillic": "UZ Кирилл",

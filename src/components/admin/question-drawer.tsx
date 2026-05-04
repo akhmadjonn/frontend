@@ -79,7 +79,7 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
   const [difficulty, setDifficulty] = useState('easy');
   const [ticketNumber, setTicketNumber] = useState('1');
   const [licenseCategory, setLicenseCategory] = useState('AB');
-  const [questionStatus, setQuestionStatus] = useState<'active' | 'archived'>('active');
+  const [questionStatus, setQuestionStatus] = useState<'active' | 'inactive'>('active');
 
   // localized texts
   const [textUz, setTextUz] = useState('');
@@ -112,7 +112,7 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
       setDifficulty(String(question.difficulty));
       setTicketNumber(String(question.ticketNumber));
       setLicenseCategory(question.licenseCategory === 'Both' ? 'BOTH' : question.licenseCategory);
-      setQuestionStatus(question.status === 'active' ? 'active' : 'archived');
+      setQuestionStatus(question.status === 'active' ? 'active' : 'inactive');
 
       setTextUz(question.text.uz || '');
       setTextUzLatin(question.text.uzLatin || '');
@@ -377,9 +377,9 @@ export function QuestionDrawer({ open, onOpenChange, question, categories, onSav
             <div className="flex items-end gap-2 pb-0.5">
               <Switch
                 checked={questionStatus === 'active'}
-                onCheckedChange={(checked) => setQuestionStatus(checked ? 'active' : 'archived')}
+                onCheckedChange={(checked) => setQuestionStatus(checked ? 'active' : 'inactive')}
               />
-              <Label className="cursor-pointer" onClick={() => setQuestionStatus(questionStatus === 'active' ? 'archived' : 'active')}>
+              <Label className="cursor-pointer" onClick={() => setQuestionStatus(questionStatus === 'active' ? 'inactive' : 'active')}>
                 {questionStatus === 'active' ? ts('admin.active') : ts('admin.inactive')}
               </Label>
             </div>

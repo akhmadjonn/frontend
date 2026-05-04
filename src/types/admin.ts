@@ -154,7 +154,7 @@ export interface AdminQuestionDto {
   difficulty: number;
   ticketNumber: number;
   licenseCategory: 'AB' | 'CD' | 'Both';
-  status: 'active' | 'draft' | 'archived';
+  status: 'active' | 'inactive';
   createdAt: string;
   answerOptions: AdminAnswerOptionDto[];
 }

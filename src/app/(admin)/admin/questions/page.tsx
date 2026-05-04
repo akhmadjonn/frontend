@@ -207,7 +207,7 @@ export default function QuestionsManagementPage() {
 
   // toggle single question status
   const toggleStatus = async (question: AdminQuestionDto) => {
-    const newStatus = question.status === 'active' ? 'archived' : 'active';
+    const newStatus = question.status === 'active' ? 'inactive' : 'active';
     setTogglingIds((prev) => new Set([...prev, question.id]));
 
     // optimistic update
@@ -220,7 +220,7 @@ export default function QuestionsManagementPage() {
       toast.success(newStatus === 'active' ? ts('admin.questions.activated') : ts('admin.questions.deactivated'));
     } catch {
       // rollback
-      const rollback = newStatus === 'active' ? 'archived' : 'active';
+      const rollback = newStatus === 'active' ? 'inactive' : 'active';
       setQuestions((prev) =>
         prev.map((q) => (q.id === question.id ? { ...q, status: rollback as AdminQuestionDto['status'] } : q))
       );
@@ -239,7 +239,7 @@ export default function QuestionsManagementPage() {
     if (selectedIds.size === 0) return;
 
     const questionIds = Array.from(selectedIds);
-    const newStatus = activate ? 'active' : 'archived';
+    const newStatus = activate ? 'active' : 'inactive';
 
     // optimistic update
     setQuestions((prev) =>

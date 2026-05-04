@@ -121,6 +121,11 @@ export default function FirstAidPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProcedure, setEditingProcedure] = useState<FirstAidProcedureDto | null>(null);
   const [form, setForm] = useState<ProcedureFormData>(emptyForm);
+  // Icon file is staged separately from form state — uploaded after the
+  // PUT/POST succeeds via the dedicated /icon endpoint.
+  const [iconFile, setIconFile] = useState<File | null>(null);
+  // Per-step image files: index → File
+  const [stepImageFiles, setStepImageFiles] = useState<Record<number, File>>({});
   const [submitting, setSubmitting] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -153,6 +158,8 @@ export default function FirstAidPage() {
   const openCreateDialog = () => {
     setEditingProcedure(null);
     setForm(emptyForm);
+    setIconFile(null);
+    setStepImageFiles({});
     setAutoSlug(true);
     setDialogOpen(true);
   };
@@ -164,6 +171,8 @@ export default function FirstAidPage() {
       const detail = await apiClient.get<FirstAidProcedureDto>(`/first-aid/${proc.slug}`);
       setEditingProcedure(detail);
       setForm(formFromProcedure(detail));
+      setIconFile(null);
+      setStepImageFiles({});
       setAutoSlug(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : ts('common.error'));
@@ -228,22 +237,50 @@ export default function FirstAidPage() {
           ? { uz: form.summaryUz, uzLatin: form.summaryUzLatin, ru: form.summaryRu }
           : null,
         sortOrder: Number(form.sortOrder) || 0,
-        iconUrl: form.iconUrl || '',
-        steps: form.steps.map((s) => ({
+        // If an icon file is staged, the /icon endpoint will set IconUrl right after.
+        iconUrl: iconFile ? '' : (form.iconUrl || ''),
+        steps: form.steps.map((s, i) => ({
           ...(s.id ? { id: s.id } : {}),
           stepOrder: s.stepOrder,
           title: { uz: s.titleUz, uzLatin: s.titleUzLatin, ru: s.titleRu },
           description: { uz: s.descriptionUz, uzLatin: s.descriptionUzLatin, ru: s.descriptionRu },
-          imageUrl: s.imageUrl || null,
+          // Same idea per step — /steps/{id}/image overrides whatever URL is set.
+          imageUrl: stepImageFiles[i] ? null : (s.imageUrl || null),
         })),
       };
 
+      let procedureDto: FirstAidProcedureDto;
       if (editingProcedure) {
         await apiClient.put(`/admin/first-aid/${editingProcedure.id}`, payload);
+        // Re-fetch to get updated step IDs (PUT may have created/deleted steps).
+        procedureDto = await apiClient.get<FirstAidProcedureDto>(`/first-aid/${form.slug}`);
         toast.success(ts('admin.firstAid.updated'));
       } else {
-        await apiClient.post('/admin/first-aid', payload);
+        procedureDto = await apiClient.post<FirstAidProcedureDto>('/admin/first-aid', payload);
         toast.success(ts('admin.firstAid.created'));
+      }
+
+      // Procedure icon upload (optional)
+      if (iconFile) {
+        const fd = new FormData();
+        fd.append('image', iconFile, iconFile.name);
+        await apiClient.post(`/admin/first-aid/${procedureDto.id}/icon`, fd);
+      }
+
+      // Per-step image uploads (optional). Match local step indices to the
+      // refreshed step IDs by stepOrder so reordering stays correct.
+      for (const [idxStr, file] of Object.entries(stepImageFiles)) {
+        const idx = Number(idxStr);
+        const localStep = form.steps[idx];
+        if (!localStep) continue;
+        const remoteStep = procedureDto.steps.find((s) => s.stepOrder === localStep.stepOrder);
+        if (!remoteStep) continue;
+        const fd = new FormData();
+        fd.append('image', file, file.name);
+        await apiClient.post(
+          `/admin/first-aid/${procedureDto.id}/steps/${remoteStep.id}/image`,
+          fd,
+        );
       }
 
       setDialogOpen(false);
@@ -498,14 +535,36 @@ export default function FirstAidPage() {
                     placeholder="0"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="iconUrl">{ts('admin.firstAid.iconUrl')}</Label>
-                  <Input
-                    id="iconUrl"
-                    value={form.iconUrl}
-                    onChange={(e) => updateField('iconUrl', e.target.value)}
-                    placeholder="https://..."
-                  />
+                <div className="space-y-2">
+                  <Label>{ts('admin.firstAid.iconUrl')}</Label>
+                  <div className="space-y-1">
+                    <Label htmlFor="iconFile" className="text-xs font-normal text-muted-foreground">
+                      {ts('admin.uploadFromDevice') ?? 'Upload from device'}
+                    </Label>
+                    <Input
+                      id="iconFile"
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      onChange={(e) => setIconFile(e.target.files?.[0] ?? null)}
+                    />
+                    {iconFile && (
+                      <p className="text-xs text-muted-foreground">
+                        {iconFile.name} ({Math.round(iconFile.size / 1024)} KB)
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="iconUrl" className="text-xs font-normal text-muted-foreground">
+                      {ts('admin.orPasteUrl') ?? 'Or paste a URL / object key'}
+                    </Label>
+                    <Input
+                      id="iconUrl"
+                      value={form.iconUrl}
+                      onChange={(e) => updateField('iconUrl', e.target.value)}
+                      placeholder="https://..."
+                      disabled={!!iconFile}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -582,13 +641,33 @@ export default function FirstAidPage() {
                       </TabsContent>
                     </Tabs>
 
-                    <div>
+                    <div className="space-y-2">
                       <Label className="text-xs">{ts('admin.firstAid.stepImage')}</Label>
+                      <div className="space-y-1">
+                        <Input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/gif"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            setStepImageFiles((prev) => {
+                              const next = { ...prev };
+                              if (file) next[index] = file;
+                              else delete next[index];
+                              return next;
+                            });
+                          }}
+                        />
+                        {stepImageFiles[index] && (
+                          <p className="text-xs text-muted-foreground">
+                            {stepImageFiles[index].name} ({Math.round(stepImageFiles[index].size / 1024)} KB)
+                          </p>
+                        )}
+                      </div>
                       <Input
                         value={step.imageUrl}
                         onChange={(e) => updateStep(index, 'imageUrl', e.target.value)}
-                        placeholder="https://..."
-                        className="mt-1"
+                        placeholder={ts('admin.orPasteUrl') ?? 'Or paste a URL / object key'}
+                        disabled={!!stepImageFiles[index]}
                       />
                     </div>
                   </div>

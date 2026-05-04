@@ -28,6 +28,13 @@ import { format } from 'date-fns';
 
 type AnnouncementType = 'Info' | 'Warning' | 'Important';
 
+function normalizeType(type: string | null | undefined): AnnouncementType {
+  const t = String(type ?? '').toLowerCase();
+  if (t === 'warning') return 'Warning';
+  if (t === 'important') return 'Important';
+  return 'Info';
+}
+
 function getTypeConfig(ts: (key: string) => string): Record<AnnouncementType, { label: string; icon: React.ReactNode; badgeClassName: string; bannerClassName: string }> {
   return {
     Info: {
@@ -138,7 +145,7 @@ export default function AnnouncementsPage() {
       contentUz: announcement.content.uz,
       contentUzLatin: announcement.content.uzLatin,
       contentRu: announcement.content.ru,
-      type: announcement.type,
+      type: normalizeType(announcement.type),
       isActive: announcement.isActive,
       startsAt: announcement.startsAt ? announcement.startsAt.slice(0, 16) : '',
       expiresAt: announcement.expiresAt ? announcement.expiresAt.slice(0, 16) : '',
@@ -160,12 +167,8 @@ export default function AnnouncementsPage() {
     setSaving(true);
     try {
       const payload = {
-        titleUz: form.titleUz,
-        titleUzLatin: form.titleUzLatin,
-        titleRu: form.titleRu,
-        contentUz: form.contentUz,
-        contentUzLatin: form.contentUzLatin,
-        contentRu: form.contentRu,
+        title: { uz: form.titleUz, uzLatin: form.titleUzLatin, ru: form.titleRu },
+        content: { uz: form.contentUz, uzLatin: form.contentUzLatin, ru: form.contentRu },
         type: form.type,
         isActive: form.isActive,
         startsAt: form.startsAt || null,
@@ -206,8 +209,8 @@ export default function AnnouncementsPage() {
     }
   };
 
-  const renderTypeBadge = (type: AnnouncementType) => {
-    const config = TYPE_CONFIG[type];
+  const renderTypeBadge = (type: AnnouncementType | string) => {
+    const config = TYPE_CONFIG[normalizeType(type)];
     return (
       <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${config.badgeClassName}`}>
         {config.icon}
@@ -218,7 +221,7 @@ export default function AnnouncementsPage() {
 
   const previewTitle = form.titleUzLatin || form.titleUz || form.titleRu || ts('admin.announcements.previewTitle');
   const previewContent = form.contentUzLatin || form.contentUz || form.contentRu || ts('admin.announcements.previewContent');
-  const previewConfig = TYPE_CONFIG[form.type];
+  const previewConfig = TYPE_CONFIG[normalizeType(form.type)];
 
   const columns: Column<AnnouncementDto>[] = [
     {
