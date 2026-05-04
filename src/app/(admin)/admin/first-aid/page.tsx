@@ -564,6 +564,11 @@ export default function FirstAidPage() {
                       placeholder="https://..."
                       disabled={!!iconFile}
                     />
+                    {iconFile && (
+                      <p className="text-xs text-muted-foreground italic">
+                        {ts('admin.urlIgnoredFileChosen') ?? 'File chosen — URL ignored'}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -669,6 +674,11 @@ export default function FirstAidPage() {
                         placeholder={ts('admin.orPasteUrl') ?? 'Or paste a URL / object key'}
                         disabled={!!stepImageFiles[index]}
                       />
+                      {stepImageFiles[index] && (
+                        <p className="text-xs text-muted-foreground italic">
+                          {ts('admin.urlIgnoredFileChosen') ?? 'File chosen — URL ignored'}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -351,6 +351,7 @@
     "updateBtn": "Обновить",
     "uploadFromDevice": "Загрузить с устройства",
     "orPasteUrl": "Или вставьте URL",
+    "urlIgnoredFileChosen": "Файл выбран — URL игнорируется",
     "activeState": "Активный статус",
     "langUzLatin": "UZ Латин",
     "langUzCyrillic": "UZ Кирилл",

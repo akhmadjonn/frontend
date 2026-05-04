@@ -493,6 +493,11 @@ export default function HazardLabelsPage() {
                   placeholder="https://..."
                   disabled={!!imageFile}
                 />
+                {imageFile && (
+                  <p className="text-xs text-muted-foreground italic">
+                    {ts('admin.urlIgnoredFileChosen') ?? 'File chosen — URL ignored'}
+                  </p>
+                )}
               </div>
             </div>
           </div>
