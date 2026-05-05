@@ -12,12 +12,12 @@ UI: shadcn/ui (button, card, input, dialog, progress, badge, tabs, dropdown-menu
 
 ## Route Structure
 (marketing)/: landing page.tsx, pricing/page.tsx, about/page.tsx — SSR/SSG, public, SEO
-(auth)/: login/page.tsx (phone+OTP, Telegram button), verify/page.tsx (6-digit OTP)
+(auth)/: login/page.tsx (phone+OTP, Telegram button), verify/page.tsx (4-digit OTP)
 (app)/: layout.tsx (sidebar+header), dashboard/page.tsx, practice/page.tsx + session/page.tsx + marathon/page.tsx, exam/page.tsx (3 modes: random/ticket/marathon) + session/[id]/page.tsx + result/[id]/page.tsx, progress/page.tsx, subscription/page.tsx, settings/page.tsx
 (admin)/: layout.tsx (grouped sidebar), admin/page.tsx, admin/questions/page.tsx, admin/categories/page.tsx, admin/exam-templates/page.tsx, admin/plans/page.tsx, admin/payments/page.tsx, admin/users/page.tsx, admin/users/[id]/page.tsx, admin/announcements/page.tsx, admin/audit-log/page.tsx, admin/settings/page.tsx
 
 ## Key Components
-auth/: phone-input.tsx (+998 mask), otp-input.tsx (6 boxes, auto-focus, auto-submit), telegram-login-button.tsx, auth-guard.tsx
+auth/: phone-input.tsx (+998 mask), otp-input.tsx (4 boxes, auto-focus, auto-submit), telegram-login-button.tsx, auth-guard.tsx
 exam/: question-card.tsx (handles ALL 4 image scenarios), exam-timer.tsx (mm:ss, red<60s, auto-submit), question-navigator.tsx (grid), exam-result-summary.tsx, answer-option.tsx (text list OR image card grid — auto-detect)
 practice/: practice-question.tsx, explanation-panel.tsx, category-selector.tsx
 progress/: accuracy-chart.tsx, category-radar.tsx, streak-calendar.tsx, stats-cards.tsx

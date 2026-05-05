@@ -6,7 +6,7 @@ export const phoneSchema = z
 
 export const otpSchema = z
   .string()
-  .length(6, 'Kod 6 ta raqamdan iborat bo\'lishi kerak')
+  .length(4, 'Kod 4 ta raqamdan iborat bo\'lishi kerak')
   .regex(/^[0-9]+$/, 'Faqat raqamlar');
 
 export const loginSchema = z.object({

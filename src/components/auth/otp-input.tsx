@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, KeyboardEvent, ClipboardEvent } from 'react';
 import { cn } from '@/lib/utils';
+import { OTP_LENGTH } from '@/lib/constants';
 
 interface OtpInputProps {
   value: string;
@@ -18,16 +19,16 @@ export default function OtpInput({ value, onChange, onComplete, disabled, error 
     inputRefs.current[0]?.focus();
   }, []);
 
-  const digits = Array.from({ length: 6 }, (_, i) => value[i] || '');
+  const digits = Array.from({ length: OTP_LENGTH }, (_, i) => value[i] || '');
 
   const update = (arr: string[]) => {
     const newVal = arr.join('');
     onChange(newVal);
-    if (newVal.length === 6) onComplete?.(newVal);
+    if (newVal.length === OTP_LENGTH) onComplete?.(newVal);
   };
 
   const focusAt = (index: number) => {
-    const target = inputRefs.current[Math.max(0, Math.min(5, index))];
+    const target = inputRefs.current[Math.max(0, Math.min(OTP_LENGTH - 1, index))];
     target?.focus();
   };
 
@@ -63,16 +64,16 @@ export default function OtpInput({ value, onChange, onComplete, disabled, error 
 
   const handlePaste = (e: ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
     if (!pasted) return;
-    const arr = Array.from({ length: 6 }, (_, i) => pasted[i] || '');
+    const arr = Array.from({ length: OTP_LENGTH }, (_, i) => pasted[i] || '');
     update(arr);
-    focusAt(Math.min(pasted.length, 5));
+    focusAt(Math.min(pasted.length, OTP_LENGTH - 1));
   };
 
   return (
     <div className="flex gap-2 justify-center">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: OTP_LENGTH }).map((_, i) => (
         <input
           key={i}
           ref={(el) => { inputRefs.current[i] = el; }}
