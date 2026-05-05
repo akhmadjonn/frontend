@@ -10,7 +10,7 @@ import { useLocale } from '@/hooks/use-locale';
 import { useAuthStore } from '@/stores/auth-store';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft } from 'lucide-react';
-import { OTP_RESEND_SECONDS } from '@/lib/constants';
+import { OTP_LENGTH, OTP_RESEND_SECONDS } from '@/lib/constants';
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function VerifyPage() {
   }, [resendCooldown]);
 
   const handleVerify = useCallback(async (code: string) => {
-    if (code.length !== 6) return;
+    if (code.length !== OTP_LENGTH) return;
     setLoading(true);
     setError('');
     try {
@@ -100,13 +100,13 @@ export default function VerifyPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 px-6 pb-8">
-            <form onSubmit={(e) => { e.preventDefault(); if (!loading && otp.length === 6) handleVerify(otp); }} className="space-y-6">
+            <form onSubmit={(e) => { e.preventDefault(); if (!loading && otp.length === OTP_LENGTH) handleVerify(otp); }} className="space-y-6">
               <OtpInput value={otp} onChange={setOtp} onComplete={handleVerify} disabled={loading || attemptsLeft === 0} error={error} />
 
               {error && <p className="text-center text-sm text-destructive font-medium">{error}</p>}
               {attemptsLeft < 3 && attemptsLeft > 0 && <p className="text-center text-sm text-amber-600 font-medium">{attemptsLeft} {ts('auth.attemptsLeft')}</p>}
 
-              <Button type="submit" className="w-full rounded-xl h-11 bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white font-semibold" size="lg" disabled={loading || otp.length !== 6}>
+              <Button type="submit" className="w-full rounded-xl h-11 bg-[oklch(0.588_0.158_241)] hover:bg-[oklch(0.52_0.158_241)] text-white font-semibold" size="lg" disabled={loading || otp.length !== OTP_LENGTH}>
                 {loading ? ts('auth.verifying') : ts('auth.verify')}
               </Button>
             </form>
