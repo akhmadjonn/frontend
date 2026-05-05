@@ -148,7 +148,7 @@ export default function ExamResultPage() {
 
             if (typeof navigator !== 'undefined' && navigator.share) {
               try {
-                await navigator.share({ title: 'AvtoLider', text: shareText, url: shareUrl });
+                await navigator.share({ title: 'Avtolider', text: shareText, url: shareUrl });
               } catch {
                 // user cancelled share
               }

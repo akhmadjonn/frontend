@@ -11,8 +11,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-[oklch(0.985_0.003_80)] to-white dark:from-slate-950 dark:to-slate-900">
       <header className="container mx-auto flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
-          <Image src="/logo-full.svg" alt="AvtoLider" width={64} height={34} priority />
-          <span className="font-extrabold text-xl tracking-tight">AvtoLider</span>
+          <Image src="/logo-full.svg" alt="Avtolider" width={64} height={34} priority />
+          <span className="font-extrabold text-xl tracking-tight">Avtolider</span>
         </div>
         <Link
           href="/login"
@@ -24,7 +24,7 @@ export default function HomePage() {
 
       <main className="container mx-auto px-6 py-20 text-center animate-fade-up">
         <div className="mx-auto mb-8 flex justify-center">
-          <Image src="/logo-full.svg" alt="AvtoLider" width={280} height={150} priority />
+          <Image src="/logo-full.svg" alt="Avtolider" width={280} height={150} priority />
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
           {ts('marketing.homeTitle')}

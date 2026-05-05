@@ -29,7 +29,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between shadow-[0_1px_0_0_var(--border)] bg-background/95 backdrop-blur-sm px-4 md:px-6">
       <div className="flex items-center gap-2.5 md:hidden">
-        <img src="/logo-full.svg" alt="AvtoLider" className="h-8 w-auto" />
+        <img src="/logo-full.svg" alt="Avtolider" className="h-8 w-auto" />
         <span className="font-extrabold text-lg tracking-tight">{ts('header.appName')}</span>
       </div>
       <div className="flex-1" />

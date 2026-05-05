@@ -278,9 +278,9 @@ export default function AvtoliderLandingPage() {
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <div className="flex items-center gap-2.5">
-              <img src="/logo-full.svg" alt="AvtoLider" className="h-12 w-auto" />
+              <img src="/logo-full.svg" alt="Avtolider" className="h-12 w-auto" />
               <div>
-                <span className="text-xl font-bold tracking-tight">Avto<span className="text-blue-600">Lider</span></span>
+                <span className="text-xl font-bold tracking-tight">Avto<span className="text-blue-600">lider</span></span>
                 <span className="hidden sm:inline text-[10px] text-gray-400 ml-1.5 font-medium">{ts('landing.readyForExam')}</span>
               </div>
             </div>
@@ -449,7 +449,7 @@ export default function AvtoliderLandingPage() {
                         <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
                           <BookOpen className="w-4 h-4 text-white" />
                         </div>
-                        <span className="font-bold text-sm">AvtoLider</span>
+                        <span className="font-bold text-sm">Avtolider</span>
                       </div>
                       <div className="bg-white rounded-2xl p-4 shadow-lg border border-gray-50 mb-3">
                         <div className="flex items-center gap-2 mb-3">
@@ -756,7 +756,7 @@ export default function AvtoliderLandingPage() {
                     <path d="M2 12l10 5 10-5" />
                   </svg>
                 </div>
-                <span className="text-lg font-bold text-white">Avto<span className="text-blue-500">Lider</span></span>
+                <span className="text-lg font-bold text-white">Avto<span className="text-blue-500">lider</span></span>
               </div>
               <p className="text-sm leading-relaxed">{ts('landing.footerDesc')}</p>
             </div>
@@ -790,7 +790,7 @@ export default function AvtoliderLandingPage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between pt-8 gap-4">
-            <p className="text-xs">&copy; 2024-2026 AvtoLider. {ts('landing.footerRights')}</p>
+            <p className="text-xs">&copy; 2024-2026 Avtolider. {ts('landing.footerRights')}</p>
             <div className="flex items-center gap-4">
               <span className="text-xs text-gray-500 flex items-center gap-1.5"><Smartphone className="w-3.5 h-3.5" /> {ts('landing.footerAllDevices')}</span>
               <span className="text-xs text-gray-500 flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> {ts('landing.footerLangs')}</span>

@@ -69,7 +69,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8 animate-fade-up">
         {/* Logo + branding */}
         <div className="flex flex-col items-center gap-4">
-          <img src="/logo-full.svg" alt="AvtoLider" className="h-20 w-auto" />
+          <img src="/logo-full.svg" alt="Avtolider" className="h-20 w-auto" />
           <div className="text-center">
             <h1 className="text-2xl font-extrabold tracking-tight">{ts('header.appName')}</h1>
             <p className="text-sm text-muted-foreground mt-1.5">{ts('auth.subtitle')}</p>

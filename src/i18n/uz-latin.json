@@ -82,7 +82,7 @@
     "more": "Ko'proq"
   },
   "header": {
-    "appName": "AvtoLider",
+    "appName": "Avtolider",
     "defaultUser": "Foydalanuvchi",
     "settings": "Sozlamalar",
     "logout": "Chiqish"
@@ -326,7 +326,7 @@
     "hide": "Yashirish"
   },
   "marketing": {
-    "homeTitle": "AvtoLider — Haydovchilik imtihoniga tayyorlanish"
+    "homeTitle": "Avtolider — Haydovchilik imtihoniga tayyorlanish"
   },
   "admin": {
     "panelTitle": "Admin Panel",
@@ -1212,7 +1212,7 @@
     "shareToWhatsApp": "WhatsApp",
     "copied": "Nusxalandi!",
     "challengeFriend": "Do'stni chaqirish",
-    "shareText": "Men AvtoLider da {score}/{total} ({percent}%) natija oldim! Sen ham sinab ko'r!"
+    "shareText": "Men Avtolider da {score}/{total} ({percent}%) natija oldim! Sen ham sinab ko'r!"
   },
   "landing": {
     "badge": "O'zbekiston #1 imtihon tayyorlov platformasi",
@@ -1297,7 +1297,7 @@
     "faq4A": "Rasmiy UBDD imtihonida 20 ta savoldan kamida 18 tasiga to'g'ri javob berish kerak (90%).",
     "ctaBadge": "Bugunoq boshlang",
     "ctaTitle": "UBDD imtihoniga tayyor bo'ling",
-    "ctaDesc": "Minglab foydalanuvchilar allaqachon AvtoLider bilan birinchi urinishda imtihondan o'tmoqda. Siz ham qo'shiling!",
+    "ctaDesc": "Minglab foydalanuvchilar allaqachon Avtolider bilan birinchi urinishda imtihondan o'tmoqda. Siz ham qo'shiling!",
     "ctaRegister": "Bepul ro'yxatdan o'tish",
     "ctaTelegram": "Telegram kanal",
     "footerDesc": "O'zbekiston UBDD haydovchilik nazariy imtihoniga tayyorlanish uchun eng ishonchli platforma.",

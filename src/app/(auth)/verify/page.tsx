@@ -92,7 +92,7 @@ export default function VerifyPage() {
 
         <Card className="shadow-lg shadow-black/[0.03] rounded-2xl border-border/50">
           <CardHeader className="text-center pt-8 pb-4">
-            <img src="/logo-full.svg" alt="AvtoLider" className="h-12 w-auto mx-auto mb-4" />
+            <img src="/logo-full.svg" alt="Avtolider" className="h-12 w-auto mx-auto mb-4" />
             <CardTitle className="text-lg font-semibold">{ts('auth.otpTitle')}</CardTitle>
             <CardDescription className="mt-2">
               <span className="inline-block rounded-full bg-[oklch(0.95_0.03_241)] px-4 py-1.5 text-[oklch(0.588_0.158_241)] font-semibold text-sm">{formatPhone(phone)}</span>

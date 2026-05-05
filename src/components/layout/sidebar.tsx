@@ -55,8 +55,8 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-60 min-h-screen bg-card/80 backdrop-blur-sm shadow-[1px_0_0_0_var(--border)] px-3 py-5 shrink-0">
       <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 mb-8">
-        <Image src="/logo-full.svg" alt="AvtoLider" width={48} height={26} className="shrink-0" priority />
-        <span className="font-extrabold text-base tracking-tight">AvtoLider</span>
+        <Image src="/logo-full.svg" alt="Avtolider" width={48} height={26} className="shrink-0" priority />
+        <span className="font-extrabold text-base tracking-tight">Avtolider</span>
       </Link>
 
       <nav aria-label="Main navigation" className="flex flex-col gap-0.5 flex-1 overflow-y-auto">

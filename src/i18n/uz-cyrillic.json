@@ -82,7 +82,7 @@
     "more": "Кўпроқ"
   },
   "header": {
-    "appName": "AvtoLider",
+    "appName": "Avtolider",
     "defaultUser": "Фойдаланувчи",
     "settings": "Созламалар",
     "logout": "Чиқиш"
@@ -326,7 +326,7 @@
     "hide": "Яшириш"
   },
   "marketing": {
-    "homeTitle": "AvtoLider — Ҳайдовчилик имтиҳонига тайёрланиш"
+    "homeTitle": "Avtolider — Ҳайдовчилик имтиҳонига тайёрланиш"
   },
   "admin": {
     "panelTitle": "Админ панел",
@@ -1212,7 +1212,7 @@
     "shareToWhatsApp": "ВотсАпп",
     "copied": "Нусхаланди!",
     "challengeFriend": "Дўстни чақириш",
-    "shareText": "Мен AvtoLider да {score}/{total} ({percent}%) натижа олдим! Сен ҳам синаб кўр!"
+    "shareText": "Мен Avtolider да {score}/{total} ({percent}%) натижа олдим! Сен ҳам синаб кўр!"
   },
   "landing": {
     "badge": "Ўзбекистон #1 имтиҳон тайёрлов платформаси",
