@@ -50,7 +50,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
 
   if (loading)
     return (
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {Array.from({ length: 6 }).map((_, i) => (
           <Card key={i}><CardContent className="p-3"><Skeleton className="h-16 w-full" /></CardContent></Card>
         ))}
@@ -61,7 +61,7 @@ export default function CategorySelector({ onSelect, performance = [] }: Categor
 
   return (
     <TooltipProvider delay={300}>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {categories.map((cat) => {
           const perf = getPerf(cat.id);
           const hasPractice = perf && perf.totalAttempts > 0;
