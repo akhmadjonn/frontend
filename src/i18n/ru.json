@@ -185,7 +185,20 @@
     "completing": "Завершение...",
     "tabSwitchWarning": "Вкладка переключена! Это зафиксировано.",
     "sessionExpired": "Время экзамена истекло.",
-    "answerSaveFailed": "Ответ не сохранён. Проверьте подключение к интернету."
+    "answerSaveFailed": "Ответ не сохранён. Проверьте подключение к интернету.",
+    "marafonScopeTitle": "Выберите объём марафона",
+    "marafonScopeDescription": "С каким набором вопросов хотите работать?",
+    "marafonScopeAll": "Все вопросы",
+    "marafonScopeAllDesc": "Полные 1200+ вопросов",
+    "marafonScopeCategory": "По категории",
+    "marafonScopeCategoryDesc": "Вопросы из одной темы",
+    "marafonScopeTicket": "Диапазон билетов",
+    "marafonScopeTicketDesc": "Выбранные билеты (например 1–10)",
+    "marafonCategoryPlaceholder": "Выберите категорию",
+    "marafonTicketFrom": "С",
+    "marafonTicketTo": "По",
+    "marafonCategoryRequired": "Выберите категорию",
+    "marafonTicketRangeInvalid": "Неверный диапазон билетов"
   },
   "history": {
     "title": "История экзаменов",

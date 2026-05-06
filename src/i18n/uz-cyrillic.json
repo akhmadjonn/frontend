@@ -185,7 +185,20 @@
     "completing": "Якунланмоқда...",
     "tabSwitchWarning": "Таб алмаштирилди! Бу қайд этилди.",
     "sessionExpired": "Имтиҳон вақти тугади.",
-    "answerSaveFailed": "Жавоб сақланмади. Интернет алоқасини текширинг."
+    "answerSaveFailed": "Жавоб сақланмади. Интернет алоқасини текширинг.",
+    "marafonScopeTitle": "Марафон ҳажмини танланг",
+    "marafonScopeDescription": "Қайси саволлар тўпламида ишламоқчисиз?",
+    "marafonScopeAll": "Барча саволлар",
+    "marafonScopeAllDesc": "Ҳаммаси — тўлиқ 1200+ савол",
+    "marafonScopeCategory": "Категория бўйича",
+    "marafonScopeCategoryDesc": "Битта мавзудаги саволлар",
+    "marafonScopeTicket": "Билет диапазони",
+    "marafonScopeTicketDesc": "Танланган билетлар (масалан 1–10)",
+    "marafonCategoryPlaceholder": "Категорияни танланг",
+    "marafonTicketFrom": "Бошланиш",
+    "marafonTicketTo": "Тугаш",
+    "marafonCategoryRequired": "Категорияни танланг",
+    "marafonTicketRangeInvalid": "Билет диапазони нотўғри"
   },
   "history": {
     "title": "Имтиҳон тарихи",

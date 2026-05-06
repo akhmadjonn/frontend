@@ -39,11 +39,11 @@ Content from API uses Accept-Language header. UI text in src/i18n/uz-latin.json 
 ## Exam Start Page — Three Modes
 1. "Imtihon" (Exam): random 20 questions, 25 min timer, matching real UBDD exam
 2. "Bilet" (Ticket): select ticket 1-57+, get that ticket's fixed 20 questions, 25 min timer
-3. "Maraton" (Marathon): ALL 1,200 questions, NO timer, progress saves, can resume
+3. "Marafon": scoped pool (All / Category / Ticket range), NO timer, paginated batch loading, progress saves, can resume. Explanations shown mid-session.
 
 ## Critical Rules
 1. NEVER hardcode question text — always from API
-2. Correct answers NEVER on client during exam — only after CompleteExam
+2. Instant verdict on every answer submit — `POST /exams/{id}/answer` returns {isCorrect, correctAnswerId, explanation?}. Lock first answer (no re-pick). Explanation rendered only for Marafon mode mid-session; Exam / Ticket / SpeedChallenge defer explanations to the result page.
 3. Timer source = server expires_at (NOT local countdown)
 4. All images via MinIO presigned URLs, never base64
 5. Mobile-first responsive, loading skeletons, error boundaries on every route
