@@ -11,6 +11,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { GraduationCap, Hash, Trophy, Clock, Timer, AlertTriangle, Play, Trash2, ChevronRight, CheckCircle2, XCircle, History, RefreshCw, Zap, ArrowRight, Brain, Lock, Crown } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { EXAM_QUESTION_COUNT, EXAM_PASSING_SCORE, EXAM_TIME_MINUTES } from '@/lib/constants';
@@ -21,6 +25,27 @@ import { useLocaleStore } from '@/stores/locale-store';
 import { getDateLocale } from '@/lib/date-locale';
 
 type ExamMode = 'exam' | 'ticket' | 'marathon';
+type MarafonScope = 'All' | 'Category' | 'TicketRange';
+
+interface CategoryDto {
+  id: string;
+  name: { uz: string; uzLatin: string; ru: string };
+  slug: string;
+  questionCount?: number;
+  children?: CategoryDto[];
+}
+
+function flattenCategories(nodes: CategoryDto[]): CategoryDto[] {
+  const out: CategoryDto[] = [];
+  const walk = (list: CategoryDto[]) => {
+    for (const n of list) {
+      out.push(n);
+      if (n.children?.length) walk(n.children);
+    }
+  };
+  walk(nodes);
+  return out;
+}
 
 interface AnswerOptionDto {
   id: string;
@@ -36,6 +61,9 @@ interface ExamQuestionDto {
   imageUrl: string | null;
   answerOptions: AnswerOptionDto[];
   selectedAnswerId: string | null;
+  correctAnswerId?: string | null;
+  isCorrect?: boolean | null;
+  explanation?: { uz: string; uzLatin: string; ru: string } | null;
 }
 
 interface ExamSessionDto {
@@ -57,6 +85,8 @@ interface ActiveExamDto {
   answeredQuestions: number;
   expiresAt: string | null;
   createdAt: string;
+  status?: 'inProgress' | 'paused';
+  remainingSecondsAtPause?: number | null;
 }
 
 interface ExamHistoryItem {
@@ -106,6 +136,13 @@ export default function ExamPage() {
   const [abandoning, setAbandoning] = useState(false);
   const [recentHistory, setRecentHistory] = useState<ExamHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [marafonOpen, setMarafonOpen] = useState(false);
+  const [marafonScope, setMarafonScope] = useState<MarafonScope>('All');
+  const [marafonCategoryId, setMarafonCategoryId] = useState<string>('');
+  const [marafonTicketFrom, setMarafonTicketFrom] = useState<string>('');
+  const [marafonTicketTo, setMarafonTicketTo] = useState<string>('');
+  const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   const MODE_LABELS: Record<string, string> = { exam: ts('exam.startExam'), ticket: ts('exam.startTicket'), marathon: ts('exam.startMarathon'), speedChallenge: ts('practiceMode.speedChallenge') };
 
@@ -136,6 +173,26 @@ export default function ExamPage() {
       .finally(() => setPracticeLoading(false));
   }, []);
 
+  const ensureCategoriesLoaded = async () => {
+    if (categoriesLoaded) return;
+    try {
+      const data = await apiClient.get<CategoryDto[]>('/categories');
+      setCategories(flattenCategories(data ?? []));
+      setCategoriesLoaded(true);
+    } catch {
+      toast.error(ts('common.error'));
+    }
+  };
+
+  const openMarafonPicker = () => {
+    setMarafonScope('All');
+    setMarafonCategoryId('');
+    setMarafonTicketFrom('');
+    setMarafonTicketTo('');
+    setMarafonOpen(true);
+    void ensureCategoriesLoaded();
+  };
+
   const handleResume = async () => {
     if (!activeExam) return;
     if (activeExam.mode === 'speedChallenge') {
@@ -144,11 +201,21 @@ export default function ExamPage() {
     }
     setLoading(activeExam.mode as ExamMode);
     try {
+      // If paused, resume server-side first so the timer restarts before we load questions
+      if (activeExam.status === 'paused') {
+        try {
+          await apiClient.post(`/exams/${activeExam.id}/resume`, {});
+        } catch (err: unknown) {
+          toast.error(err instanceof Error ? err.message : ts('exam.resumeFailed'));
+          setLoading(null);
+          return;
+        }
+      }
       const data = await apiClient.get<ExamSessionDto>(`/exams/${activeExam.id}`);
       const existingAnswers = new Map<string, string>();
       for (const q of data.questions)
         if (q.selectedAnswerId) existingAnswers.set(q.id, q.selectedAnswerId);
-      startExam(data.id, data.questions, data.expiresAt, data.mode, existingAnswers);
+      startExam(data.id, data.questions, data.expiresAt, data.mode, data.totalQuestions, existingAnswers);
       router.push(`/exam/session/${data.id}`);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : ts('common.error'));
@@ -180,8 +247,40 @@ export default function ExamPage() {
       else if (mode === 'ticket')
         data = await apiClient.post<ExamSessionDto>('/exams/start-ticket', { ticketNumber: selectedTicket });
       else
-        data = await apiClient.post<ExamSessionDto>('/exams/start-marathon', {});
-      startExam(data.id, data.questions, data.expiresAt, mode);
+        data = await apiClient.post<ExamSessionDto>('/exams/start-marathon', { licenseCategory: 'AB', scope: 'All' });
+      startExam(data.id, data.questions, data.expiresAt, mode, data.totalQuestions);
+      router.push(`/exam/session/${data.id}`);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : ts('common.error'));
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleStartMarafon = async () => {
+    if (marafonScope === 'Category' && !marafonCategoryId) {
+      toast.error(ts('exam.marafonCategoryRequired'));
+      return;
+    }
+    if (marafonScope === 'TicketRange') {
+      const from = parseInt(marafonTicketFrom, 10);
+      const to = parseInt(marafonTicketTo, 10);
+      if (!Number.isFinite(from) || !Number.isFinite(to) || from < 1 || to < from) {
+        toast.error(ts('exam.marafonTicketRangeInvalid'));
+        return;
+      }
+    }
+    setLoading('marathon');
+    try {
+      const body: Record<string, unknown> = { licenseCategory: 'AB', scope: marafonScope };
+      if (marafonScope === 'Category') body.categoryId = marafonCategoryId;
+      if (marafonScope === 'TicketRange') {
+        body.ticketFrom = parseInt(marafonTicketFrom, 10);
+        body.ticketTo = parseInt(marafonTicketTo, 10);
+      }
+      const data = await apiClient.post<ExamSessionDto>('/exams/start-marathon', body);
+      setMarafonOpen(false);
+      startExam(data.id, data.questions, data.expiresAt, 'marathon', data.totalQuestions);
       router.push(`/exam/session/${data.id}`);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : ts('common.error'));
@@ -212,9 +311,19 @@ export default function ExamPage() {
               <span className="animate-pulse h-2 w-2 rounded-full bg-amber-500 mt-2 shrink-0" />
               <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="font-semibold text-sm">{ts('exam.activeExamBanner')}</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-semibold text-sm">{ts('exam.activeExamBanner')}</p>
+                  {activeExam.status === 'paused' && (
+                    <Badge variant="secondary" className="text-[11px] bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                      {ts('exam.paused')}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   {MODE_LABELS[activeExam.mode] ?? activeExam.mode} &mdash; <span className="tabular-nums">{activeExam.answeredQuestions}/{activeExam.totalQuestions}</span> {ts('exam.answered')}
+                  {activeExam.status === 'paused' && activeExam.remainingSecondsAtPause != null && (
+                    <> &middot; {ts('exam.remainingTime')}: <span className="tabular-nums font-medium">{formatTime(activeExam.remainingSecondsAtPause)}</span></>
+                  )}
                 </p>
               </div>
             </div>
@@ -305,13 +414,96 @@ export default function ExamPage() {
               <span className="flex items-center gap-1 text-[11px] rounded-md border border-border/50 bg-muted/50 px-2 py-0.5 text-muted-foreground"><Clock className="h-3 w-3" />{ts('exam.progressSaved')}</span>
             </div>
             <div className="mt-auto w-full">
-              <Button className="w-full rounded-xl h-10 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 cursor-pointer" onClick={() => handleStart('marathon')} disabled={loading !== null || hasActive}>
+              <Button className="w-full rounded-xl h-10 bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700 cursor-pointer" onClick={openMarafonPicker} disabled={loading !== null || hasActive}>
                 {loading === 'marathon' ? ts('common.loading') : ts('exam.startMarathonBtn')}
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={marafonOpen} onOpenChange={setMarafonOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{ts('exam.marafonScopeTitle')}</DialogTitle>
+            <DialogDescription>{ts('exam.marafonScopeDescription')}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <RadioGroup value={marafonScope} onValueChange={(v) => setMarafonScope(v as MarafonScope)} className="space-y-2">
+              <div className="flex items-center space-x-2 rounded-lg border p-3">
+                <RadioGroupItem value="All" id="scope-all" />
+                <Label htmlFor="scope-all" className="flex-1 cursor-pointer">
+                  <div className="text-sm font-medium">{ts('exam.marafonScopeAll')}</div>
+                  <div className="text-xs text-muted-foreground">{ts('exam.marafonScopeAllDesc')}</div>
+                </Label>
+              </div>
+              <div className="flex items-start space-x-2 rounded-lg border p-3">
+                <RadioGroupItem value="Category" id="scope-category" className="mt-1" />
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor="scope-category" className="cursor-pointer">
+                    <div className="text-sm font-medium">{ts('exam.marafonScopeCategory')}</div>
+                    <div className="text-xs text-muted-foreground">{ts('exam.marafonScopeCategoryDesc')}</div>
+                  </Label>
+                  {marafonScope === 'Category' && (
+                    <Select value={marafonCategoryId} onValueChange={(v) => setMarafonCategoryId(v ?? '')}>
+                      <SelectTrigger className="rounded-lg text-sm">
+                        <SelectValue placeholder={ts('exam.marafonCategoryPlaceholder')} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64">
+                        {categories.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name[language as keyof typeof c.name] ?? c.name.uzLatin}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-start space-x-2 rounded-lg border p-3">
+                <RadioGroupItem value="TicketRange" id="scope-ticket" className="mt-1" />
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor="scope-ticket" className="cursor-pointer">
+                    <div className="text-sm font-medium">{ts('exam.marafonScopeTicket')}</div>
+                    <div className="text-xs text-muted-foreground">{ts('exam.marafonScopeTicketDesc')}</div>
+                  </Label>
+                  {marafonScope === 'TicketRange' && (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        placeholder={ts('exam.marafonTicketFrom')}
+                        value={marafonTicketFrom}
+                        onChange={(e) => setMarafonTicketFrom(e.target.value)}
+                        className="rounded-lg text-sm"
+                      />
+                      <span className="text-xs text-muted-foreground">–</span>
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        placeholder={ts('exam.marafonTicketTo')}
+                        value={marafonTicketTo}
+                        onChange={(e) => setMarafonTicketTo(e.target.value)}
+                        className="rounded-lg text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMarafonOpen(false)} disabled={loading === 'marathon'}>
+              {ts('common.cancel')}
+            </Button>
+            <Button onClick={handleStartMarafon} disabled={loading === 'marathon' || hasActive}>
+              {loading === 'marathon' ? ts('common.loading') : ts('exam.startMarathonBtn')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Practice Modes Section */}
       <div>
@@ -352,7 +544,7 @@ export default function ExamPage() {
             </Card>
           </button>
 
-          <button onClick={() => handleStart('marathon')} className="text-left w-full cursor-pointer">
+          <button onClick={openMarafonPicker} className="text-left w-full cursor-pointer">
             <Card className="card-hover hover:border-foreground/20 transition-colors rounded-xl h-full">
               <CardContent className="flex items-center gap-3 p-5">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/30">

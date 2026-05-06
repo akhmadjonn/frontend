@@ -99,6 +99,7 @@ export default function PracticeSessionPage() {
   const [speedAnswers, setSpeedAnswers] = useState<SpeedAnswer[]>([]);
   const [speedComplete, setSpeedComplete] = useState(false);
   const [speedSelectedId, setSpeedSelectedId] = useState<string | null>(null);
+  const [speedRevealCorrectId, setSpeedRevealCorrectId] = useState<string | null>(null);
   const [speedInitialSeconds, setSpeedInitialSeconds] = useState<number | null>(null);
 
   // Review mode: tracks total remaining due questions (decrements after each answer)
@@ -220,34 +221,45 @@ export default function PracticeSessionPage() {
     const question = speedSession.questions[speedIndex];
     const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
 
-    // Record locally
-    const answer: SpeedAnswer = {
-      sessionQuestionId: question.id,
-      selectedAnswerId: answerId,
-      isCorrect: null, // we don't know yet in exam mode
-      timeSpentSeconds: timeSpent,
-    };
-
-    setSpeedAnswers(prev => [...prev, answer]);
     setSpeedSelectedId(answerId);
 
-    // Submit to backend (fire-and-forget style, like exam)
+    // Submit to backend and capture verdict (instant feedback, no explanation in speed mode)
+    let isCorrect: boolean | null = null;
+    let correctAnswerId: string | null = null;
     if (answerId) {
       try {
-        await apiClient.post(`/exams/${speedSession.id}/answer`, {
-          sessionQuestionId: question.id,
-          selectedAnswerId: answerId,
-          timeSpentSeconds: timeSpent,
-        });
+        const fb = await apiClient.post<{ isCorrect: boolean; correctAnswerId: string }>(
+          `/exams/${speedSession.id}/answer`,
+          {
+            sessionQuestionId: question.id,
+            selectedAnswerId: answerId,
+            timeSpentSeconds: timeSpent,
+          },
+        );
+        if (fb) {
+          isCorrect = fb.isCorrect;
+          correctAnswerId = fb.correctAnswerId;
+          setSpeedRevealCorrectId(fb.correctAnswerId);
+        }
       } catch {
-        // Silent fail — exam pattern
+        // Silent fail — submit recorded locally; advance anyway to keep cadence
       }
     }
 
-    // Brief delay to show selection, then advance
+    setSpeedAnswers((prev) => [
+      ...prev,
+      {
+        sessionQuestionId: question.id,
+        selectedAnswerId: answerId,
+        isCorrect,
+        timeSpentSeconds: timeSpent,
+      },
+    ]);
+
+    // Brief flash to show verdict, then advance
+    const flashMs = answerId ? (correctAnswerId ? 600 : 300) : 0;
     setTimeout(() => {
       if (speedIndex + 1 >= speedSession.questions.length) {
-        // Complete the session
         apiClient.post(`/exams/${speedSession.id}/complete`, {}).catch(() => {});
         sessionStorage.removeItem(SPEED_STORAGE_KEY);
         setSpeedComplete(true);
@@ -256,11 +268,12 @@ export default function PracticeSessionPage() {
         sessionStorage.setItem(SPEED_STORAGE_KEY, JSON.stringify({ sessionId: speedSession.id, index: nextIndex, questionStartedAt: Date.now() }));
         setSpeedIndex(nextIndex);
         setSpeedSelectedId(null);
+        setSpeedRevealCorrectId(null);
         setSpeedInitialSeconds(null);
         startTimeRef.current = Date.now();
       }
       speedSubmittingRef.current = false;
-    }, answerId ? 300 : 0); // instant advance on timeout (no selection), brief flash on user selection
+    }, flashMs);
   }, [speedSession, speedIndex]);
 
   const handleSpeedTimerExpire = useCallback(() => {
@@ -608,6 +621,7 @@ export default function PracticeSessionPage() {
           onAnswer={handleSpeedAnswer}
           disabled={speedSubmittingRef.current || speedSelectedId !== null}
           selectedAnswerId={speedSelectedId ?? undefined}
+          correctAnswerId={speedRevealCorrectId ?? undefined}
         />
       </div>
     );
