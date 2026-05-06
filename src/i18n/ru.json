@@ -198,7 +198,16 @@
     "marafonTicketFrom": "С",
     "marafonTicketTo": "По",
     "marafonCategoryRequired": "Выберите категорию",
-    "marafonTicketRangeInvalid": "Неверный диапазон билетов"
+    "marafonTicketRangeInvalid": "Неверный диапазон билетов",
+    "finishDialogTitle": "Завершить экзамен?",
+    "finishDialogDesc": "При завершении вы увидите результат. Если поставите на паузу — таймер остановится, и вы сможете продолжить позже.",
+    "finishDialogContinue": "Продолжить",
+    "finishDialogPause": "Поставить на паузу",
+    "finishDialogFinish": "Завершить",
+    "pauseFailed": "Не удалось поставить на паузу. Попробуйте ещё раз.",
+    "resumeFailed": "Не удалось возобновить.",
+    "paused": "На паузе",
+    "remainingTime": "Осталось"
   },
   "history": {
     "title": "История экзаменов",

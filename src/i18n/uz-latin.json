@@ -198,7 +198,16 @@
     "marafonTicketFrom": "Boshlanish",
     "marafonTicketTo": "Tugash",
     "marafonCategoryRequired": "Kategoriyani tanlang",
-    "marafonTicketRangeInvalid": "Bilet diapazoni noto'g'ri"
+    "marafonTicketRangeInvalid": "Bilet diapazoni noto'g'ri",
+    "finishDialogTitle": "Imtihonni tugatasizmi?",
+    "finishDialogDesc": "Tugatsangiz natija ko'rsatiladi. Pauza qilsangiz vaqt to'xtaydi va keyin davom ettirishingiz mumkin.",
+    "finishDialogContinue": "Davom etish",
+    "finishDialogPause": "Pauza qilish",
+    "finishDialogFinish": "Tugatish",
+    "pauseFailed": "Pauza qilib bo'lmadi. Qaytadan urinib ko'ring.",
+    "resumeFailed": "Davom ettirib bo'lmadi.",
+    "paused": "Pauza qilingan",
+    "remainingTime": "Qolgan vaqt"
   },
   "history": {
     "title": "Imtihon tarixi",

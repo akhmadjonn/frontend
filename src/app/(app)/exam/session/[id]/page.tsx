@@ -13,7 +13,8 @@ import ExamTimer from '@/components/exam/exam-timer';
 import MarafonExplanationPanel from '@/components/exam/marafon-explanation-panel';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ChevronLeft, ChevronRight, CheckCircle, Pause } from 'lucide-react';
 
 type LocalizedText = { uz: string; uzLatin: string; ru: string };
 
@@ -76,9 +77,12 @@ export default function ExamSessionPage() {
   const submitExam = useExamStore((s) => s.submitExam);
   const incrementTabSwitch = useExamStore((s) => s.incrementTabSwitch);
   const [completing, setCompleting] = useState(false);
+  const [pausing, setPausing] = useState(false);
+  const [finishDialogOpen, setFinishDialogOpen] = useState(false);
   const [submittingQid, setSubmittingQid] = useState<string | null>(null);
   const [pendingAnswer, setPendingAnswer] = useState<{ qid: string; aid: string } | null>(null);
   const submittedRef = useRef(false);
+  const examReset = useExamStore((s) => s.reset);
   const inflightBatchRef = useRef<Set<number>>(new Set()); // ranges currently being prefetched
 
   useEffect(() => {
@@ -184,6 +188,7 @@ export default function ExamSessionPage() {
     try {
       await apiClient.post(`/exams/${examId}/complete`, {});
       submitExam();
+      setFinishDialogOpen(false);
       router.replace(`/exam/result/${examId}`);
     } catch (err: unknown) {
       submittedRef.current = false;
@@ -192,6 +197,29 @@ export default function ExamSessionPage() {
       setCompleting(false);
     }
   }, [examId, submitExam, router, completing, ts]);
+
+  const handlePause = useCallback(async () => {
+    if (pausing) return;
+    setPausing(true);
+    try {
+      await apiClient.post(`/exams/${examId}/pause`, {});
+      // Drop session-storage state — when the user resumes, /exam will refetch
+      // the session with the freshly restored ExpiresAt from the server.
+      examReset();
+      setFinishDialogOpen(false);
+      router.replace('/exam');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : ts('exam.pauseFailed'));
+    } finally {
+      setPausing(false);
+    }
+  }, [pausing, examId, examReset, router, ts]);
+
+  // Auto-finish on timer expiry — bypass the dialog (no time to confirm)
+  const handleAutoFinish = useCallback(() => {
+    if (submittedRef.current || completing) return;
+    handleComplete();
+  }, [handleComplete, completing]);
 
   const currentQuestion = questions[currentIndex];
   const answeredIds = useMemo(() => new Set(answers.keys()), [answers]);
@@ -258,9 +286,9 @@ export default function ExamSessionPage() {
             <Progress value={progressPct} className="w-24 h-1.5" />
           </div>
           {!isMarathon && expiresAt && (
-            <ExamTimer expiresAt={expiresAt} onExpire={handleComplete} />
+            <ExamTimer expiresAt={expiresAt} onExpire={handleAutoFinish} />
           )}
-          <Button size="sm" onClick={handleComplete} disabled={completing} className="shrink-0">
+          <Button size="sm" onClick={() => setFinishDialogOpen(true)} disabled={completing || pausing} className="shrink-0">
             <CheckCircle className="h-4 w-4 mr-1.5" />
             {completing ? ts('exam.completing') : ts('exam.finish')}
           </Button>
@@ -325,8 +353,8 @@ export default function ExamSessionPage() {
             </div>
             <p className="text-sm text-muted-foreground">{ts('exam.reviewOrFinish')}</p>
             <Button
-              onClick={handleComplete}
-              disabled={completing}
+              onClick={() => setFinishDialogOpen(true)}
+              disabled={completing || pausing}
               className="bg-green-600 hover:bg-green-700 text-white rounded-xl h-11 px-8"
             >
               <CheckCircle className="h-4 w-4 mr-2" />
@@ -344,6 +372,43 @@ export default function ExamSessionPage() {
           </div>
         ) : null}
       </div>
+
+      <Dialog open={finishDialogOpen} onOpenChange={(o) => !completing && !pausing && setFinishDialogOpen(o)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{ts('exam.finishDialogTitle')}</DialogTitle>
+            <DialogDescription>{ts('exam.finishDialogDesc')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setFinishDialogOpen(false)}
+              disabled={completing || pausing}
+            >
+              {ts('exam.finishDialogContinue')}
+            </Button>
+            {!isMarathon && (
+              <Button
+                variant="secondary"
+                onClick={handlePause}
+                disabled={completing || pausing}
+                className="gap-2"
+              >
+                <Pause className="h-4 w-4" />
+                {pausing ? ts('common.loading') : ts('exam.finishDialogPause')}
+              </Button>
+            )}
+            <Button
+              onClick={handleComplete}
+              disabled={completing || pausing}
+              className="bg-green-600 hover:bg-green-700 text-white gap-2"
+            >
+              <CheckCircle className="h-4 w-4" />
+              {completing ? ts('exam.completing') : ts('exam.finishDialogFinish')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -198,7 +198,16 @@
     "marafonTicketFrom": "Бошланиш",
     "marafonTicketTo": "Тугаш",
     "marafonCategoryRequired": "Категорияни танланг",
-    "marafonTicketRangeInvalid": "Билет диапазони нотўғри"
+    "marafonTicketRangeInvalid": "Билет диапазони нотўғри",
+    "finishDialogTitle": "Имтиҳонни тугатасизми?",
+    "finishDialogDesc": "Тугатсангиз натижа кўрсатилади. Пауза қилсангиз вақт тўхтайди ва кейин давом эттиришингиз мумкин.",
+    "finishDialogContinue": "Давом этиш",
+    "finishDialogPause": "Пауза қилиш",
+    "finishDialogFinish": "Тугатиш",
+    "pauseFailed": "Пауза қилиб бўлмади. Қайтадан уриниб кўринг.",
+    "resumeFailed": "Давом эттириб бўлмади.",
+    "paused": "Пауза қилинган",
+    "remainingTime": "Қолган вақт"
   },
   "history": {
     "title": "Имтиҳон тарихи",

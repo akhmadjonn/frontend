@@ -85,6 +85,8 @@ interface ActiveExamDto {
   answeredQuestions: number;
   expiresAt: string | null;
   createdAt: string;
+  status?: 'inProgress' | 'paused';
+  remainingSecondsAtPause?: number | null;
 }
 
 interface ExamHistoryItem {
@@ -199,6 +201,16 @@ export default function ExamPage() {
     }
     setLoading(activeExam.mode as ExamMode);
     try {
+      // If paused, resume server-side first so the timer restarts before we load questions
+      if (activeExam.status === 'paused') {
+        try {
+          await apiClient.post(`/exams/${activeExam.id}/resume`, {});
+        } catch (err: unknown) {
+          toast.error(err instanceof Error ? err.message : ts('exam.resumeFailed'));
+          setLoading(null);
+          return;
+        }
+      }
       const data = await apiClient.get<ExamSessionDto>(`/exams/${activeExam.id}`);
       const existingAnswers = new Map<string, string>();
       for (const q of data.questions)
@@ -299,9 +311,19 @@ export default function ExamPage() {
               <span className="animate-pulse h-2 w-2 rounded-full bg-amber-500 mt-2 shrink-0" />
               <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="font-semibold text-sm">{ts('exam.activeExamBanner')}</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-semibold text-sm">{ts('exam.activeExamBanner')}</p>
+                  {activeExam.status === 'paused' && (
+                    <Badge variant="secondary" className="text-[11px] bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                      {ts('exam.paused')}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   {MODE_LABELS[activeExam.mode] ?? activeExam.mode} &mdash; <span className="tabular-nums">{activeExam.answeredQuestions}/{activeExam.totalQuestions}</span> {ts('exam.answered')}
+                  {activeExam.status === 'paused' && activeExam.remainingSecondsAtPause != null && (
+                    <> &middot; {ts('exam.remainingTime')}: <span className="tabular-nums font-medium">{formatTime(activeExam.remainingSecondsAtPause)}</span></>
+                  )}
                 </p>
               </div>
             </div>
