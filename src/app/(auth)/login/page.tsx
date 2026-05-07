@@ -137,7 +137,7 @@ function LoginContent() {
         {/* Logo — badge already contains the brand name, no separate wordmark needed */}
         <div className="flex flex-col items-center">
           <Link href="/" aria-label="Avtolider — bosh sahifa">
-            <Image src="/logo.png" alt="Avtolider" width={1006} height={366} className="h-32 w-auto" priority />
+            <Image src="/logo.png" alt="Avtolider" width={1006} height={366} className="h-24 w-auto" priority />
           </Link>
         </div>
 
