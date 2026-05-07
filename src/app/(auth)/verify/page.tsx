@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import OtpInput from '@/components/auth/otp-input';
@@ -11,6 +13,13 @@ import { useAuthStore } from '@/stores/auth-store';
 import { apiClient } from '@/lib/api-client';
 import { ArrowLeft } from 'lucide-react';
 import { OTP_LENGTH, OTP_RESEND_SECONDS } from '@/lib/constants';
+
+// Same whitelist as /login — only same-origin paths are accepted.
+function safeRedirect(target: string | null): string {
+  if (!target) return '/dashboard';
+  if (target.startsWith('/') && !target.startsWith('//')) return target;
+  return '/dashboard';
+}
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -47,7 +56,9 @@ export default function VerifyPage() {
       login(tokens.accessToken, tokens.refreshToken, user);
       setVerified(true);
       sessionStorage.removeItem('otp_phone');
-      router.replace('/dashboard');
+      const redirectTarget = safeRedirect(sessionStorage.getItem('otp_redirect'));
+      sessionStorage.removeItem('otp_redirect');
+      router.replace(redirectTarget);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : ts('common.error');
       setError(message);
@@ -92,7 +103,9 @@ export default function VerifyPage() {
 
         <Card className="shadow-lg shadow-black/[0.03] rounded-2xl border-border/50">
           <CardHeader className="text-center pt-8 pb-4">
-            <img src="/logo-full.svg" alt="Avtolider" className="h-12 w-auto mx-auto mb-4" />
+            <Link href="/" aria-label="Avtolider — bosh sahifa" className="mx-auto mb-4 inline-block">
+              <Image src="/logo.png" alt="Avtolider" width={1006} height={366} className="h-16 w-auto" priority />
+            </Link>
             <CardTitle className="text-lg font-semibold">{ts('auth.otpTitle')}</CardTitle>
             <CardDescription className="mt-2">
               <span className="inline-block rounded-full bg-[oklch(0.95_0.03_241)] px-4 py-1.5 text-[oklch(0.588_0.158_241)] font-semibold text-sm">{formatPhone(phone)}</span>

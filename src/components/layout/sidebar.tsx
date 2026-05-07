@@ -54,8 +54,8 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex flex-col w-60 min-h-screen bg-card/80 backdrop-blur-sm shadow-[1px_0_0_0_var(--border)] px-3 py-5 shrink-0">
-      <Link href="/dashboard" className="flex items-center gap-2.5 px-3 py-2 mb-8">
-        <Image src="/logo-full.svg" alt="Avtolider" width={48} height={26} className="shrink-0" priority />
+      <Link href="/" className="flex items-center gap-2.5 px-3 py-2 mb-8">
+        <Image src="/logo.png" alt="Avtolider" width={1006} height={366} className="h-8 w-auto shrink-0" priority />
         <span className="font-extrabold text-base tracking-tight">Avtolider</span>
       </Link>
 

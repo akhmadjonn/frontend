@@ -49,13 +49,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex min-h-screen admin-bg">
         {/* Glass sidebar */}
         <aside className="hidden md:flex flex-col w-60 min-h-screen glass-sidebar px-3 py-5 shrink-0">
-          <div className="flex items-center gap-2.5 px-3 py-2 mb-8">
-            <Image src="/logo-full.svg" alt="Avtolider" width={40} height={22} className="shrink-0" />
+          <Link href="/" className="flex items-center gap-2.5 px-3 py-2 mb-8" aria-label="Avtolider — bosh sahifa">
+            <Image src="/logo.png" alt="Avtolider" width={1006} height={366} className="h-7 w-auto shrink-0" priority />
             <div className="flex items-center gap-2">
               <span className="font-bold text-base tracking-tight">{ts('admin.panelTitle')}</span>
               <span className="text-[9px] font-bold bg-[oklch(0.588_0.158_241)] text-white px-1.5 py-0.5 rounded-md uppercase">Admin</span>
             </div>
-          </div>
+          </Link>
           <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
             {ADMIN_NAV.map((item, i) => {
               if ('sectionKey' in item)

@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import PhoneInput from '@/components/auth/phone-input';
 // TODO: Telegram login will be used in future — uncomment when bot is configured
@@ -14,13 +16,71 @@ import { apiClient } from '@/lib/api-client';
 import { phoneSchema } from '@/lib/validators';
 import LanguageSwitcher from '@/components/layout/language-switcher';
 
+// Whitelist for ?redirect= to prevent open-redirect to external hosts.
+function safeRedirect(target: string | null): string {
+  if (!target) return '/dashboard';
+  if (target.startsWith('/') && !target.startsWith('//')) return target;
+  return '/dashboard';
+}
+
+// Next.js requires useSearchParams() consumers to be wrapped in <Suspense> so
+// the surrounding shell can be prerendered statically. The default export is
+// the boundary; LoginContent is the actual page.
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { ts } = useLocale();
   const login = useAuthStore((s) => s.login);
   const [phone, setPhone] = useState('998');
   const [loading, setLoading] = useState(false);
   const [phoneError, setPhoneError] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
+
+  const redirectTarget = safeRedirect(searchParams.get('redirect'));
+
+  // Skip the OTP form entirely if the user already has a valid token. We
+  // can't trust the localStorage flag alone (token may be expired), so probe
+  // /auth/me directly. Using raw fetch (not apiClient) because apiClient's
+  // 401-handler triggers a hard nav to /login that strips the redirect param.
+  useEffect(() => {
+    let cancelled = false;
+    const verify = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('avtolider:accessToken') : null;
+      if (!token) {
+        if (!cancelled) setAuthChecked(true);
+        return;
+      }
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5228/api/v1';
+        const res = await fetch(`${apiBase}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          apiClient.updateToken(token);
+          router.replace(redirectTarget);
+          return;
+        }
+        // Token rejected — drop the stale credentials and show the form.
+        localStorage.removeItem('avtolider:accessToken');
+        localStorage.removeItem('avtolider:refreshToken');
+        apiClient.updateToken(null);
+        setAuthChecked(true);
+      } catch {
+        if (!cancelled) setAuthChecked(true);
+      }
+    };
+    void verify();
+    return () => { cancelled = true; };
+  }, [redirectTarget, router]);
 
   // TODO: Telegram login will be used in future — uncomment when bot is configured
   // const botName = process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME ?? 'avtolider_test_bot';
@@ -33,6 +93,9 @@ export default function LoginPage() {
     try {
       await apiClient.post('/auth/otp/send', { phoneNumber: phone });
       sessionStorage.setItem('otp_phone', phone);
+      // Hand off the post-login destination to /verify so the user lands
+      // back where AuthGuard originally bounced them from.
+      sessionStorage.setItem('otp_redirect', redirectTarget);
       router.push('/verify');
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : ts('common.error'));
@@ -59,6 +122,10 @@ export default function LoginPage() {
   //   }
   // };
 
+  // Keep the page blank until we've confirmed there's no valid session — this
+  // prevents the OTP form from flashing for users who are already authed.
+  if (!authChecked) return null;
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-auth-gradient px-4 py-12 relative">
       {/* Language toggle — top right */}
@@ -67,13 +134,11 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-sm space-y-8 animate-fade-up">
-        {/* Logo + branding */}
-        <div className="flex flex-col items-center gap-4">
-          <img src="/logo-full.svg" alt="Avtolider" className="h-20 w-auto" />
-          <div className="text-center">
-            <h1 className="text-2xl font-extrabold tracking-tight">{ts('header.appName')}</h1>
-            <p className="text-sm text-muted-foreground mt-1.5">{ts('auth.subtitle')}</p>
-          </div>
+        {/* Logo — badge already contains the brand name, no separate wordmark needed */}
+        <div className="flex flex-col items-center">
+          <Link href="/" aria-label="Avtolider — bosh sahifa">
+            <Image src="/logo.png" alt="Avtolider" width={1006} height={366} className="h-32 w-auto" priority />
+          </Link>
         </div>
 
         {/* Login card */}

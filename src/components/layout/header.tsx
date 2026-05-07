@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
 import { useLocale } from '@/hooks/use-locale';
@@ -19,7 +21,9 @@ export default function Header() {
   const handleLogout = async () => {
     try { await apiClient.post('/auth/logout'); } catch { /* ignore */ }
     logout();
-    router.replace('/login');
+    // Land on the marketing landing instead of /login — feels less like
+    // an error state when the user just signed out intentionally.
+    router.replace('/');
   };
 
   const initials = user?.firstName
@@ -28,10 +32,10 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between shadow-[0_1px_0_0_var(--border)] bg-background/95 backdrop-blur-sm px-4 md:px-6">
-      <div className="flex items-center gap-2.5 md:hidden">
-        <img src="/logo-full.svg" alt="Avtolider" className="h-8 w-auto" />
+      <Link href="/" className="flex items-center gap-2.5 md:hidden" aria-label="Avtolider — bosh sahifa">
+        <Image src="/logo.png" alt="Avtolider" width={1006} height={366} className="h-10 w-auto" priority />
         <span className="font-extrabold text-lg tracking-tight">{ts('header.appName')}</span>
-      </div>
+      </Link>
       <div className="flex-1" />
 
       <div className="flex items-center gap-2.5">

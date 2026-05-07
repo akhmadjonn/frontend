@@ -1344,6 +1344,15 @@
     "phoneMockPassed": "Imtihon o'tildi!",
     "phoneMockCorrect": "18/20 to'g'ri",
     "phoneMockStreak": "Streak: 12 kun",
-    "phoneMockGreat": "Ajoyib natija!"
+    "phoneMockGreat": "Ajoyib natija!",
+    "goToDashboard": "Kabinetga o'tish",
+    "continueLearning": "Davom etish"
+  },
+  "contact": {
+    "helpTitle": "Yordam kerakmi?",
+    "callUs": "Bizga qo'ng'iroq qiling",
+    "telegramChannel": "Telegram kanal",
+    "openHelp": "Yordam — biz bilan bog'lanish",
+    "close": "Yopish"
   }
 }

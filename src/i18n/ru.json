@@ -1344,6 +1344,15 @@
     "phoneMockPassed": "Экзамен сдан!",
     "phoneMockCorrect": "18/20 правильно",
     "phoneMockStreak": "Серия: 12 дней",
-    "phoneMockGreat": "Отличный результат!"
+    "phoneMockGreat": "Отличный результат!",
+    "goToDashboard": "В кабинет",
+    "continueLearning": "Продолжить"
+  },
+  "contact": {
+    "helpTitle": "Нужна помощь?",
+    "callUs": "Позвонить нам",
+    "telegramChannel": "Telegram канал",
+    "openHelp": "Помощь — связаться с нами",
+    "close": "Закрыть"
   }
 }

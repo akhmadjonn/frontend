@@ -1344,6 +1344,15 @@
     "phoneMockPassed": "Имтиҳон ўтилди!",
     "phoneMockCorrect": "18/20 тўғри",
     "phoneMockStreak": "Стрик: 12 кун",
-    "phoneMockGreat": "Ажойиб натижа!"
+    "phoneMockGreat": "Ажойиб натижа!",
+    "goToDashboard": "Кабинетга ўтиш",
+    "continueLearning": "Давом этиш"
+  },
+  "contact": {
+    "helpTitle": "Ёрдам керакми?",
+    "callUs": "Бизга қўнғироқ қилинг",
+    "telegramChannel": "Телеграм канал",
+    "openHelp": "Ёрдам — биз билан боғланиш",
+    "close": "Ёпиш"
   }
 }

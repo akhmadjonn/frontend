@@ -13,6 +13,12 @@ const nextConfig: NextConfig = {
     const upstream = process.env.API_UPSTREAM || 'http://api:8080';
     return [{ source: '/api/v1/:path*', destination: `${upstream}/api/v1/:path*` }];
   },
+  // Legacy: landing used to live at /avtolider before being moved to /. Keep
+  // the redirect so old bookmarks, shared links, and indexed URLs still work.
+  redirects: async () => [
+    { source: '/avtolider', destination: '/', permanent: true },
+    { source: '/avtolider/:path*', destination: '/:path*', permanent: true },
+  ],
   headers: async () => [
     {
       source: '/(.*)',

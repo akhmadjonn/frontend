@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Check } from 'lucide-react';
+import AuthCtaLink from '@/components/auth/auth-cta-link';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5228/api/v1';
 
@@ -66,12 +67,11 @@ export default async function PricingPage() {
             <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-600 shrink-0" /> Progress ko&apos;rish</li>
           </ul>
           <div className="mt-6">
-            <Link
-              href="/login"
+            <AuthCtaLink
               className="inline-flex items-center justify-center rounded-lg border border-primary px-6 py-2.5 text-sm font-medium text-primary hover:bg-primary/5 transition-colors"
             >
               Boshlash
-            </Link>
+            </AuthCtaLink>
           </div>
         </div>
 
