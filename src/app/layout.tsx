@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   description: "O'zbekiston UBDD haydovchilik nazariy imtihoniga tayyorlanish platformasi",
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Avtolider' },
+  icons: {
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export const viewport: Viewport = {
